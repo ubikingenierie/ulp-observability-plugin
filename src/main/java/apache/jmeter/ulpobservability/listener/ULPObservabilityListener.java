@@ -1,9 +1,9 @@
-package ulbobservability;
+package apache.jmeter.ulpobservability.listener;
 
 import org.apache.jmeter.samplers.SampleEvent;
 import org.apache.jmeter.samplers.SampleListener;
 
-public class ULBObservabilityListener implements SampleListener {
+public class ULPObservabilityListener implements SampleListener {
 
 	public void sampleOccurred(SampleEvent sampleEvent) {
 		
