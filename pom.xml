@@ -2,8 +2,8 @@
   <modelVersion>4.0.0</modelVersion>
 
     <groupId>jmeter.plugins.ulbobservatory.sampler</groupId>
-    <artifactId>ULPobservatory</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>ULPObservatory</artifactId>
+    <version>1.0</version>
     <name>ULPobservatory Sampler as JMeter plugin</name>
 
   <properties>
@@ -12,34 +12,33 @@
   </properties>
 
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-  
-  <dependencies>
+   <plugins>
+     <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-compiler-plugin</artifactId>
+       <version>3.8.1</version>
+       <configuration>
+         <source>1.8</source>
+         <target>1.8</target>
+       </configuration>
+     </plugin>
+   </plugins>
+ </build>
 
-    <dependency>
-      <groupId>org.apache.jmeter</groupId>
-      <artifactId>ApacheJMeter_core</artifactId>
-      <version>2.11</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.jmeter</groupId>
-      <artifactId>jorphan</artifactId>
-      <version>2.11</version>
-    </dependency>
-
-  </dependencies>
+ <dependencies>
+   <dependency>
+     <groupId>org.apache.jmeter</groupId>
+     <artifactId>ApacheJMeter_core</artifactId>
+     <version>5.0</version>
+     <scope>provided</scope>
+   </dependency>
+   <dependency>
+     <groupId>org.slf4j</groupId>
+     <artifactId>slf4j-api</artifactId>
+     <version>1.7.26</version>
+     <scope>provided</scope>
+   </dependency>
+ </dependencies>
 
 
 </project>
