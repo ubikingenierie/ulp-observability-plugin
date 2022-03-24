@@ -56,8 +56,8 @@ public class ULPObservabilityGui extends AbstractListenerGui{
    /**
 	* pass the data from the sampler Listener to the Gui
 	*/
-	@Override
-	public void configure(TestElement testElement) {
+	 @Override
+	 public void configure(TestElement testElement) {
 		super.configure(testElement);
 		if (testElement instanceof ULPObservabilityListener) {
 			   ULPObservabilityListener ulpObservabilityListener = (ULPObservabilityListener) testElement;
@@ -96,6 +96,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		//ulpObservabilityListener.setCollectorConfigs(defaultCollectors());
 		return ulpObservabilityListener;
 		**/
+
 		return null;
 	}
 	
@@ -106,7 +107,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	* set the displayed name for the plugin on Jmeter 
 	*/
 	public String getLabelResource() {
-		
+
 		return ULPObservabilityConfig.PLUGIN_NAME;
 	}
 	
@@ -126,13 +127,14 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	 */
 	public void clearData() {
 		
-		
-		
+	}
+
+	public void modifyTestElement(TestElement testElement) {
+
+	
 	}
 	
 
 	
-	
-
 }
 
