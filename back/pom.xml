@@ -1,0 +1,124 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+    <groupId>jmeter.plugins.ulbobservatory.sampler</groupId>
+    <artifactId>ULPObservatory</artifactId>
+    <version>1.0</version>
+    <name>ULPobservatory Sampler as JMeter plugin</name>
+
+  <properties>
+      <maven.compiler.source>1.6</maven.compiler.source>
+      <maven.compiler.target>1.6</maven.compiler.target>
+  </properties>
+
+ <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+         <version>3.8.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <!-- Build a full jar with dependencies -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>ulbObservability</mainClass>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+ <dependencies>
+   <dependency>
+     <groupId>org.apache.jmeter</groupId>
+     <artifactId>ApacheJMeter_core</artifactId>
+     <version>5.0</version>
+     <scope>provided</scope>
+   </dependency>
+   <dependency>
+     <groupId>org.slf4j</groupId>
+     <artifactId>slf4j-api</artifactId>
+     <version>1.7.26</version>
+     <scope>provided</scope>
+   </dependency>
+   
+   <!-- https://mvnrepository.com/artifact/org.hdrhistogram/HdrHistogram -->
+<dependency>
+    <groupId>org.hdrhistogram</groupId>
+    <artifactId>HdrHistogram</artifactId>
+    <version>2.1.12</version>
+</dependency>
+
+
+<!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-server -->
+<dependency>
+    <groupId>org.eclipse.jetty</groupId>
+    <artifactId>jetty-server</artifactId>
+    <version>11.0.8</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-servlet -->
+<dependency>
+    <groupId>org.eclipse.jetty</groupId>
+    <artifactId>jetty-servlet</artifactId>
+    <version>11.0.8</version>
+</dependency>
+
+
+<!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-servlets -->
+<dependency>
+  <groupId>org.eclipse.jetty</groupId>
+  <artifactId>jetty-servlets</artifactId>
+  <version>11.0.8</version>
+</dependency>
+
+
+
+<dependency>
+  <groupId>io.prometheus</groupId>
+  <artifactId>simpleclient</artifactId>
+  <version>0.15.0</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient_hotspot -->
+<dependency>
+    <groupId>io.prometheus</groupId>
+    <artifactId>simpleclient_hotspot</artifactId>
+    <version>0.15.0</version>
+</dependency>
+
+
+<!-- https://mvnrepository.com/artifact/io.prometheus/simpleclient_servlet_jakarta -->
+<dependency>
+    <groupId>io.prometheus</groupId>
+    <artifactId>simpleclient_servlet_jakarta</artifactId>
+    <version>0.15.0</version>
+</dependency>
+
+
+   
+ </dependencies>
+
+
+
+</project>
