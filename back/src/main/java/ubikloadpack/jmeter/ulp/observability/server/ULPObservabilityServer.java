@@ -5,17 +5,11 @@ package ubikloadpack.jmeter.ulp.observability.server;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.Dispatcher;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.eclipse.jetty.servlet.FilterMapping;
 
-import java.util.EnumSet;
 import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.DispatcherType;
-import ubikloadpack.jmeter.ulp.observability.config.ULPObservabilityConfig;
+import ubikloadpack.jmeter.ulp.observability.config.ULPObservabilityDefaultConfig;
 
 public class ULPObservabilityServer {
 	
@@ -25,7 +19,7 @@ public class ULPObservabilityServer {
     
     
     public ULPObservabilityServer() {
-    	this.port = ULPObservabilityConfig.JETTY_SERVER_PORT;
+    	this.port = ULPObservabilityDefaultConfig.JETTY_SERVER_PORT;
     	this.initServer();
     }
     

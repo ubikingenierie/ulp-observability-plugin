@@ -10,4 +10,5 @@ public class Util {
 	    public static double getResponseTime(long endTime, long startTime) {
 	    	  return endTime-startTime;
 	    }
+	    
 }
