@@ -7,10 +7,29 @@ import { HttpClientModule } from '@angular/common/http';
 import { UlpObservabilityChartComponent } from './components/ulp-observability-chart/ulp-observability-chart.component';
 import { UlpObservabilityDashboardComponent } from './components/ulp-observability-dashboard/ulp-observability-dashboard.component';
 import { UlpObservabilityChartSamplesComponent } from './components/ulp-observability-chart-samples/ulp-observability-chart-samples.component';
-import { UlpObservabilityChartTotalComponent } from './components/ulp-observability-chart-total/ulp-observability-chart-total.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import {MatSelectModule} from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatCardModule } from '@angular/material/card';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { UlpObservabilityMetricsComponent } from './components/ulp-observability-metrics/ulp-observability-metrics.component';
+
+const materialModules = [
+  MatSelectModule,
+  MatIconModule,
+  MatToolbarModule,
+  MatDividerModule,
+  MatCardModule
+];
+
+@NgModule({
+  imports: [...materialModules],
+  exports: [...materialModules],
+})
+export class MaterialModule {};
 
 @NgModule({
   declarations: [
@@ -18,14 +37,15 @@ import {MatSelectModule} from '@angular/material/select';
     UlpObservabilityChartComponent,
     UlpObservabilityDashboardComponent,
     UlpObservabilityChartSamplesComponent,
-    UlpObservabilityChartTotalComponent
+    UlpObservabilityMetricsComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     NgChartsModule,
     BrowserAnimationsModule,
-    MatSelectModule
+    MaterialModule,
+    FlexLayoutModule
   ],
   providers: [],
   bootstrap: [AppComponent]

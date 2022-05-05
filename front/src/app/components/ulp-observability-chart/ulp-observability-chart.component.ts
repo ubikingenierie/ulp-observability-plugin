@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, QueryList, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { ChartType, ChartConfiguration } from 'chart.js';
 import 'chartjs-adapter-moment';
 import { BaseChartDirective } from 'ng2-charts';
@@ -34,7 +34,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
 
   chartOptions: ChartConfiguration['options'];
 
-  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+  @ViewChildren(BaseChartDirective) charts: QueryList<BaseChartDirective> | undefined;
       
   constructor() { }
 
@@ -92,8 +92,19 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
       }
     }
 
-    this.chart?.update();
+    this.updateCharts();
 
+  }
+
+  private updateCharts() : void {
+    if(this.charts != undefined){
+      this.charts.forEach((child) => {
+        if(child.chart != undefined){
+          child.chart.update()
+        }   
+      });
+    }
+    
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -110,7 +121,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
     var currentDate = new Date();
     this.labels[0] = new Date(this.labels[1].getTime()-seconds(this.updateFrequencyS*this.metricsBuffer));
     this.labels[1] = new Date(currentDate.getTime());
-    this.chart?.update();
+    this.updateCharts();
   }
 
   protected pushEmpty(){

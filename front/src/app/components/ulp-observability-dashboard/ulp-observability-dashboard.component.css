@@ -1,4 +1,24 @@
-#app-ulp-observability-chart{
-    width: 60%;
-    padding: 60px;
+.page {
+    top:0;
+    left:0;
+    right:0;
+    bottom: 0;
+    position: fixed;
+}
+.content{
+    margin-top: 80px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+mat-toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+}
+
+mat-icon {
+    padding-right: 12px;
 }

@@ -1,0 +1,11 @@
+.container {
+    display: flex;
+    gap: 5%;
+    justify-content: center;
+}
+
+.canvas{
+    display: block;
+    width: 43%;
+    text-align: center;
+}
