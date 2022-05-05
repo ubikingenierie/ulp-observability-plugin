@@ -23,10 +23,11 @@ public class ULPObservabilitySampleRegistry {
 	private final Integer pct2;
 	private final Integer pct3;
 	private final Integer pct_precision;
+	private final Boolean data_output_enabled;
 	
 	
 	public ULPObservabilitySampleRegistry(Integer pct1, Integer pct2,
-			Integer pct3, Integer pct_precision, String data_output) {
+			Integer pct3, Integer pct_precision, String data_output, Boolean data_output_enabled) {
 		this.ulpRegistry = new HashMap<>();
 		this.ulpData = new HashMap<>();
 		this.pct1 = pct1;
@@ -34,7 +35,8 @@ public class ULPObservabilitySampleRegistry {
 		this.pct3 = pct3;
 		this.pct_precision = pct_precision;
 		this.data_output = data_output;
-		this.total = new ULPObservabilitySample("total", pct1, pct2, pct3, pct_precision);
+		this.total = new ULPObservabilitySample("_total", pct1, pct2, pct3, pct_precision);
+		this.data_output_enabled = data_output_enabled;
 	}
 
 
@@ -49,9 +51,12 @@ public class ULPObservabilitySampleRegistry {
 							this.pct_precision
 							)
 					);
-			this.ulpData.put(sampleName,
-					new MetricsData(data_output+"\\"+sampleName)
-					);
+			if(data_output_enabled) {
+				this.ulpData.put(sampleName,
+						new MetricsData(data_output+"\\"+sampleName)
+						);
+			}
+			
 		}
 		return this.ulpRegistry.get(sampleName);
 	}
@@ -79,6 +84,10 @@ public class ULPObservabilitySampleRegistry {
 		return this.ulpRegistry.values();
 	}
 	
+	public ULPObservabilitySample getTotal() {
+		return this.total;
+	}
+	
 	public synchronized void clear() {
 		this.ulpRegistry.clear();
 		for(MetricsData metricsData : this.ulpData.values()) {
@@ -93,16 +102,19 @@ public class ULPObservabilitySampleRegistry {
 		sample.addResponse(current, sampleResult.getErrorCount() < 1);
 		this.total.addResponse(current, sampleResult.getErrorCount() < 1);
 		
-//		this.ulpData.get(sample.getSampleName()).write(
-//				sampleResult.getEndTime(), 
-//				current,
-//				sample.getTotalRequestCount(),
-//				sample.getErrorRequestCount(),
-//				sample.getMeanResponseTime(),
-//				sample.getMaxResponseTime(),
-//				sample.getPct1(),
-//				sample.getPct2(),
-//				sample.getPct3());
+		if(data_output_enabled) {
+
+			this.ulpData.get(sample.getSampleName()).write(
+					sampleResult.getEndTime(), 
+					current,
+					sample.getTotalRequestCount(),
+					sample.getErrorRequestCount(),
+					sample.getMeanResponseTime(),
+					sample.getMaxResponseTime(),
+					sample.getPct1(),
+					sample.getPct2(),
+					sample.getPct3());
+		}
 		
 		return sample;
 	}

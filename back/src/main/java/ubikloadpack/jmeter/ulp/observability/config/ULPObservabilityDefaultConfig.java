@@ -20,7 +20,7 @@ public class ULPObservabilityDefaultConfig {
 	   
 	   public static Integer LOG_FREQUENCY = 2;
 	   
-	   public static Boolean ENABLE_LOG = false;
+	   public static Boolean ENABLE_DATA_OUTPUT = false;
 	   
 
 }

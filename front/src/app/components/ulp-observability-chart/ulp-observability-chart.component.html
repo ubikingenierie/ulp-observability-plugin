@@ -1,12 +1,21 @@
 <div>
     <div style="display: block">
       <canvas baseChart
-              [datasets]="barChartData"
-              [labels]="barChartLabels"
-              [options]="lineChartOptions"
-              [legend]="barChartLegend"
-              [type] = "'line'"
+              [type] = "chartType"
+              [datasets]="datasetGroups[selectedSample]"
+              [labels]="labels"
+              [options]="chartOptions"
               >
       </canvas>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Sample list</mat-label>
+        <mat-select [(value)]="selectedSample">
+          <mat-option *ngFor="let sample of sampleList" [value]="sample">
+            {{sample}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
     </div>
   </div>

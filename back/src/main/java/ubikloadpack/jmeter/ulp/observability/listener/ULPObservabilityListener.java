@@ -42,6 +42,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	public static final String PCT_PRECISION = "ULPObservability.PctPrecision";
 	public static final String LOG_FREQUENCY = "ULPObservability.LogFrequency";
 	public static final String METRICS_DATA = "ULPObservability.MetricsData";
+	public static final String ENABLE_DATA_OUTPUT = "ULPObservability.EnableDataOutput";
 	
 	private static final Logger log = LoggerFactory.getLogger(ULPObservabilityListener.class);
 	
@@ -117,6 +118,14 @@ public class ULPObservabilityListener extends AbstractTestElement
     	return getPropertyAsString(METRICS_DATA, ULPObservabilityDefaultConfig.METRIC_DATA);
     }
     
+    public Boolean dataOutputEnabled() {
+    	return getPropertyAsBoolean(ENABLE_DATA_OUTPUT, ULPObservabilityDefaultConfig.ENABLE_DATA_OUTPUT);
+    }
+    
+    public void dataOutputEnabled(Boolean dataOutputEnabled) {
+    	setProperty(ENABLE_DATA_OUTPUT, dataOutputEnabled);
+    }
+    
     public ULPObservabilityListener(){
 	}
     
@@ -129,8 +138,9 @@ public class ULPObservabilityListener extends AbstractTestElement
     			getPct2(),
     			getPct3(),
     			getPctPrecision(),
-    			getMetricsData()
-    			);
+    			getMetricsData(),
+    			dataOutputEnabled()
+    	);
     	this.ulpObservabilityServer = new ULPObservabilityServer(getJettyPort());
  	    this.ulpObservabilityServlet = new ULPObservabilityServlet(sampleRegistry);
  	    this.ulpObservabilityServer.addServletWithMapping(ulpObservabilityServlet, "/"+getMetricsEndpoint());

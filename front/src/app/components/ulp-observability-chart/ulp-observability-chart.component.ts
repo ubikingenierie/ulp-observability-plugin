@@ -1,79 +1,130 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { ChartConfiguration } from 'chart.js';
-import { ChartLine } from 'src/app/models/ChartData';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { ChartType, ChartConfiguration } from 'chart.js';
+import 'chartjs-adapter-moment';
+import { BaseChartDirective } from 'ng2-charts';
+import { DatasetGroup } from 'src/app/model/dataset_group';
+import { MetricsRecord } from 'src/app/model/metrics_record';
+import { seconds } from 'src/app/utility/time';
 
 @Component({
   selector: 'app-ulp-observability-chart',
   templateUrl: './ulp-observability-chart.component.html',
   styleUrls: ['./ulp-observability-chart.component.css']
 })
-export class UlpObservabilityChartComponent implements OnInit, OnChanges {
+export class UlpObservabilityChartComponent implements OnChanges, OnInit {
+  
+  @Input() metricsData: MetricsRecord[] = [];
+  @Input() updateFrequencyS = 5;
+  @Input() metricsBuffer = 120;
+  @Input() stepSizeM = 1;
 
+  private currentDate: Date = new Date();
+
+  labels = [
+    new Date(this.currentDate.getTime()-seconds(this.metricsBuffer * this.updateFrequencyS)),
+    this.currentDate
+  ];
+
+  datasetGroups: DatasetGroup = {};
+
+  sampleList : Array<string> = [];
+  selectedSample = '';
+
+  chartType: ChartType = 'line';
+
+  chartOptions: ChartConfiguration['options'];
+
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
       
+  constructor() { }
 
-      @Input() barChartLabels: Array<String>;
-      @Input() barChartData : Array<any>;
+  ngOnInit(): void {
+    this.currentDate = new Date();
+    this.labels = [
+      new Date(this.currentDate.getTime()-seconds(this.metricsBuffer * this.updateFrequencyS)),
+      this.currentDate
+    ];
 
-      barChartOptions = {
-        scaleShowVerticalLines: false,
-        responsive: true
-      };
-
-      barChartType = "line";
-      barChartLegend = true;
-
-      public lineChartOptions: ChartConfiguration['options'] = {
-        elements: {
-          line: {
-            tension: 0.5
-          }
-        },
-        scales: {
-          // We use this empty structure as a placeholder for dynamic theming.
-          x: {},
-          'y-axis-0':
-            {
-              position: 'left',
-              max:'5000',
-              
-            },
-            
-          'y-axis-1': {
-            position: 'right',
+    this.chartOptions = {
+      responsive: true,
+      elements: {
+        point:{
+            radius: 1
+        }
+      },
+      plugins: {
+        legend: {
+          align: 'center'
+        }
+      },
+      scales: {
+        x: {
+            stacked: true,
+            type: 'time',
             grid: {
-              color: 'rgba(255,0,0,0.3)',
+              display: true,
+              color: 'lightgrey',
+              tickColor: 'grey'
             },
             ticks: {
-              color: 'red'
-            }
-          }
-        },
-    
-        
-      };
-      
-
-      constructor() { }
-
-      
-
-
-      ngOnInit(): void {
-           console.log(this.barChartLabels)
-      }
-
-      ngOnChanges(changes: SimpleChanges): void {
-    
-            console.log('changed in metrics');
-        
-            if(changes['barChartData']){
-                  console.log(changes['barChartData'].currentValue)
-                  this.barChartData = changes['barChartData'].currentValue;
-            }
-            else if(changes['barChartLabels']){
-                this.barChartData = changes['barChartLabels'].currentValue;     
+              display: true,
+              major: {
+                enabled: true,
               }
-         
-   }
+            },
+            //afterBuildTicks:
+            time: {
+              unit: 'minute',
+              stepSize: this.stepSizeM,
+              displayFormats: {
+                minute: 'HH:mm'
+              },
+            },
+        },
+        y: {
+          min: 0,
+          suggestedMax: 100,
+          position: 'left',
+          ticks: {
+            stepSize: 10
+        }
+        },
+      }
+    }
+
+    this.chart?.update();
+
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if(this.metricsData.length > 0){
+      this.pushNew(this.metricsData);
+    }
+    else{
+      this.pushEmpty();
+    }
+    this.updateX();
+  }
+
+  protected updateX(){
+    var currentDate = new Date();
+    this.labels[0] = new Date(this.labels[1].getTime()-seconds(this.updateFrequencyS*this.metricsBuffer));
+    this.labels[1] = new Date(currentDate.getTime());
+    this.chart?.update();
+  }
+
+  protected pushEmpty(){
+    Object.keys(this.datasetGroups).forEach((groupName)=>{
+      this.datasetGroups[groupName].forEach((dataset) => {
+        dataset.data.push({});
+        dataset.data.shift();
+      });
+    });  
+    
+  }
+
+  protected pushNew(records: Array<MetricsRecord>): void {
+    this.pushEmpty();
+  }
 
 }

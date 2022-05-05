@@ -15,6 +15,7 @@ public class ULPObservabilitySample {
 	private Long nbrErrorsCounter;
 	private Date timeStamp;
 	private Histogram responseTimeMetrics;
+	double currentResponse;
 
 	
 	
@@ -71,6 +72,10 @@ public class ULPObservabilitySample {
 		return this.responseTimeMetrics.getValueAtPercentile(this.pct3);
 	}
 	
+	public synchronized double getCurrentResponse() {
+		return this.currentResponse;
+	}
+	
 	public synchronized long getErrorRequestCount() {
 		return nbrErrorsCounter;
 	}
@@ -82,6 +87,7 @@ public class ULPObservabilitySample {
 	public synchronized void addResponse(double responseTime, boolean isSuccessful) {
 
 		this.responseTimeMetrics.recordValue((long) responseTime);
+		this.currentResponse = responseTime;
 		
 		if(!isSuccessful) {
 			this.nbrErrorsCounter += 1;
@@ -119,6 +125,7 @@ public class ULPObservabilitySample {
 				.append(this.sampleName+"_requests_throughput "+ this.getThroughput() +" "+last+"\n")
 				.append("# HELP "+this.sampleName+"_latency_metrics The latency time metrics\n")
 				.append("# TYPE "+this.sampleName+"_latency_metrics summary\n")
+				.append(this.sampleName+"_latency_metrics{metrics=\"current\"} "+this.getCurrentResponse() +" "+last+"\n")
 				.append(this.sampleName+"_latency_metrics{metrics=\"avg\"} "+this.getMeanResponseTime() +" "+last+"\n")
 				.append(this.sampleName+"_latency_metrics{metrics=\"max\"} "+this.getMaxResponseTime() +" "+last+"\n")
 				.append(this.sampleName+"_latency_metrics{metrics=\"pc"+this.pct1+"\"} "+this.getPct1() +" "+last+"\n")

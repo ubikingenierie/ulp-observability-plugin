@@ -33,6 +33,7 @@ public class ULPObservabilityServlet extends HttpServlet {
 			  for(ULPObservabilitySample sample : sampleRegistry.getSamples(getFilter(req))) {
 				  writer.write(sample.toString()+"\n");
 			  }
+			  writer.write(sampleRegistry.getTotal().toString());
 			  writer.flush();
 		  }
 	  }

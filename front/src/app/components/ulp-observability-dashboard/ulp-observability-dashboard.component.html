@@ -1,11 +1,9 @@
-<section id="ulp-observability-chart">
-    
-    <app-ulp-observability-chart 
-     *ngIf="chartData != undefined"
-     [barChartLabels]="chartData.barChartLabels"
-     [barChartData]="chartData.barChartData" 
-      >
-
-    </app-ulp-observability-chart>
+<section id="app-ulp-observability-chart">
+    <app-ulp-observability-chart-samples
+    [metricsData]="metricsData"
+    [updateFrequencyS]="updateFrequencyS"
+    [metricsBuffer]="metricsBuffer"
+    [stepSizeM]="stepSizeM">
+    </app-ulp-observability-chart-samples>
 </section>
 
