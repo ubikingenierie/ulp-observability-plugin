@@ -1,7 +1,6 @@
 {
-    "/metrics": {
-      "target": "http://localhost:9090",
-      "secure": false,
-      "logLevel": "debug"
-    }
+  "/ulp-o-metrics/*": {
+    "target": "http://localhost:9090",
+    "secure": false
   }
+}

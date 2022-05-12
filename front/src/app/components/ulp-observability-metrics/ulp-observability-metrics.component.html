@@ -1,17 +1,16 @@
 <div class="content">
     <div fxLayout="row wrap" fxLayoutGap="16px grid">
-        <div fxFlex="20%" *ngFor="let card of cards">
+        <div fxFlex="25%" *ngFor="let key of cardLabels">
             <mat-card>
                 <mat-card-title-group>
                     <mat-card-title>
-                        <mat-icon>{{card.icon}}</mat-icon>
-                        <div>{{card.label}}</div>
+                        <mat-icon>{{cards[selectedSample][key].icon}}</mat-icon>
+                        <div>{{cards[selectedSample][key].label}}</div>
                     </mat-card-title>  
                 </mat-card-title-group>
                 
                 <mat-card-content>
-                    <h1>{{card.data.comment}} {{card.data.value}} {{card.data.unit}}</h1>
-              
+                    <h1>{{cards[selectedSample][key].data.comment}} {{cards[selectedSample][key].data.value != undefined ? cards[selectedSample][key].data.value : 0}} {{cards[selectedSample][key].data.unit}}</h1>
                 </mat-card-content>
             </mat-card>
         </div>

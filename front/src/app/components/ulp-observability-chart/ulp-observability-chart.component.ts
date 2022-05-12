@@ -1,10 +1,11 @@
-import { Component, Input, OnChanges, OnInit, QueryList, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, QueryList, SimpleChanges, ViewChildren } from '@angular/core';
 import { ChartType, ChartConfiguration } from 'chart.js';
 import 'chartjs-adapter-moment';
 import { BaseChartDirective } from 'ng2-charts';
 import { DatasetGroup } from 'src/app/model/dataset_group';
 import { MetricsRecord } from 'src/app/model/metrics_record';
 import { seconds } from 'src/app/utility/time';
+
 
 @Component({
   selector: 'app-ulp-observability-chart',
@@ -17,6 +18,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
   @Input() updateFrequencyS = 5;
   @Input() metricsBuffer = 120;
   @Input() stepSizeM = 1;
+  @Input() selectedSample : string = '';
 
   private currentDate: Date = new Date();
 
@@ -28,7 +30,6 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
   datasetGroups: DatasetGroup = {};
 
   sampleList : Array<string> = [];
-  selectedSample = '';
 
   chartType: ChartType = 'line';
 
@@ -72,7 +73,6 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
                 enabled: true,
               }
             },
-            //afterBuildTicks:
             time: {
               unit: 'minute',
               stepSize: this.stepSizeM,
@@ -109,10 +109,10 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
 
   ngOnChanges(changes: SimpleChanges): void {
     if(this.metricsData.length > 0){
-      this.pushNew(this.metricsData);
+      this.newRecord();
     }
     else{
-      this.pushEmpty();
+      this.emptyRecord();
     }
     this.updateX();
   }
@@ -124,7 +124,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
     this.updateCharts();
   }
 
-  protected pushEmpty(){
+  protected emptyRecord(){
     Object.keys(this.datasetGroups).forEach((groupName)=>{
       this.datasetGroups[groupName].forEach((dataset) => {
         dataset.data.push({});
@@ -134,8 +134,8 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
     
   }
 
-  protected pushNew(records: Array<MetricsRecord>): void {
-    this.pushEmpty();
+  protected newRecord(): void {
+    this.emptyRecord();
   }
 
 }

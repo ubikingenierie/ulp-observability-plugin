@@ -22,8 +22,8 @@ export class UlpObservabilityChartSamplesComponent extends UlpObservabilityChart
     super.ngOnChanges(changes);
   }
   
-  protected override pushNew(records: Array<MetricsRecord>): void {
-    records.forEach((record) => {
+  protected override newRecord(): void {
+    this.metricsData.forEach((record) => {
       
       if(this.datasetGroups[record.name] == undefined){
         this.datasetGroups[record.name] = [];      

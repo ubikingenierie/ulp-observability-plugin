@@ -4,6 +4,7 @@ import { MetricsService } from 'src/app/services/metrics/metrics.service';
 import { getMetricsData } from 'src/app/utility/metrics-parser';
 import { seconds } from 'src/app/utility/time';
 import parsePrometheusTextFormat from 'parse-prometheus-text-format';
+import { ULPObservabilityMetrics } from 'src/app/model/ulpobservability_metrics';
 
 @Component({
   selector: 'app-ulp-observability-dashboard',
@@ -12,8 +13,15 @@ import parsePrometheusTextFormat from 'parse-prometheus-text-format';
 })
 export class UlpObservabilityDashboardComponent implements OnInit{
 
-  metricsData: MetricsRecord[] = [];
-  updateFrequencyS = 5;
+  metricsData: ULPObservabilityMetrics = {
+    sampleNames : new Set<string>(),
+    request: [],
+    response: []
+  };
+
+  sampleList = [];
+
+  updateFrequencyS = 10;
   metricsBuffer = 60;
   stepSizeM = 1;
 
@@ -23,10 +31,11 @@ export class UlpObservabilityDashboardComponent implements OnInit{
     setInterval(()=>{
       this.metricService.getMetrics().subscribe({
         next: (metricsText) => {
-          this.metricsData = getMetricsData(parsePrometheusTextFormat(metricsText));
+          var data = parsePrometheusTextFormat(metricsText);
+          this.metricsData = getMetricsData(data);
          },
         error: () => {
-          this.metricsData = [];
+          this.metricsData.response = [];
         }
       });
    }, seconds(this.updateFrequencyS))

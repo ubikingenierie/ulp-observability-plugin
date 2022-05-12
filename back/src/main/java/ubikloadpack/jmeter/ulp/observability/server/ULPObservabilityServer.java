@@ -11,15 +11,25 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import jakarta.servlet.http.HttpServlet;
 import ubikloadpack.jmeter.ulp.observability.config.ULPObservabilityDefaultConfig;
 
+/**
+ * ULP Observability Jetty server with custom servlet (see {@link ubikloadpack.jmeter.ulp.observability.server.ULPObservabilityServlet})
+ * 
+ * @author Valentin ZELIONII
+ *
+ */
 public class ULPObservabilityServer {
 	
     private Server server;
     private ServletContextHandler contextHandler;
+    
+    /**
+     * Port used by Jetty server
+     */
     private Integer port;
     
     
     public ULPObservabilityServer() {
-    	this.port = ULPObservabilityDefaultConfig.JETTY_SERVER_PORT;
+    	this.port = ULPObservabilityDefaultConfig.jettyServerPort();
     	this.initServer();
     }
     
@@ -45,6 +55,12 @@ public class ULPObservabilityServer {
     }
     
     
+    /**
+     * Set servlet routing map
+     * 
+     * @param servlet HttpServlet to route
+     * @param routeName Route path
+     */
     public void addServletWithMapping(HttpServlet servlet, String routeName) {
     	
     	   this.contextHandler.addServlet(new ServletHolder(servlet), routeName);
@@ -52,6 +68,11 @@ public class ULPObservabilityServer {
     }
     
     
+    /**
+     * Start Jetty server if not already started
+     *
+     * @throws Exception
+     */
     public void start() throws Exception {
     	
     	if(!this.server.isStarted()) {

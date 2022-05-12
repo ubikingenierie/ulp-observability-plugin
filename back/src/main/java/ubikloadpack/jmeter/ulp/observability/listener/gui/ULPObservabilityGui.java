@@ -5,8 +5,9 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.LinkedHashMap;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -38,11 +39,13 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	
 	private final JTextField jettyPort = new JTextField();
 	private final JTextField metricsEndpoint = new JTextField();
-	private final JTextField percentiles1 = new JTextField();
-	private final JTextField percentiles2 = new JTextField();
-	private final JTextField percentiles3 = new JTextField();
-	private final JTextField precision = new JTextField();
+	private final JTextField pct1 = new JTextField();
+	private final JTextField pct2 = new JTextField();
+	private final JTextField pct3 = new JTextField();
+	private final JTextField pctPrecision = new JTextField();
 	private final JTextField logFrequency = new JTextField();
+	private final JTextField threadSize = new JTextField();
+	private final JTextField bufferCapacity = new JTextField();
 	private final JLabel metricsData = new JLabel();
 	private final JButton setMetricsDataBtn = new JButton("Open"); 
 	private final JCheckBox enableDataOutput = new JCheckBox();
@@ -73,77 +76,91 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	super.setLayout(new BorderLayout());
 	    super.setBorder(makeBorder());
 	    super.add(makeTitlePanel(), BorderLayout.NORTH);
-	    add(createSamplerListenerPanel(), BorderLayout.CENTER);
+	    super.add(createSamplerConfigPanel(),BorderLayout.CENTER);
     }
+   
     
     
-    private JPanel createSamplerListenerPanel() {
-    	JPanel ulpObservabilityPanel = new JPanel();
+    private JPanel createSamplerConfigPanel() {
+    	JPanel ulpObservabilityConfigPanel = new JPanel();
     	
-    	ulpObservabilityPanel.setBorder(BorderFactory.createTitledBorder("Config"));
-    	GroupLayout layout = new GroupLayout(ulpObservabilityPanel);
-    	ulpObservabilityPanel.setLayout(layout);
+    	ulpObservabilityConfigPanel.setBorder(BorderFactory.createTitledBorder("Config"));
+    	GroupLayout layout = new GroupLayout(ulpObservabilityConfigPanel);
+    	ulpObservabilityConfigPanel.setLayout(layout);
     	
-    	LinkedHashMap<JLabel, Component> layoutMap = new LinkedHashMap<>();
-    	layoutMap.put(new JLabel("Jetty Server port"), this.jettyPort);
-    	layoutMap.put(new JLabel("Jetty Metrics endpoint"), this.metricsEndpoint);
+    	ArrayList<ArrayList<Component>> componentGroups = new ArrayList<>();
     	
-    	layoutMap.put(new JLabel("Percentiles 1"), this.percentiles1);
-    	layoutMap.put(new JLabel("Percentiles 2"), this.percentiles2);
-    	layoutMap.put(new JLabel("Percentiles 3"), this.percentiles3);
-    	layoutMap.put(new JLabel("Percentiles precision"), this.precision);
     	
-    	layoutMap.put(new JLabel("Log Frequency in seconds (0 = off)"), this.logFrequency);
-    	
-    	layoutMap.put(new JLabel("Enable Sample data output"), this.enableDataOutput);
+    	componentGroups.add(
+    			new ArrayList<Component>(Arrays.asList(new JLabel("Jetty Server port"), this.jettyPort))
+    			);
+    	componentGroups.add(
+    			new ArrayList<Component>(Arrays.asList(new JLabel("Jetty Metrics endpoint"), this.metricsEndpoint))
+    			);
+    	componentGroups.add(
+    			new ArrayList<Component>(Arrays.asList(new JLabel("Number of Processing Threads"), this.threadSize))
+    			);
+    	componentGroups.add(
+    			new ArrayList<Component>(Arrays.asList(new JLabel("Sample Queue Buffer Capacity"), this.bufferCapacity))
+    			);
+    	componentGroups.add(
+    			new ArrayList<Component>(Arrays.asList(new JLabel("Percentiles 1"), this.pct1))
+    			);
+    	componentGroups.add(
+    			new ArrayList<Component>(Arrays.asList(new JLabel("Percentiles 2"), this.pct2))
+    			);
+    	componentGroups.add(
+    			new ArrayList<Component>(Arrays.asList(new JLabel("Percentiles 3"), this.pct3))
+    			);
+    	componentGroups.add(
+    			new ArrayList<Component>(Arrays.asList(new JLabel("Percentiles precision"), this.pctPrecision))
+    			);
+    	componentGroups.add(
+    			new ArrayList<Component>(Arrays.asList(new JLabel("Log Frequency in seconds"), this.logFrequency))
+    			);
+    	componentGroups.add(
+    			new ArrayList<Component>(Arrays.asList(new JLabel("Enable Sample data output"), this.enableDataOutput))
+    			);
+    	componentGroups.add(
+    			new ArrayList<Component>(Arrays.asList(new JLabel("Sample data output directory"), this.metricsData))
+    			);
+    	componentGroups.add(
+    			new ArrayList<Component>(Arrays.asList(this.setMetricsDataBtn))
+    			);
+
  
     	ParallelGroup parallelGroup = layout.createParallelGroup(Alignment.LEADING);
     	SequentialGroup sequentialGroup = layout.createSequentialGroup();
     	
-    	for(Entry<JLabel,Component> layoutComponent : layoutMap.entrySet()) {
-    		parallelGroup = addParallelGroup(layout, parallelGroup, layoutComponent.getKey(), layoutComponent.getValue());
-    		sequentialGroup = addSequentialgroup(layout, sequentialGroup, layoutComponent.getKey(), layoutComponent.getValue());
+    	for(List<Component> componentGroup : componentGroups) {
+    		parallelGroup = addParallelGroup(layout, parallelGroup, componentGroup);
+    		sequentialGroup = addSequentialgroup(layout, sequentialGroup, componentGroup);
     	}
-    	
-    	JLabel dataOutputLabel = new JLabel("Sample data output directory");
-    	
-    	parallelGroup = parallelGroup
-    			.addGroup(layout.createSequentialGroup()
-	    			.addComponent(dataOutputLabel)
-	                .addPreferredGap(ComponentPlacement.RELATED)
-	                .addComponent(this.metricsData))
-    			.addGroup(layout.createSequentialGroup()
-    	    			.addComponent(this.setMetricsDataBtn));
-    	
-    	sequentialGroup = sequentialGroup
-    			.addGroup(layout.createParallelGroup(Alignment.LEADING)
-    					.addComponent(dataOutputLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,GroupLayout.PREFERRED_SIZE)
-    					.addComponent(this.metricsData, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,GroupLayout.PREFERRED_SIZE))
-    			.addGroup(layout.createParallelGroup(Alignment.LEADING)
-    					.addComponent(this.setMetricsDataBtn, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,GroupLayout.PREFERRED_SIZE));
+    
     	
     	layout.setHorizontalGroup(parallelGroup);
     	layout.setVerticalGroup(sequentialGroup);;
     	
     	
-    	return ulpObservabilityPanel;
+    	return ulpObservabilityConfigPanel;
     }
     
     
-    
-    private ParallelGroup addParallelGroup(GroupLayout layout, ParallelGroup parallelGroup, JLabel label, Component component) {
-    	return parallelGroup.addGroup(layout.createSequentialGroup()
-    			.addComponent(label)
-                .addPreferredGap(ComponentPlacement.RELATED)
-                .addComponent(component)
-                );
+    private ParallelGroup addParallelGroup(GroupLayout layout, ParallelGroup parallelGroup, List<Component> components) {
+    	SequentialGroup newGroup = layout.createSequentialGroup();
+    	for(Component c : components) {
+    		newGroup = newGroup.addComponent(c).addPreferredGap(ComponentPlacement.RELATED);
+    	
+    	}
+    	return parallelGroup.addGroup(newGroup);
     }
     
-    private SequentialGroup addSequentialgroup(GroupLayout layout, SequentialGroup sequentialGroup, JLabel label, Component component) {
-    	return sequentialGroup.addGroup(layout.createParallelGroup(Alignment.LEADING)
-    			.addComponent(label, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,GroupLayout.PREFERRED_SIZE)
-	            .addComponent(component, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,GroupLayout.PREFERRED_SIZE)
-	            );
+    private SequentialGroup addSequentialgroup(GroupLayout layout, SequentialGroup sequentialGroup, List<Component> components) {
+    	ParallelGroup newGroup = layout.createParallelGroup(Alignment.LEADING);
+    	for(Component c : components) {
+    		newGroup = newGroup.addComponent(c, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,GroupLayout.PREFERRED_SIZE);
+    	}
+    	return sequentialGroup.addGroup(newGroup);
     }
 
     
@@ -172,9 +189,14 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		super.configureTestElement(element);
 		if(element instanceof ULPObservabilityListener) {
 			ULPObservabilityListener sampler = (ULPObservabilityListener) element;
-			sampler.setMetricsEndpoint(this.metricsEndpoint.getText());
 			sampler.setMetricsData(this.metricsData.getText());
 			sampler.dataOutputEnabled(this.enableDataOutput.isSelected());
+			
+			if(!this.metricsEndpoint.getText().startsWith("/")) {
+				log.error("Jetty Metrics endpoint must start with '/'");
+			} else {
+				sampler.setMetricsEndpoint(this.metricsEndpoint.getText());
+			}
 			
 			try {
 				sampler.setJettyPort(Integer.parseInt(this.jettyPort.getText()));
@@ -183,25 +205,37 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		    }
 			
 			try {
-				sampler.setPct1(Integer.parseInt(this.percentiles1.getText()));
+				sampler.setThreadSize(Integer.parseInt(this.threadSize.getText()));
+			} catch (NumberFormatException e) {
+		        log.error("Thread size must be a number", e);
+		    }
+			
+			try {
+				sampler.setBufferCapacity(Integer.parseInt(this.bufferCapacity.getText()));
+			} catch (NumberFormatException e) {
+		        log.error("Buffer capacity must be a number", e);
+		    }
+			
+			try {
+				sampler.setPct1(Integer.parseInt(this.pct1.getText()));
 			} catch (NumberFormatException e) {
 		        log.error("Percentiles 1 must be a number", e);
 		    }
 			
 			try {
-				sampler.setPct2(Integer.parseInt(this.percentiles2.getText()));
+				sampler.setPct2(Integer.parseInt(this.pct2.getText()));
 			} catch (NumberFormatException e) {
 		        log.error("Percentiles 2 must be a number", e);
 		    }
 			
 			try {
-				sampler.setPct3(Integer.parseInt(this.percentiles3.getText()));
+				sampler.setPct3(Integer.parseInt(this.pct3.getText()));
 			} catch (NumberFormatException e) {
 		        log.error("Percentiles 3 must be a number", e);
 		    }
 			
 			try {
-				sampler.setPctPrecision(Integer.parseInt(this.precision.getText()));
+				sampler.setPctPrecision(Integer.parseInt(this.pctPrecision.getText()));
 			} catch (NumberFormatException e) {
 		        log.error("Percentiles Precision must be a number", e);
 		    }
@@ -225,10 +259,12 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			ULPObservabilityListener ulpObservabilityListener = (ULPObservabilityListener) testElement;
 			this.jettyPort.setText(Integer.toString(ulpObservabilityListener.getJettyPort()));
 			this.metricsEndpoint.setText(ulpObservabilityListener.getMetricsEndpoint());
-			this.percentiles1.setText(Integer.toString(ulpObservabilityListener.getPct1()));
-			this.percentiles2.setText(Integer.toString(ulpObservabilityListener.getPct2()));
-			this.percentiles3.setText(Integer.toString(ulpObservabilityListener.getPct3()));
-			this.precision.setText(Integer.toString(ulpObservabilityListener.getPctPrecision()));
+			this.threadSize.setText(Integer.toString(ulpObservabilityListener.getThreadSize()));
+			this.bufferCapacity.setText(Integer.toString(ulpObservabilityListener.getBufferCapacity()));
+			this.pct1.setText(Integer.toString(ulpObservabilityListener.getPct1()));
+			this.pct2.setText(Integer.toString(ulpObservabilityListener.getPct2()));
+			this.pct3.setText(Integer.toString(ulpObservabilityListener.getPct3()));
+			this.pctPrecision.setText(Integer.toString(ulpObservabilityListener.getPctPrecision()));
 			this.logFrequency.setText(Integer.toString(ulpObservabilityListener.getLogFreq()));
 			this.enableDataOutput.setSelected(ulpObservabilityListener.dataOutputEnabled());
 			this.metricsData.setText(new java.io.File(ulpObservabilityListener.getMetricsData()).getAbsolutePath());
@@ -241,15 +277,17 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     @Override
     public void clearGui() {
 		super.clearGui();
-		this.jettyPort.setText(Integer.toString(ULPObservabilityDefaultConfig.JETTY_SERVER_PORT));
-		this.metricsEndpoint.setText(ULPObservabilityDefaultConfig.METRICS_ENDPOINT_NAME);
-		this.percentiles1.setText(Integer.toString(ULPObservabilityDefaultConfig.PCT1));
-		this.percentiles2.setText(Integer.toString(ULPObservabilityDefaultConfig.PCT2));
-		this.percentiles3.setText(Integer.toString(ULPObservabilityDefaultConfig.PCT3));
-		this.precision.setText(Integer.toString(ULPObservabilityDefaultConfig.NBR_SIGNIFICANT_DIGITS));
-		this.logFrequency.setText(Integer.toString(ULPObservabilityDefaultConfig.LOG_FREQUENCY));
-		this.metricsData.setText(new java.io.File(ULPObservabilityDefaultConfig.METRIC_DATA).getAbsolutePath());
-		this.enableDataOutput.setSelected(ULPObservabilityDefaultConfig.ENABLE_DATA_OUTPUT);
+		this.jettyPort.setText(Integer.toString(ULPObservabilityDefaultConfig.jettyServerPort()));
+		this.metricsEndpoint.setText(ULPObservabilityDefaultConfig.jettyMetricsEndpoint());
+		this.threadSize.setText(Integer.toString(ULPObservabilityDefaultConfig.threadSize()));
+		this.bufferCapacity.setText(Integer.toString(ULPObservabilityDefaultConfig.bufferCapacity()));
+		this.pct1.setText(Integer.toString(ULPObservabilityDefaultConfig.pct1()));
+		this.pct2.setText(Integer.toString(ULPObservabilityDefaultConfig.pct2()));
+		this.pct3.setText(Integer.toString(ULPObservabilityDefaultConfig.pct3()));
+		this.pctPrecision.setText(Integer.toString(ULPObservabilityDefaultConfig.pctPrecision()));
+		this.logFrequency.setText(Integer.toString(ULPObservabilityDefaultConfig.logFrequecny()));
+		this.metricsData.setText(new java.io.File(ULPObservabilityDefaultConfig.metricsData()).getAbsolutePath());
+		this.enableDataOutput.setSelected(ULPObservabilityDefaultConfig.enableDataOutput());
 	}
 
 	

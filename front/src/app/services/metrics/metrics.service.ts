@@ -15,7 +15,7 @@ export class MetricsService {
 
   getMetrics(): Observable<String>{
          
-         return this.http.get<String>(`/metrics`,{ headers: this.headers, responseType: 'text' as 'json'});
+         return this.http.get<String>('/ulp-o-metrics',{ headers: this.headers, responseType: 'text' as 'json'});
   }
 
 

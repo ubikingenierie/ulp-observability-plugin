@@ -7,7 +7,7 @@
 
     <div class="content">
         <app-ulp-observability-chart-samples
-        [metricsData]="metricsData"
+        [metricsData]="metricsData.response"
         [updateFrequencyS]="updateFrequencyS"
         [metricsBuffer]="metricsBuffer"
         [stepSizeM]="stepSizeM">
@@ -16,7 +16,8 @@
         <br>
         <mat-divider></mat-divider>
         
-        <app-ulp-observability-metrics>
+        <app-ulp-observability-metrics
+        [metricsData]="metricsData">
         </app-ulp-observability-metrics>
     </div>
 </div>

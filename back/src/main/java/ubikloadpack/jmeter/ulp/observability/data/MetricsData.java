@@ -12,14 +12,37 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+/**
+ * Enables sample logs I/O to local file
+ * 
+ * @author Valentin ZELIONII
+ *
+ */
 public class MetricsData {
 	
+	/**
+	 * Log writer
+	 */
 	private BufferedWriter bw;
+	
+	/**
+	 * Log reader
+	 */
 	private BufferedReader br;
+	
+	/**
+	 * Represents the open/closed state of I/O 
+	 */
 	private boolean isOpen = false;
 	
 	private static final Logger log = LoggerFactory.getLogger(MetricsData.class);
 	
+	/**
+	 * Create new I/O 
+	 * 
+	 * @param path
+	 */
 	public MetricsData(String path) {
 		File dataFile = new File(path);
 		String dataName = dataFile.getName();
@@ -84,7 +107,6 @@ public class MetricsData {
 			try {
 				this.bw.newLine();
 				this.bw.write(data.toString());
-				this.bw.flush();
 			} catch (IOException e) {
 				log.error(e.getMessage());
 			}
@@ -96,7 +118,6 @@ public class MetricsData {
 		if(this.isOpen) {
 			if(this.bw != null) {	
 				try {
-					this.bw.flush();
 					this.bw.close();
 				} catch (IOException e) { }
 			}
@@ -110,13 +131,6 @@ public class MetricsData {
 			this.isOpen = false;
 		}
 	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		this.close();
-		super.finalize();
-	}
-
 	
 
 }
