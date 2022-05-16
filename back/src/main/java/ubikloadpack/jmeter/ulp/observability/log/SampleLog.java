@@ -141,8 +141,10 @@ public class SampleLog {
 	public String toOpenMetricsString() {
 		
 		StringBuilder str = new StringBuilder()
+				.append("# TYPE "+this.sampleName+" summary\n")
+				.append("# UNIT "+this.sampleName+" milliseconds\n")
 				.append("# HELP "+this.sampleName+" Response metrics\n")
-				.append("# TYPE "+this.sampleName+" summary\n");
+				;
 		
 		for(ValueAtPercentile pc : this.pct) {
 			str.append(this.sampleName+"{quantile=\""+(long)(pc.percentile()*100)+"\"} "+ (long)pc.value() +"\n");
@@ -150,23 +152,24 @@ public class SampleLog {
 		
 		str
 			.append(this.sampleName+"_count " + this.total +"\n")
-			.append(this.sampleName+"_created " + this.timeStamp.getTime() +"\n")
 			
-			.append("# HELP "+this.sampleName+"_success Success count\n")
 			.append("# TYPE "+this.sampleName+"_success gauge\n")
+			.append("# HELP "+this.sampleName+"_success Success count\n")
 			.append(this.sampleName+"_success "+ this.success +"\n")	
 			
-			.append("# HELP "+this.sampleName+"_error Error count\n")
 			.append("# TYPE "+this.sampleName+"_error gauge\n")
+			.append("# HELP "+this.sampleName+"_error Error count\n")
 			.append(this.sampleName+"_error "+ this.error +"\n")	
 			
-			.append("# HELP "+this.sampleName+"_avg Average response time\n")
 			.append("# TYPE "+this.sampleName+"_avg gauge\n")
+			.append("# UNIT "+this.sampleName+"_avg milliseconds\n")
+			.append("# HELP "+this.sampleName+"_avg Average response time\n")
 			.append(this.sampleName+"_avg "+ this.avg +"\n")	
 			
-			.append("# HELP "+this.sampleName+"_max Max response time\n")
 			.append("# TYPE "+this.sampleName+"_max gauge\n")
-			.append(this.sampleName+"_error "+ this.max +"\n")	
+			.append("# UNIT "+this.sampleName+"_max milliseconds\n")
+			.append("# HELP "+this.sampleName+"_max Max response time\n")
+			.append(this.sampleName+"_max "+ this.max +"\n")	
 			
 			.append("# HELP "+this.sampleName+"_throughput Response throughput\n")
 			.append("# TYPE "+this.sampleName+"_throughput gauge\n")
@@ -174,7 +177,7 @@ public class SampleLog {
 		
 			.append("# HELP "+this.sampleName+"_threads Virtual user number\n")
 			.append("# TYPE "+this.sampleName+"_threads gauge\n")
-			.append(this.sampleName+"_threads "+ this.threads +"\n");	
+			.append(this.sampleName+"_threads "+ this.threads + " " + this.timeStamp.getTime() + "\n");	
 		
 		
 		return str.toString();	

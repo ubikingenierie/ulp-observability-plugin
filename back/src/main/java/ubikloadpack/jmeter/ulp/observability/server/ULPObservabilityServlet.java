@@ -39,7 +39,7 @@ public class ULPObservabilityServlet extends HttpServlet {
 		  resp.setContentType(contentType);
 		    
 		  try(Writer writer = new BufferedWriter(resp.getWriter())) {
-			  writer.write(registry.getLogger().openMetrics(getFilter(req), this.all(req)).trim());
+			  writer.write(registry.getLogger().openMetrics(getFilter(req), this.all(req)));
 			  writer.flush();
 		  }
 	  }
