@@ -22,15 +22,11 @@ public class ULPObservabilityServer {
     private Server server;
     private ServletContextHandler contextHandler;
     
-    /**
-     * Port used by Jetty server
-     */
     private Integer port;
     
     
     public ULPObservabilityServer() {
-    	this.port = ULPObservabilityDefaultConfig.jettyServerPort();
-    	this.initServer();
+    	this(ULPObservabilityDefaultConfig.jettyServerPort());
     }
     
     public ULPObservabilityServer(Integer port) {
@@ -43,10 +39,9 @@ public class ULPObservabilityServer {
     public void initServer() {
     	
     	this.server = new Server();
-        ServerConnector connector = new ServerConnector(server);
-        
-
+        ServerConnector connector = new ServerConnector(server);   
         connector.setPort(this.port);
+        
         server.setConnectors(new Connector[] {connector});	
         this.contextHandler = new ServletContextHandler();
         this.contextHandler.setContextPath("/");

@@ -10,7 +10,7 @@ import java.util.List;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ubikloadpack.jmeter.ulp.observability.metric.SampleRegistry;
+import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 
 /**
  * HttpServlet to expose sample metrics in OpenMetrics format
@@ -21,9 +21,9 @@ import ubikloadpack.jmeter.ulp.observability.metric.SampleRegistry;
 public class ULPObservabilityServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 3917512890727558222L;
-	private SampleRegistry registry;
+	private MicrometerRegistry registry;
 	
-	public ULPObservabilityServlet(SampleRegistry registry) {
+	public ULPObservabilityServlet(MicrometerRegistry registry) {
 		this.registry = registry;
 	}
 	
@@ -72,7 +72,7 @@ public class ULPObservabilityServlet extends HttpServlet {
 	 * @return 
 	 */
 	private Boolean all(HttpServletRequest req) {
-		return req.getParameter("all") == null;
+		return req.getParameter("all") != null;
 	}
 
 }

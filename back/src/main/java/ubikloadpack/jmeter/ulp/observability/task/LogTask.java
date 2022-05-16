@@ -1,12 +1,13 @@
 package ubikloadpack.jmeter.ulp.observability.task;
 
+import java.util.List;
 import java.util.Set;
 import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ubikloadpack.jmeter.ulp.observability.metric.SampleRegistry;
+import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 
 
 /**
@@ -21,9 +22,9 @@ public class LogTask extends TimerTask{
 	/**
 	 * Sample registry to log results
 	 */
-	private SampleRegistry registry;
+	private MicrometerRegistry registry;
 	
-	public LogTask(SampleRegistry registry) {
+	public LogTask(MicrometerRegistry registry) {
 		this.registry = registry;
 	}
 	
@@ -34,16 +35,15 @@ public class LogTask extends TimerTask{
 	@Override
 	public void run() {
 		
-		Set<String> sampleNames = this.registry.getSampleNames();
 		Integer namePadding = 11;
-		
-		for(String name: sampleNames) {
+		List<String> names = this.registry.getSampleNames();
+		for(String name: names) {
 			if(name.length() > namePadding) {
 				namePadding = name.length();
 			}
 		}
 		
-		log.info(this.registry.logAndClear().guiLog(namePadding));
+		log.info(this.registry.logAndReset(names).guiLog(namePadding));
 	}
 
 }

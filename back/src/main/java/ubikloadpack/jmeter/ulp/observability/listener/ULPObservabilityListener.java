@@ -20,12 +20,11 @@ import org.slf4j.LoggerFactory;
 
 import ubikloadpack.jmeter.ulp.observability.config.ULPObservabilityDefaultConfig;
 import ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
-import ubikloadpack.jmeter.ulp.observability.metric.SampleLogger;
-import ubikloadpack.jmeter.ulp.observability.metric.SampleRegistry;
+import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 import ubikloadpack.jmeter.ulp.observability.server.ULPObservabilityServer;
 import ubikloadpack.jmeter.ulp.observability.server.ULPObservabilityServlet;
 import ubikloadpack.jmeter.ulp.observability.task.LogTask;
-import ubikloadpack.jmeter.ulp.observability.task.SampleProcessTask;
+import ubikloadpack.jmeter.ulp.observability.task.MicrometerTask;
 import ubikloadpack.jmeter.ulp.observability.util.Util;
 
 
@@ -45,18 +44,21 @@ public class ULPObservabilityListener extends AbstractTestElement
 
 	private static final long serialVersionUID = 8170705348132535834L;
 	
-	public static final String TOTAL_LABEL = "_total";
+	public static final String TOTAL_LABEL = "total";
 	
 	private static final Logger log = LoggerFactory.getLogger(ULPObservabilityListener.class);
 	
 	
-	private SampleRegistry sampleRegistry;
-	private SampleLogger logger;
     private ULPObservabilityServer ulpObservabilityServer;
     private ULPObservabilityServlet ulpObservabilityServlet;
+    
     private Timer logTimer;
+
+    
     private BlockingQueue<ResponseResult> sampleQueue;
-    private List<SampleProcessTask> taskList;
+    private List<MicrometerTask> micrometerTaskList;
+    
+    private MicrometerRegistry micrometerReg;
     
     
     public void setBufferCapacity(Integer bufferCapacity) {
@@ -190,61 +192,16 @@ public class ULPObservabilityListener extends AbstractTestElement
     
     // initiate metric structure and server with servlet
     public void init() {
-    	this.logger = new SampleLogger(TOTAL_LABEL);
-    	this.sampleRegistry = new SampleRegistry(
-    			this.logger,
-    			TOTAL_LABEL,
-    			getPct1(),
-    			getPct2(),
-    			getPct3(),
-    			getPctPrecision(),
-    			getMetricsData(),
-    			dataOutputEnabled()
-    	);
+    	this.micrometerReg = new MicrometerRegistry(TOTAL_LABEL, getPct1(), getPct2(), getPct3(), getPctPrecision(), getLogFreq());
     	this.ulpObservabilityServer = new ULPObservabilityServer(getJettyPort());
- 	    this.ulpObservabilityServlet = new ULPObservabilityServlet(this.sampleRegistry);
+ 	    this.ulpObservabilityServlet = new ULPObservabilityServlet(this.micrometerReg);
  	    this.ulpObservabilityServer.addServletWithMapping(ulpObservabilityServlet, getMetricsEndpoint());
  	    this.sampleQueue = new LinkedBlockingDeque<ResponseResult>(getBufferCapacity());
  	    this.logTimer = new Timer();
- 	    this.taskList = new ArrayList<>();
+ 	    this.micrometerTaskList = new ArrayList<>(); 
+ 	    
     }
     
-    
-    
-    
-	public void sampleOccurred(SampleEvent sampleEvent) {
-		if(sampleEvent != null) {
-			try {
-				SampleResult sample = sampleEvent.getResult();
-				if(!this.sampleQueue.offer(
-						new ResponseResult(
-								sample.getSampleLabel(),
-								 Util.getResponseTime(sample.getEndTime(),sample.getStartTime()),
-								 sample.getErrorCount() > 0,
-								 sample.getEndTime()
-								 ),
-						1000,
-						TimeUnit.MILLISECONDS
-						)) {
-					log.error("Sample queue overflow");
-					throw new BufferOverflowException();
-				}
-			} catch (InterruptedException e) {
-			};;
-		}
-	}
-
-	public void sampleStarted(SampleEvent sampleEvent) {
-		
-	    log.info("************sampler started**************");
-			
-	}
-
-	
-	public void sampleStopped(SampleEvent sampleEvent) {
-		log.info("event stopped");
-	}
-
 	public void testStarted() {
 		
 		 log.info("test started...");
@@ -253,19 +210,51 @@ public class ULPObservabilityListener extends AbstractTestElement
 			ulpObservabilityServer.start();
 			log.info("Jetty Endpoint started");
 			if(getLogFreq()>0) {
-				this.logTimer.scheduleAtFixedRate(new LogTask(this.sampleRegistry), getLogFreq()*1000, getLogFreq()*1000);
+				this.logTimer.scheduleAtFixedRate(new LogTask(this.micrometerReg), getLogFreq()*1000, getLogFreq()*1000);
 			}
 			
 			for(int i = 0; i < this.getThreadSize(); i++) {
-				this.taskList.add(new SampleProcessTask(this.sampleRegistry, this.sampleQueue));
-				this.taskList.get(i).start();
+				this.micrometerTaskList.add(new MicrometerTask(this.micrometerReg, this.sampleQueue));
+				this.micrometerTaskList.get(i).start();
 			}
+			
 
 		} catch (Exception e) {
 			log.error("error while starting Jetty server {}" ,e);
-		
-			
 		}
+	}
+    
+    
+	public void sampleOccurred(SampleEvent sampleEvent) {
+		if(sampleEvent != null) {	
+			try {
+				SampleResult sample = sampleEvent.getResult();
+				if(!this.sampleQueue.offer(
+						new ResponseResult(
+								sample.getSampleLabel(),
+								 Util.getResponseTime(sample.getEndTime(),sample.getStartTime()),
+								 sample.getErrorCount() > 0,
+								 sample.getEndTime(),
+								 sample.getGroupThreads()
+								 ),
+						1000,
+						TimeUnit.MILLISECONDS
+						)) {
+					log.error("Sample queue overflow");
+					throw new BufferOverflowException();
+				}
+			} catch (InterruptedException e) {
+			};
+		}
+	}
+
+	public void sampleStarted(SampleEvent sampleEvent) {
+	    log.info("************sampler started**************");
+	}
+
+	
+	public void sampleStopped(SampleEvent sampleEvent) {
+		log.info("event stopped");
 	}
 
 	public void testStarted(String host) {}
@@ -282,13 +271,13 @@ public class ULPObservabilityListener extends AbstractTestElement
 		
 		 }
 		 this.sampleQueue.clear();
+		 this.micrometerReg.close();
+		 
 		 this.logTimer.cancel();
 		 this.logTimer.purge();
-		 this.taskList.forEach((task) -> {
+		 this.micrometerTaskList.forEach((task) -> {
 				task.stop();
 			});;
-		 this.sampleRegistry.clear();
-		 this.logger.clear();
 	}
 
 	public void testEnded(String host) {

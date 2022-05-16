@@ -9,15 +9,30 @@ package ubikloadpack.jmeter.ulp.observability.util;
  */
 public class Util {
 
-	
+
 	    /**
 	     * Standardize sample name to OpenMetrics format
 	     * 
 	     * @param name Name to format
 	     * @return Name in OpenMetrics format
 	     */
-	    public static String makeMetricName(String name) {
-	    	  return name.trim().toLowerCase().replaceAll(" ","_").replaceAll("[^a-zA-Z0-9_]", "");
+	    public static String makeOpenMetricsName(String name) {
+	    	  return name.trim().toLowerCase().replace(" ","_").replaceAll("[^a-zA-Z0-9_]", "");
+	    }
+	    
+	    
+	    /**
+	     * Standardize sample name to micrometer format
+	     * 
+	     * @param name Name to format
+	     * @return Name in micrometer format
+	     */
+	    public static String makeMicrometerName(String name) {
+	    	return name.trim().toLowerCase().replace(" ",".").replaceAll("[^a-zA-Z0-9.]", "");
+	    }
+	    
+	    public static String micrometerToOpenMetrics(String name) {
+	    	return name.replace(".","_");
 	    }
 	    
 	    

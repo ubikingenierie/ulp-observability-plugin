@@ -1,4 +1,4 @@
-package ubikloadpack.jmeter.ulp.observability.metric;
+package ubikloadpack.jmeter.ulp.observability.log;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,8 +10,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ubikloadpack.jmeter.ulp.observability.data.MetricsData;
+
 /**
- * Represents the storage of periodic sample logs (see {@link ubikloadpack.jmeter.ulp.observability.metric.SampleLog} ) 
+ * Represents the storage of periodic sample logs (see {@link ubikloadpack.jmeter.ulp.observability.log.SampleLog} ) 
  *
  * @author Valentin ZELIONII 
  *
@@ -21,19 +26,21 @@ public class SampleLogger {
 	/**
 	 * Concurrent list of sample logs
 	 */
-	private final ConcurrentLinkedQueue<SampleLog> log;
+	private final ConcurrentLinkedQueue<SampleLog> logger;
 	
 	/**
 	 * Label used to indicate the total metrics of all samples
 	 */
 	private final String total_label;
+	
+	private static final Logger log = LoggerFactory.getLogger(SampleLogger.class);
 
 	public SampleLogger(String total_label) {
 		this(total_label, new ArrayList<>());
 	}
 	
-	public SampleLogger(String total_label, Collection<SampleLog> log) {
-		this.log = new ConcurrentLinkedQueue<>(log);
+	public SampleLogger(String total_label, Collection<SampleLog> logger) {
+		this.logger = new ConcurrentLinkedQueue<>(logger);
 		this.total_label = total_label;
 	}
 	
@@ -44,7 +51,7 @@ public class SampleLogger {
 	 * @param record Sample record to add
 	 */
 	public void add(SampleLog record) {
-		this.log.add(record);
+		this.logger.add(record);
 	}
 	
 	/**
@@ -53,7 +60,7 @@ public class SampleLogger {
 	 * @param recordList List of sample records to add
 	 */
 	public void add(Collection<SampleLog> recordList) {
-		this.log.addAll(recordList);
+		this.logger.addAll(recordList);
 	}
 	
 	/**
@@ -64,7 +71,7 @@ public class SampleLogger {
 	 */
 	public Collection<SampleLog> getLast(List<String> filter){
 		Map<String, SampleLog> lastLog = new HashMap<>();
-		for(SampleLog sampleLog : filter == null || filter.size() == 0 ? this.log : getAll(filter)) {
+		for(SampleLog sampleLog : filter == null || filter.size() == 0 ? this.logger : getAll(filter)) {
 			if(!lastLog.containsKey(sampleLog.getSampleName())
 					|| sampleLog.getTimeStamp().after(lastLog.get(sampleLog.getSampleName()).getTimeStamp())) {
 				
@@ -82,7 +89,7 @@ public class SampleLogger {
 	 */
 	public Set<String> getSampleNames(){
 		Set<String> sampleNames = new HashSet<>();
-		this.log.forEach(sampleLog -> {
+		this.logger.forEach(sampleLog -> {
 			sampleNames.add(sampleLog.getSampleName());
 		});
 		return sampleNames;
@@ -105,9 +112,9 @@ public class SampleLogger {
 	 */
 	public Collection<SampleLog> getAll(List<String> filter){
 		if(filter == null || filter.size() == 0) {
-			return this.log;
+			return this.logger;
 		}
-		return this.log.stream()
+		return this.logger.stream()
 				.filter(sample -> filter.contains(sample.getSampleName()))
 				.collect(Collectors.toList());
 	}
@@ -118,7 +125,7 @@ public class SampleLogger {
 	 * @return List of all sample records
 	 */
 	public Collection<SampleLog> getAll(){
-		return this.log;
+		return this.logger;
 	}
 	
 	
@@ -132,9 +139,10 @@ public class SampleLogger {
 	public String openMetrics(List<String> filter, Boolean all) {
 		StringBuilder s = new StringBuilder();
 		
-		Collection<SampleLog> log = all ? this.getAll(filter) : getLast(filter);
-		log.forEach(sampleLog -> {
+		Collection<SampleLog> logger = all ? this.getAll(filter) : getLast(filter);
+		logger.forEach(sampleLog -> {
 			s.append(sampleLog.toOpenMetricsString());
+			s.append("\n");
 		});
 		
 		return s.toString();
@@ -203,7 +211,7 @@ public class SampleLogger {
 	 * Clear log storage
 	 */
 	public void clear() {
-		this.log.clear();
+		this.logger.clear();
 	}
 
 }

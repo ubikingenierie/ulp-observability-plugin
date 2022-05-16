@@ -10,6 +10,7 @@
       	<java.version>11</java.version>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
+		<micrometer.version>1.9.0</micrometer.version>
   </properties>
 
  <build>
@@ -96,9 +97,9 @@
 	<dependency>
 	  <groupId>io.micrometer</groupId>
 	  <artifactId>micrometer-core</artifactId>
-	  <version>1.8.5</version>
+	  <version>${micrometer.version}</version>
 	</dependency>
-	
+
 	<dependency>
         <groupId>org.jctools</groupId>
         <artifactId>jctools-core</artifactId>
