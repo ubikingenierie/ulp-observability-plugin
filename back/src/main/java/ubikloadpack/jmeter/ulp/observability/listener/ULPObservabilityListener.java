@@ -5,6 +5,7 @@ import java.nio.BufferOverflowException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +23,7 @@ import ubikloadpack.jmeter.ulp.observability.config.ULPObservabilityDefaultConfi
 import ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
 import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 import ubikloadpack.jmeter.ulp.observability.server.ULPObservabilityServer;
-import ubikloadpack.jmeter.ulp.observability.server.ULPObservabilityServlet;
+import ubikloadpack.jmeter.ulp.observability.server.ULPObservabilityMetricsServlet;
 import ubikloadpack.jmeter.ulp.observability.task.LogTask;
 import ubikloadpack.jmeter.ulp.observability.task.MicrometerTask;
 import ubikloadpack.jmeter.ulp.observability.util.Util;
@@ -48,7 +49,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	
 	
     private ULPObservabilityServer ulpObservabilityServer;
-    private ULPObservabilityServlet ulpObservabilityServlet;
+    private ULPObservabilityMetricsServlet ulpObservabilityServlet;
     
     private Timer logTimer;
 
@@ -201,7 +202,7 @@ public class ULPObservabilityListener extends AbstractTestElement
     // initiate metric structure
     public void init() {
     	this.micrometerReg = new MicrometerRegistry(ULPObservabilityDefaultConfig.TOTAL_LABEL, getPct1(), getPct2(), getPct3(), getPctPrecision(), getLogFreq());
- 	    this.sampleQueue = new LinkedBlockingDeque<ResponseResult>(getBufferCapacity());
+ 	    this.sampleQueue = new ArrayBlockingQueue<ResponseResult>(getBufferCapacity());
  	    this.logTimer = new Timer();
  	    this.micrometerTaskList = new ArrayList<>(); 
     }
@@ -211,8 +212,8 @@ public class ULPObservabilityListener extends AbstractTestElement
 		init();
 		
 		try {
- 		   	this.ulpObservabilityServlet = new ULPObservabilityServlet(this.micrometerReg);
- 	    	this.ulpObservabilityServer = new ULPObservabilityServer(getJettyPort(), getMetricsRoute(), getWebAppRoute());
+ 		   	this.ulpObservabilityServlet = new ULPObservabilityMetricsServlet(this.micrometerReg);
+ 	    	this.ulpObservabilityServer = new ULPObservabilityServer(getJettyPort(), getMetricsRoute(), getWebAppRoute(), getLogFreq());
  	 	    this.ulpObservabilityServer.addServletWithMapping(ulpObservabilityServlet);
 			ulpObservabilityServer.start();
 			log.info("Jetty Endpoint started");
@@ -223,6 +224,8 @@ public class ULPObservabilityListener extends AbstractTestElement
 		if(getLogFreq()>0) {
 			this.logTimer.scheduleAtFixedRate(new LogTask(this.micrometerReg, this.sampleQueue), getLogFreq()*1000, getLogFreq()*1000);
 		}
+		
+		System.out.printf("ULPO Listener will generate log each %d seconds%n",getLogFreq());
 		
 		for(int i = 0; i < this.getThreadSize(); i++) {
 			this.micrometerTaskList.add(new MicrometerTask(this.micrometerReg, this.sampleQueue));

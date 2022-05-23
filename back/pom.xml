@@ -4,7 +4,7 @@
     <groupId>jmeter.plugins.ulbobservatory.sampler</groupId>
     <artifactId>ULPObservatory</artifactId>
     <version>1.0</version>
-    <name>ULPobservatory Sampler as JMeter plugin</name>
+    <name>ULP Observatory Sampler as JMeter plugin</name>
 
   <properties>
   	<java.version>11</java.version>
@@ -13,48 +13,6 @@
 	<micrometer.version>1.9.0</micrometer.version>
 	<jetty.version>11.0.8</jetty.version>
   </properties>
-
- <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-         <version>3.8.1</version>
-        <configuration>
-          <source>11</source>
-          <target>11</target>
-        </configuration>
-      </plugin>
-      <!-- Build a full jar with dependencies -->
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>ulbObservability</mainClass>
-            </manifest>
-          </archive>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-        </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-		<groupId>org.eclipse.jetty</groupId>
-		<artifactId>jetty-maven-plugin</artifactId>
-		<version>${jetty.version}</version>
-	 </plugin>
-    </plugins>
-  </build>
 
  <dependencies>
    <dependency>
@@ -117,6 +75,49 @@
         <version>3.3.0</version>
     </dependency>
 </dependencies>
+
+
+ <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+         <version>3.8.1</version>
+        <configuration>
+          <source>11</source>
+          <target>11</target>
+        </configuration>
+      </plugin>
+      <!-- Build a full jar with dependencies -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>ulbObservability</mainClass>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-maven-plugin</artifactId>
+		<version>${jetty.version}</version>
+	 </plugin>
+    </plugins>
+  </build>
 
 
 </project>

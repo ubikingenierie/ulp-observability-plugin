@@ -2,9 +2,7 @@ package ubikloadpack.jmeter.ulp.observability.registry;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -73,6 +71,10 @@ public class MicrometerRegistry {
 	
 	public SampleLogger getLogger() {
 		return this.logger;
+	}
+	
+	public Integer getThreadCount() {
+		return this.allThreads.get();
 	}
 	
 	public void close() {

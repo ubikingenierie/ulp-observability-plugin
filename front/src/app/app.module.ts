@@ -6,14 +6,15 @@ import { NgChartsModule } from 'ng2-charts';
 import { HttpClientModule } from '@angular/common/http';
 import { UlpObservabilityChartComponent } from './components/ulp-observability-chart/ulp-observability-chart.component';
 import { UlpObservabilityDashboardComponent } from './components/ulp-observability-dashboard/ulp-observability-dashboard.component';
-import { UlpObservabilityChartSamplesComponent } from './components/ulp-observability-chart-samples/ulp-observability-chart-samples.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import {MatSelectModule} from '@angular/material/select';
+import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
+import { MatTableModule } from '@angular/material/table';
+
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { UlpObservabilityMetricsComponent } from './components/ulp-observability-metrics/ulp-observability-metrics.component';
 
@@ -22,7 +23,8 @@ const materialModules = [
   MatIconModule,
   MatToolbarModule,
   MatDividerModule,
-  MatCardModule
+  MatCardModule,
+  MatTableModule
 ];
 
 @NgModule({
@@ -36,7 +38,6 @@ export class MaterialModule {};
     AppComponent,
     UlpObservabilityChartComponent,
     UlpObservabilityDashboardComponent,
-    UlpObservabilityChartSamplesComponent,
     UlpObservabilityMetricsComponent
   ],
   imports: [

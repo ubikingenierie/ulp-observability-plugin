@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 
+import org.apache.jmeter.samplers.SampleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,16 +42,9 @@ public class LogTask extends TimerTask{
 	@Override
 	public void run() {
 		
-		Integer namePadding = 11;
-		List<String> names = this.registry.getSampleNames();
-		for(String name: names) {
-			if(name.length() > namePadding) {
-				namePadding = name.length();
-			}
-		}
-		this.registry.logAndReset().guiLog(namePadding);
-		log.info("{}",this.sampleQueue.size());
-//		log.info(this.registry.logAndReset().guiLog(namePadding));
+		
+//		System.out.println("Threads : " + this.registry.getThreadCount() +", Sample queue : "+ this.sampleQueue.size());
+		System.out.println(this.registry.logAndReset().guiLog());
 	}
 
 }

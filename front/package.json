@@ -26,13 +26,13 @@
     "chartjs-adapter-moment": "^1.0.0",
     "moment": "^2.29.3",
     "ng2-charts": "^3.0.8",
-    "parse-prometheus-text-format": "^1.1.1",
     "rxjs": "~7.4.0",
+    "shallow-equal": "^1.2.1",
     "tslib": "^2.4.0",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "~13.1.2",
+    "@angular-devkit/build-angular": "^13.3.6",
     "@angular/cli": "~13.1.2",
     "@angular/compiler-cli": "~13.1.0",
     "@types/jasmine": "~3.10.0",

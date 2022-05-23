@@ -1,36 +1,8 @@
-<div class="container">
-  <div class="canvas">
-    <mat-form-field appearance="fill">
-      <mat-label>Sample list</mat-label>
-      <mat-select [(value)]="selectedSample">
-        <mat-option *ngFor="let sample of sampleList" [value]="sample">
-          {{sample}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <canvas baseChart
-            [type] = "chartType"
-            [datasets]="datasetGroups[selectedSample]"
-            [labels]="labels"
-            [options]="chartOptions"
-            >
-    </canvas>
-  </div>
-
-  <mat-divider [vertical]="true"></mat-divider>
-  
-  <div class="canvas">
-  <mat-form-field appearance="fill">
-      <mat-label>Total</mat-label>
-      <mat-select>
-      </mat-select>
-  </mat-form-field>
-  <canvas baseChart
-            [type] = "chartType"
-            [datasets]="datasetGroups['_total']"
-            [labels]="labels"
-            [options]="chartOptions"
-            >
+<div class="canvas">
+  <canvas baseChart class="chart"
+          [type] = "chartType"
+          [data]="data"
+          [options]="chartOptions"
+          >
   </canvas>
-  </div>
 </div>

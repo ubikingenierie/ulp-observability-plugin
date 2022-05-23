@@ -8,7 +8,7 @@ import { Title } from '@angular/platform-browser';
 })
 export class AppComponent implements OnInit{
 
-  title = 'ULP Observability UI';
+  title = 'ULP Observability';
 
   public constructor(private titleService: Title){ }
 

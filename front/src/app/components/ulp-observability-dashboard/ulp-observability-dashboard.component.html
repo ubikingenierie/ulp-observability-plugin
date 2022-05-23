@@ -1,24 +1,49 @@
 <div class="page">
     <mat-toolbar class="mat-elevation-z6" color="primary">
         <mat-toolbar-row>
-            <mat-icon>timeline</mat-icon> ULP Observability UI
+            <mat-icon>timeline</mat-icon> ULP Observability Dashboard
         </mat-toolbar-row>
     </mat-toolbar>
 
-    <div class="content">
-        <app-ulp-observability-chart-samples
-        [metricsData]="metricsData.response"
-        [updateFrequencyS]="updateFrequencyS"
-        [metricsBuffer]="metricsBuffer"
-        [stepSizeM]="stepSizeM">
-        </app-ulp-observability-chart-samples>
+    <div  [ngSwitch]="status">
 
-        <br>
-        <mat-divider></mat-divider>
-        
-        <app-ulp-observability-metrics
-        [metricsData]="metricsData">
-        </app-ulp-observability-metrics>
-    </div>
+        <div class="info" *ngSwitchCase="0">
+            <mat-icon aria-hidden="false">settings</mat-icon>
+            <span class="icon-align">Retrieving plugin configuration</span>
+        </div>
+
+        <div class="info" *ngSwitchCase="1">
+            <mat-icon aria-hidden="false">pending</mat-icon>
+            <span class="icon-align">Waiting for sample metrics</span>
+        </div>
+
+        <div class="content" *ngSwitchCase="2">
+            <app-ulp-observability-metrics
+            [datasets]="datasets">
+            </app-ulp-observability-metrics>
+            <div *ngFor="let chart of chartData | keyvalue">
+                <app-ulp-observability-chart
+                [datasets]="datasets[chart.key]"
+                [title]="chart.value"
+                ></app-ulp-observability-chart>
+            </div>
+        </div>
+
+        <div class="info" *ngSwitchCase="3">
+            <mat-icon aria-hidden="false">error</mat-icon>
+            <span class="icon-align">Error on retrieving metrics data</span>
+        </div>
+
+        <div class="info" *ngSwitchCase="4">
+            <mat-icon aria-hidden="false">error</mat-icon>
+            <span class="icon-align">Startup error, retrying...</span>
+        </div>
+
+        <div class="info" *ngSwitchDefault>
+            <mat-icon aria-hidden="false">help</mat-icon>
+            <span class="icon-align">Something went wrong</span>
+        </div>
+
+    </div> 
 </div>
 

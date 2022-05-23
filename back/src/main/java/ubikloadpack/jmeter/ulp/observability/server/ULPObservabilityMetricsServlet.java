@@ -18,12 +18,12 @@ import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
  * @author Valentin ZELIONII
  *
  */
-public class ULPObservabilityServlet extends HttpServlet {
+public class ULPObservabilityMetricsServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 3917512890727558222L;
 	private MicrometerRegistry registry;
 	
-	public ULPObservabilityServlet(MicrometerRegistry registry) {
+	public ULPObservabilityMetricsServlet(MicrometerRegistry registry) {
 		this.registry = registry;
 	}
 	

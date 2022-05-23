@@ -202,18 +202,21 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 				
 				if(!this.metricsRoute.getText().startsWith("/")) {
 					log.error("Jetty Metrics route must start with '/'");
+				} else if(this.metricsRoute.getText().equals("/info")) {
+					log.error("Route /info is reserved for server information");
 				} else {
 					sampler.setMetricsRoute(this.metricsRoute.getText());
 				}
 				
 				if(!this.webAppRoute.getText().startsWith("/")) {
 					log.error("Jetty Web App route must start with '/'");
+				} else if(this.webAppRoute.getText().equals("/info")) {
+					log.error("Route /info is reserved for server information");
 				} else {
 					sampler.setWebAppRoute(this.webAppRoute.getText());
 				}
 				
 			}
-			
 			
 			
 			try {

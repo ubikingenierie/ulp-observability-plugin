@@ -2,6 +2,7 @@ package ubikloadpack.jmeter.ulp.observability.log;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -155,9 +156,17 @@ public class SampleLogger {
 	 * @param namePadding Padding space needed to fit all sample names in a column
 	 * @return Record logs in form of summary table
 	 */
-	public String guiLog(Integer namePadding) {
+	public String guiLog() {
 		StringBuilder s = new StringBuilder();
 		SampleLog total = null;
+		
+		Integer namePadding = 17;
+		Set<String> names = this.getSampleNames();
+		for(String name: names) {
+			if(name.length() > namePadding) {
+				namePadding = name.length();
+			}
+		}
 		
 		final String divider = "+"+"-".repeat(namePadding)
 				+ "+----------"
@@ -172,11 +181,11 @@ public class SampleLogger {
 				+ "+----------"
 				+ "+\n";
 		
-		s.append("\n"+divider);
+		s.append("\n"+ new Date().toString() + "\n" +divider);
 		
 		s.append(
 				String.format("|%"+namePadding+"s|%10s|%10s|%10s|%7s%%|%5s|%5s|%5s|%5s|%5s|%10s|%n",
-						"Sample Name",
+						"Thread Group Name",
 						"Total",
 						"Count",
 						"Error",

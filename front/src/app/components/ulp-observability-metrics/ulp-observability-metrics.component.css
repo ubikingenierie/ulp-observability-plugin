@@ -1,21 +1,10 @@
-.content {
-    padding: 24px;
-    padding-top: 50px;
+h3 {
     text-align: center;
 }
 
-mat-card{
-    background-color: #3f51b5;
-    color: white;
-}
-
-mat-card-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-mat-card-title-group {
-    display: flex;
-    justify-content: center;
+mat-table{
+    width: 80%;
+    height: 400px;
+    margin: 0 auto;
+    overflow: auto;
 }

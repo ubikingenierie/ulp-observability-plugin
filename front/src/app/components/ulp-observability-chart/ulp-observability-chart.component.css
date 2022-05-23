@@ -1,11 +1,7 @@
-.container {
-    display: flex;
-    gap: 8%;
-    justify-content: center;
-}
-
 .canvas{
+    width: 80% !important;
+    height: 300px !important;
     display: block;
-    width: 35%;
-    text-align: center;
+    margin: 0 auto;
+    padding-bottom: 50px;
 }
