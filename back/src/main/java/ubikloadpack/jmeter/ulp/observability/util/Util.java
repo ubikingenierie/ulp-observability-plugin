@@ -28,7 +28,7 @@ public class Util {
 	     * @return Name in micrometer format
 	     */
 	    public static String makeMicrometerName(String name) {
-	    	return name.trim().toLowerCase().replace(" ",".").replaceAll("[^a-zA-Z0-9.]", "");
+	    	return name.trim().toLowerCase().replaceAll("[ _]",".").replaceAll("[^a-zA-Z0-9.]", "");
 	    }
 	    
 	    public static String micrometerToOpenMetrics(String name) {

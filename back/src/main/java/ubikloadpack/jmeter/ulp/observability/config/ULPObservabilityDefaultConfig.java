@@ -11,7 +11,8 @@ import org.apache.jmeter.util.JMeterUtils;
 public class ULPObservabilityDefaultConfig {
 	
 	public static final String JETTY_SERVER_PORT_PROP = "ULPObservability.JettyPort";
-	public static final String JETTY_METRICS_ENDPOINT_PROP = "ULPObservability.JettyMetricsEndpoint";
+	public static final String JETTY_METRICS_ROUTE_PROP = "ULPObservability.JettyMetricsRoute";
+	public static final String JETTY_WEBAPP_ROUTE_PROP = "ULPObservability.JettyWebAppRoute";
 	public static final String THREAD_SIZE_PROP = "ULPObservability.ThreadSize";
 	public static final String BUFFER_CAPACITY_PROP = "ULPObservability.SampleQueueBufferCapacity";
 	public static final String PCT1_PROP = "ULPObservability.Pct1";
@@ -26,71 +27,78 @@ public class ULPObservabilityDefaultConfig {
 	/**
 	 * Default plugin name
 	 */
-	public static String PLUGIN_NAME = "ULP Observability";
+	public static final String PLUGIN_NAME = "ULP Observability";
 	
 	/**
 	 * Default Jetty server port
 	 */
-	public static Integer JETTY_SERVER_PORT = 9090;
+	public static final Integer JETTY_SERVER_PORT = 9090;
 	
 	/**
-	 * Default endpoint used to expose sample metrics in OpenMetrics text format
+	 * Default route used to expose sample metrics in OpenMetrics text format
 	 */
-	public static String JETTY_METRICS_ENDPOINT = "/ulp-o-metrics";
+	public static final String JETTY_METRICS_ROUTE = "/ulp-o-metrics";
 	
 	/**
-	 * Default endpoint reserved for eventual tests
+	 * Default route used to expose HTML page
 	 */
-	public static String TEST_METRICS_ENDPOINT_TEST = "/ulp-o-metrics-test";
+	public static final String JETTY_WEBAPP_ROUTE = "/ulp-observability";
+	
+	/**
+	 * Default route reserved for eventual tests
+	 */
+	public static final String TEST_METRICS_ROUTE_TEST = "/ulp-o-metrics-test";
 	
 	/**
 	 * Default sample processing thread size
 	 */
-	public static Integer THREAD_SIZE = 5;
+	public static final Integer THREAD_SIZE = 5;
 	
 	/**
 	 * Default sample result queue capacity
 	 */
-	public static Integer BUFFER_CAPACITY = 20000;
+	public static final Integer BUFFER_CAPACITY = 20000;
 	
 	/**
 	 * Default 1st percentile score
 	 */
-	public static Integer PCT1 = 50;
+	public static final Integer PCT1 = 50;
 	
 	/**
 	 * Default 2nd percentile score
 	 */
-	public static Integer PCT2 = 90;
+	public static final Integer PCT2 = 90;
 	
 	/**
 	 * Default 3rd percentile score
 	 */
-	public static Integer PCT3 = 95;
+	public static final Integer PCT3 = 95;
 	
 	/**
 	 * Default number of significant decimal digits for percentiles
 	 */
-	public static Integer PCT_PRECISION = 5;
+	public static final Integer PCT_PRECISION = 5;
 	
 	/**
 	 * Default logging frequency in seconds
 	 */
-	public static Integer LOG_FREQUENCY = 60;
+	public static final Integer LOG_FREQUENCY = 60;
 	
 	/**
 	 * Default path to log output folder
 	 */
-	public static String METRICS_DATA = "\\";
+	public static final String METRICS_DATA = "\\";
 	
 	/**
 	 * Default option to enable log output
 	 */
-	public static Boolean ENABLE_DATA_OUTPUT = false;
+	public static final Boolean ENABLE_DATA_OUTPUT = false;
 	
 	public static Double PCT1_ERROR = 0.01;
 	public static Double PCT2_ERROR = 0.005;
 	public static Double PCT3_ERROR = 0.0025;
+	
+	public static final String TOTAL_LABEL = "total_info";
 	
 	public static String pluginName() {
 		return PLUGIN_NAME;
@@ -104,8 +112,12 @@ public class ULPObservabilityDefaultConfig {
 		return JMeterUtils.getPropDefault(BUFFER_CAPACITY_PROP, BUFFER_CAPACITY);
 	}
 	
-	public static String jettyMetricsEndpoint() {
-		return JMeterUtils.getPropDefault(JETTY_METRICS_ENDPOINT_PROP, JETTY_METRICS_ENDPOINT);
+	public static String jettyMetricsRoute() {
+		return JMeterUtils.getPropDefault(JETTY_METRICS_ROUTE_PROP, JETTY_METRICS_ROUTE);
+	}
+	
+	public static String jettyWebAppRoute() {
+		return JMeterUtils.getPropDefault(JETTY_WEBAPP_ROUTE_PROP, JETTY_WEBAPP_ROUTE);
 	}
 	
 	public static Integer threadSize() {

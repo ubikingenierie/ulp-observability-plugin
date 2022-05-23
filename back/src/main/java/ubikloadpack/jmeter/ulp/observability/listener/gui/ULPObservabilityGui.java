@@ -38,7 +38,8 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	private static final Logger log = LoggerFactory.getLogger(ULPObservabilityGui.class);
 	
 	private final JTextField jettyPort = new JTextField();
-	private final JTextField metricsEndpoint = new JTextField();
+	private final JTextField metricsRoute = new JTextField();
+	private final JTextField webAppRoute = new JTextField();
 	private final JTextField pct1 = new JTextField();
 	private final JTextField pct2 = new JTextField();
 	private final JTextField pct3 = new JTextField();
@@ -95,7 +96,10 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     			new ArrayList<Component>(Arrays.asList(new JLabel("Jetty Server port"), this.jettyPort))
     			);
     	componentGroups.add(
-    			new ArrayList<Component>(Arrays.asList(new JLabel("Jetty Metrics endpoint"), this.metricsEndpoint))
+    			new ArrayList<Component>(Arrays.asList(new JLabel("Jetty Metrics route"), this.metricsRoute))
+    			);
+    	componentGroups.add(
+    			new ArrayList<Component>(Arrays.asList(new JLabel("Jetty Wep Application route"), this.webAppRoute))
     			);
     	componentGroups.add(
     			new ArrayList<Component>(Arrays.asList(new JLabel("Number of Processing Threads"), this.threadSize))
@@ -192,11 +196,25 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			sampler.setMetricsData(this.metricsData.getText());
 			sampler.dataOutputEnabled(this.enableDataOutput.isSelected());
 			
-			if(!this.metricsEndpoint.getText().startsWith("/")) {
-				log.error("Jetty Metrics endpoint must start with '/'");
+			if(this.metricsRoute.getText().equals(this.webAppRoute.getText())) {
+				log.error("Jetty Metrics and Web App routes must not be equal");
 			} else {
-				sampler.setMetricsEndpoint(this.metricsEndpoint.getText());
+				
+				if(!this.metricsRoute.getText().startsWith("/")) {
+					log.error("Jetty Metrics route must start with '/'");
+				} else {
+					sampler.setMetricsRoute(this.metricsRoute.getText());
+				}
+				
+				if(!this.webAppRoute.getText().startsWith("/")) {
+					log.error("Jetty Web App route must start with '/'");
+				} else {
+					sampler.setWebAppRoute(this.webAppRoute.getText());
+				}
+				
 			}
+			
+			
 			
 			try {
 				sampler.setJettyPort(Integer.parseInt(this.jettyPort.getText()));
@@ -258,7 +276,8 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		if (testElement instanceof ULPObservabilityListener) {
 			ULPObservabilityListener ulpObservabilityListener = (ULPObservabilityListener) testElement;
 			this.jettyPort.setText(Integer.toString(ulpObservabilityListener.getJettyPort()));
-			this.metricsEndpoint.setText(ulpObservabilityListener.getMetricsEndpoint());
+			this.metricsRoute.setText(ulpObservabilityListener.getMetricsRoute());
+			this.webAppRoute.setText(ulpObservabilityListener.getWebAppRoute());
 			this.threadSize.setText(Integer.toString(ulpObservabilityListener.getThreadSize()));
 			this.bufferCapacity.setText(Integer.toString(ulpObservabilityListener.getBufferCapacity()));
 			this.pct1.setText(Integer.toString(ulpObservabilityListener.getPct1()));
@@ -278,7 +297,8 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     public void clearGui() {
 		super.clearGui();
 		this.jettyPort.setText(Integer.toString(ULPObservabilityDefaultConfig.jettyServerPort()));
-		this.metricsEndpoint.setText(ULPObservabilityDefaultConfig.jettyMetricsEndpoint());
+		this.metricsRoute.setText(ULPObservabilityDefaultConfig.jettyMetricsRoute());
+		this.webAppRoute.setText(ULPObservabilityDefaultConfig.jettyWebAppRoute());
 		this.threadSize.setText(Integer.toString(ULPObservabilityDefaultConfig.threadSize()));
 		this.bufferCapacity.setText(Integer.toString(ULPObservabilityDefaultConfig.bufferCapacity()));
 		this.pct1.setText(Integer.toString(ULPObservabilityDefaultConfig.pct1()));

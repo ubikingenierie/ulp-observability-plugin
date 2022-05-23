@@ -2,11 +2,17 @@ package ubikloadpack.jmeter.ulp.observability.server;
 
 
 
+import java.net.URL;
+
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 import jakarta.servlet.http.HttpServlet;
 import ubikloadpack.jmeter.ulp.observability.config.ULPObservabilityDefaultConfig;
@@ -19,33 +25,63 @@ import ubikloadpack.jmeter.ulp.observability.config.ULPObservabilityDefaultConfi
  */
 public class ULPObservabilityServer {
 	
-    private Server server;
-    private ServletContextHandler contextHandler;
+	private final Boolean ENABLE_APP = false;
+	
+    private static final String WEBAPP_RESOURCES_LOCATION = "webapp";
+	private Server server;
+    private ServletContextHandler metricsHandler;
+    private WebAppContext webAppContext;
+    private String metricsRoute;
+    private String webAppRoute;
     
     private Integer port;
     
     
-    public ULPObservabilityServer() {
-    	this(ULPObservabilityDefaultConfig.jettyServerPort());
+    public ULPObservabilityServer() throws Exception {
+    	this(
+    			ULPObservabilityDefaultConfig.jettyServerPort(),
+    			ULPObservabilityDefaultConfig.jettyMetricsRoute(),
+    			ULPObservabilityDefaultConfig.jettyWebAppRoute()
+    		);
     }
     
-    public ULPObservabilityServer(Integer port) {
+    public ULPObservabilityServer(Integer port, String metricsRoute, String webAppRoute) throws Exception {
     	this.port = port;
+    	this.metricsRoute = metricsRoute;
+    	this.webAppRoute = webAppRoute;
     	this.initServer();
-    	
     }
     
     
-    public void initServer() {
+    public void initServer() throws Exception{
     	
     	this.server = new Server();
         ServerConnector connector = new ServerConnector(server);   
         connector.setPort(this.port);
-        
         server.setConnectors(new Connector[] {connector});	
-        this.contextHandler = new ServletContextHandler();
-        this.contextHandler.setContextPath("/");
-        this.server.setHandler(contextHandler);
+        
+        HandlerCollection handlers = new HandlerCollection();
+        
+        this.metricsHandler = new ServletContextHandler();
+        this.metricsHandler.setContextPath(this.metricsRoute);
+        handlers.addHandler(metricsHandler);
+        
+        if(ENABLE_APP) {
+        	this.webAppContext = new WebAppContext();
+            URL webAppDir = Thread.currentThread().getContextClassLoader().getResource(WEBAPP_RESOURCES_LOCATION);
+            if (webAppDir == null) {
+                throw new Exception(String.format("No %s directory was found into the JAR file", WEBAPP_RESOURCES_LOCATION));
+            }
+            webAppContext.setContextPath(this.webAppRoute);
+    		webAppContext.setResourceBase(webAppDir.toURI().toString());
+    		webAppContext.setParentLoaderPriority(true);
+    		handlers.addHandler(webAppContext);
+        }
+        
+        handlers.addHandler(new DefaultHandler());
+        
+        this.server.setHandler(handlers);
+        this.server.setStopAtShutdown(true);
           
     }
     
@@ -56,11 +92,12 @@ public class ULPObservabilityServer {
      * @param servlet HttpServlet to route
      * @param routeName Route path
      */
-    public void addServletWithMapping(HttpServlet servlet, String routeName) {
-    	
-    	   this.contextHandler.addServlet(new ServletHolder(servlet), routeName);
+    public void addServletWithMapping(HttpServlet servlet) {
+    	   this.metricsHandler.addServlet(new ServletHolder(servlet), "/");
     		
     }
+    
+    
     
     
     /**
@@ -71,7 +108,6 @@ public class ULPObservabilityServer {
     public void start() throws Exception {
     	
     	if(!this.server.isStarted()) {
-    		
     		this.server.start();
        	    //this.server.join();
        	    
@@ -81,9 +117,9 @@ public class ULPObservabilityServer {
     }
     
     public void stop() throws Exception {
-    	
-    	 this.server.stop();
-    	 
+    	if(this.server.isStarted()) {
+    		this.server.stop();
+    	}
     }
 
 	public Server getServer() {

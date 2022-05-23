@@ -7,10 +7,11 @@
     <name>ULPobservatory Sampler as JMeter plugin</name>
 
   <properties>
-      	<java.version>11</java.version>
-		<maven.compiler.source>11</maven.compiler.source>
-		<maven.compiler.target>11</maven.compiler.target>
-		<micrometer.version>1.9.0</micrometer.version>
+  	<java.version>11</java.version>
+	<maven.compiler.source>11</maven.compiler.source>
+	<maven.compiler.target>11</maven.compiler.target>
+	<micrometer.version>1.9.0</micrometer.version>
+	<jetty.version>11.0.8</jetty.version>
   </properties>
 
  <build>
@@ -47,6 +48,11 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-maven-plugin</artifactId>
+		<version>${jetty.version}</version>
+	 </plugin>
     </plugins>
   </build>
 
@@ -76,22 +82,27 @@
 	<dependency>
 	    <groupId>org.eclipse.jetty</groupId>
 	    <artifactId>jetty-server</artifactId>
-	    <version>11.0.8</version>
+	    <version>${jetty.version}</version>
 	</dependency>
 	
 	<!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-servlet -->
 	<dependency>
 	    <groupId>org.eclipse.jetty</groupId>
 	    <artifactId>jetty-servlet</artifactId>
-	    <version>11.0.8</version>
+	    <version>${jetty.version}</version>
 	</dependency>
-	
 	
 	<!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-servlets -->
 	<dependency>
 	  <groupId>org.eclipse.jetty</groupId>
 	  <artifactId>jetty-servlets</artifactId>
-	  <version>11.0.8</version>
+	  <version>${jetty.version}</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-webapp</artifactId>
+		<version>${jetty.version}</version>
 	</dependency>
 	
 	<dependency>

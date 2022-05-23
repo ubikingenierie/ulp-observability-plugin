@@ -1,12 +1,13 @@
 package ubikloadpack.jmeter.ulp.observability.task;
 
 import java.util.List;
-import java.util.Set;
 import java.util.TimerTask;
+import java.util.concurrent.BlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
 import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 
 
@@ -24,8 +25,13 @@ public class LogTask extends TimerTask{
 	 */
 	private MicrometerRegistry registry;
 	
-	public LogTask(MicrometerRegistry registry) {
+	private BlockingQueue<ResponseResult> sampleQueue;
+	
+	
+	
+	public LogTask(MicrometerRegistry registry, BlockingQueue<ResponseResult> sampleQueue) {
 		this.registry = registry;
+		this.sampleQueue = sampleQueue;
 	}
 	
 	
@@ -42,8 +48,9 @@ public class LogTask extends TimerTask{
 				namePadding = name.length();
 			}
 		}
-		
-		log.info(this.registry.logAndReset(names).guiLog(namePadding));
+		this.registry.logAndReset().guiLog(namePadding);
+		log.info("{}",this.sampleQueue.size());
+//		log.info(this.registry.logAndReset().guiLog(namePadding));
 	}
 
 }

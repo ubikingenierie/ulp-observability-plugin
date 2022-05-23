@@ -6,15 +6,17 @@ public class ResponseResult {
 	private final Long responseTime;
 	private final Boolean hasError;
 	private final Long endTime;
-	private final Integer threads;
+	private final Integer groupThreads;
+	private final Integer allThreads;
 	
 	
-	public ResponseResult(String sampleLabel, Long responseTime, Boolean hasError, Long endTime, Integer threads) {
+	public ResponseResult(String sampleLabel, Long responseTime, Boolean hasError, Long endTime, Integer groupThreads, Integer allThreads) {
 		this.sampleLabel = sampleLabel;
 		this.responseTime = responseTime;
 		this.hasError = hasError;
 		this.endTime = endTime;
-		this.threads = threads;
+		this.groupThreads = groupThreads;
+		this.allThreads = allThreads;
 	}
 	
 	public String getSampleLabel() {
@@ -35,8 +37,12 @@ public class ResponseResult {
 		return endTime;
 	}
 
-	public Integer getThreads() {
-		return threads;
+	public Integer getGroupThreads() {
+		return groupThreads;
+	}
+	
+	public Integer getAllThreads() {
+		return allThreads;
 	}
 	
 

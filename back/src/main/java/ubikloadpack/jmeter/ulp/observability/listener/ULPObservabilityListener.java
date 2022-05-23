@@ -44,8 +44,6 @@ public class ULPObservabilityListener extends AbstractTestElement
 
 	private static final long serialVersionUID = 8170705348132535834L;
 	
-	public static final String TOTAL_LABEL = "total";
-	
 	private static final Logger log = LoggerFactory.getLogger(ULPObservabilityListener.class);
 	
 	
@@ -83,14 +81,26 @@ public class ULPObservabilityListener extends AbstractTestElement
     			);
     }
     
-    public void setMetricsEndpoint(String metricsEndpoint) {
-    	setProperty(ULPObservabilityDefaultConfig.JETTY_METRICS_ENDPOINT_PROP,metricsEndpoint);
+    public void setMetricsRoute(String metricsRoute) {
+    	setProperty(ULPObservabilityDefaultConfig.JETTY_METRICS_ROUTE_PROP,metricsRoute);
     }
     
-    public String getMetricsEndpoint() {
+    public String getMetricsRoute() {
     	return getPropertyAsString(
-    			ULPObservabilityDefaultConfig.JETTY_METRICS_ENDPOINT_PROP, 
-    			ULPObservabilityDefaultConfig.jettyMetricsEndpoint()
+    			ULPObservabilityDefaultConfig.JETTY_METRICS_ROUTE_PROP, 
+    			ULPObservabilityDefaultConfig.jettyMetricsRoute()
+    			);
+    }
+    
+    
+    public void setWebAppRoute(String webAppRoute) {
+    	setProperty(ULPObservabilityDefaultConfig.JETTY_WEBAPP_ROUTE_PROP,webAppRoute);
+    }
+    
+    public String getWebAppRoute() {
+    	return getPropertyAsString(
+    			ULPObservabilityDefaultConfig.JETTY_WEBAPP_ROUTE_PROP, 
+    			ULPObservabilityDefaultConfig.jettyWebAppRoute()
     			);
     }
     
@@ -188,40 +198,37 @@ public class ULPObservabilityListener extends AbstractTestElement
     public ULPObservabilityListener(){
 	}
     
-    
-    
-    // initiate metric structure and server with servlet
+    // initiate metric structure
     public void init() {
-    	this.micrometerReg = new MicrometerRegistry(TOTAL_LABEL, getPct1(), getPct2(), getPct3(), getPctPrecision(), getLogFreq());
-    	this.ulpObservabilityServer = new ULPObservabilityServer(getJettyPort());
- 	    this.ulpObservabilityServlet = new ULPObservabilityServlet(this.micrometerReg);
- 	    this.ulpObservabilityServer.addServletWithMapping(ulpObservabilityServlet, getMetricsEndpoint());
+    	this.micrometerReg = new MicrometerRegistry(ULPObservabilityDefaultConfig.TOTAL_LABEL, getPct1(), getPct2(), getPct3(), getPctPrecision(), getLogFreq());
  	    this.sampleQueue = new LinkedBlockingDeque<ResponseResult>(getBufferCapacity());
  	    this.logTimer = new Timer();
  	    this.micrometerTaskList = new ArrayList<>(); 
- 	    
     }
     
 	public void testStarted() {
+		log.info("test started...");
+		init();
 		
-		 log.info("test started...");
-		 try {
-			init();
+		try {
+ 		   	this.ulpObservabilityServlet = new ULPObservabilityServlet(this.micrometerReg);
+ 	    	this.ulpObservabilityServer = new ULPObservabilityServer(getJettyPort(), getMetricsRoute(), getWebAppRoute());
+ 	 	    this.ulpObservabilityServer.addServletWithMapping(ulpObservabilityServlet);
 			ulpObservabilityServer.start();
 			log.info("Jetty Endpoint started");
-			if(getLogFreq()>0) {
-				this.logTimer.scheduleAtFixedRate(new LogTask(this.micrometerReg), getLogFreq()*1000, getLogFreq()*1000);
-			}
-			
-			for(int i = 0; i < this.getThreadSize(); i++) {
-				this.micrometerTaskList.add(new MicrometerTask(this.micrometerReg, this.sampleQueue));
-				this.micrometerTaskList.get(i).start();
-			}
-			
-
 		} catch (Exception e) {
 			log.error("error while starting Jetty server {}" ,e);
 		}
+		
+		if(getLogFreq()>0) {
+			this.logTimer.scheduleAtFixedRate(new LogTask(this.micrometerReg, this.sampleQueue), getLogFreq()*1000, getLogFreq()*1000);
+		}
+		
+		for(int i = 0; i < this.getThreadSize(); i++) {
+			this.micrometerTaskList.add(new MicrometerTask(this.micrometerReg, this.sampleQueue));
+			this.micrometerTaskList.get(i).start();
+		}
+		
 	}
     
     
@@ -231,11 +238,12 @@ public class ULPObservabilityListener extends AbstractTestElement
 				SampleResult sample = sampleEvent.getResult();
 				if(!this.sampleQueue.offer(
 						new ResponseResult(
-								sample.getSampleLabel(),
+								 sampleEvent.getThreadGroup(),
 								 Util.getResponseTime(sample.getEndTime(),sample.getStartTime()),
 								 sample.getErrorCount() > 0,
 								 sample.getEndTime(),
-								 sample.getGroupThreads()
+								 sample.getGroupThreads(),
+								 sample.getAllThreads()
 								 ),
 						1000,
 						TimeUnit.MILLISECONDS
@@ -244,6 +252,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 					throw new BufferOverflowException();
 				}
 			} catch (InterruptedException e) {
+				log.warn(sampleEvent.getResult().getThreadName()+": Interrupting sample queue");
 			};
 		}
 	}
@@ -262,14 +271,16 @@ public class ULPObservabilityListener extends AbstractTestElement
 	public void testEnded() {
 		
 		log.info("test Ended...");
-		 try {
-			ulpObservabilityServer.stop();
+		try {
+			if(ulpObservabilityServer != null) {
+				ulpObservabilityServer.stop();
+			}
 			log.info("Jetty Endpoint stopped");
 			
-		 } catch (Exception e) {
-			log.error("error while starting Jetty server {}", ulpObservabilityServer.getPort() ,e);
-		
-		 }
+		} catch (Exception e) {
+			log.error("error while starting Jetty server {}", getJettyPort() ,e);
+		}
+		 
 		 this.sampleQueue.clear();
 		 this.micrometerReg.close();
 		 

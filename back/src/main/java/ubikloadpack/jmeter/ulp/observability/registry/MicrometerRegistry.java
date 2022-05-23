@@ -2,7 +2,9 @@ package ubikloadpack.jmeter.ulp.observability.registry;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -12,7 +14,6 @@ import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.Meter.Type;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.config.MeterFilter;
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -28,7 +29,8 @@ public class MicrometerRegistry {
 	private final SampleLogger logger;
 	private final Integer frequency;
 	private final String totalLabel;
-	private final AtomicInteger threads;
+	private final AtomicInteger groupThreads;
+	private final AtomicInteger allThreads;
 	
 	private static final Logger log = LoggerFactory.getLogger(MicrometerRegistry.class);
 	
@@ -64,7 +66,8 @@ public class MicrometerRegistry {
 		this.extraReg = new SimpleMeterRegistry();
 		this.registry.config().meterFilter(filter);
 		this.frequency = frequency;
-		this.threads = new AtomicInteger(0);
+		this.groupThreads = new AtomicInteger(0);
+		this.allThreads = new AtomicInteger(0);
 		
 	}
 	
@@ -94,7 +97,8 @@ public class MicrometerRegistry {
 		this.extraReg.counter("count.total", "sample", sampleTag).increment();
 		this.extraReg.counter("count.total", "sample", this.totalLabel).increment();
 		
-		this.threads.set(result.getThreads());
+		this.groupThreads.set(result.getGroupThreads());
+		this.allThreads.set(result.getAllThreads());
 		
 		if(result.hasError()) {
 			this.registry.counter("count.error", "sample", sampleTag).increment();
@@ -104,21 +108,23 @@ public class MicrometerRegistry {
 	}
 	
 	
-	public SampleLog getLog(String name) {
+	public SampleLog getLog(String name, Date timestamp) {
+		
 		
 		DistributionSummary summary = this.registry.find("summary.response").tag("sample", name).summary();
 		
 		return summary == null ? null : new SampleLog(
 				Util.micrometerToOpenMetrics(name),
-				new Date(),
+				timestamp,
 				(long)this.extraReg.counter("count.total","sample",name).count(),
-				(long) (summary.count() - this.registry.counter("count.error","sample",name).count()),
+				(long) summary.count(),
 				(long)this.registry.counter("count.error","sample",name).count(),
 				summary.takeSnapshot().percentileValues(),
-				(long)summary.mean(),
-				(long)summary.max(),
-				(long)summary.count() / frequency,
-				this.threads.get()
+				(long) summary.totalAmount(),
+				(long) summary.mean(),
+				(long) summary.max(),
+				(long) summary.count() / frequency,
+				name == totalLabel ? allThreads.get() : groupThreads.get()
 				);
 	}
 
@@ -128,8 +134,9 @@ public class MicrometerRegistry {
 	}
 	
 	public SampleLogger log(List<String> names) {
+		Date timestamp = new Date();
 		names.forEach(name ->{
-			this.logger.add(this.getLog(name));
+			this.logger.add(this.getLog(name, timestamp));
 		});
 		return this.logger;
 	}
