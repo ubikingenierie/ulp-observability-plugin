@@ -63,6 +63,7 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 <img src=screenshot/ulp_observability3.png><br/>
 <em>Exemple d'histogramme pour une métrique</em> <br />
 </p>
+
 - Axe y gauche : métrique de chaque groupe d'échantillons
 - Axe y droite : nombre cumulé des threads de chaque groupe d'échantillons
 - Histogrammes actuellement mis en oeuvre pour : réponse moyenne, réponse maximale, centiles, pourcentage d'erreur et débit
