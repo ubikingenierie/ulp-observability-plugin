@@ -37,16 +37,13 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 ###### Back IHM
 
 <p align="center">
-
 <img src=screenshot/ulp_observability1.png><br/>
-<em>Panneau de configuration JMeter de l'écouteur ULP Observability</em> 
+<em>Panneau de configuration JMeter de listener ULP Observability</em> 
 <br/>
 <br/>
 <img src=screenshot/ulp_observability2.png><br/>
-<em>Exemple de résumé des métriques en mode non graphique</em>
+<em>Exemple de rÃ©sumÃ© des mÃ©triques en mode non graphique</em>
 </p>
-
-
 
 
 ##### Front
@@ -64,14 +61,14 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 
 <p align="center">
 <img src=screenshot/ulp_observability3.png><br/>
-<em>Exemple d'histogramme pour une métrique spécifique</em> <br />
+<em>Exemple d'histogramme pour une mÃ©trique</em> <br />
 </p>
-- Axe y gauche : métrique de chaque groupe d'échantillons
-- Axe y droit : nombre de threads cumulés de chaque groupe d'échantillons
-- Histogrammes actuellement mis en œuvre pour : réponse moyenne, réponse maximale, centiles, pourcentage d'erreur et débit
+- Axe y gauche : mÃ©trique de chaque groupe d'Ã©chantillons
+- Axe y droite : nombre cumulÃ© des threads de chaque groupe d'Ã©chantillons
+- Histogrammes actuellement mis en oeuvre pour : rÃ©ponse moyenne, rÃ©ponse maximale, centiles, pourcentage d'erreur et dÃ©bit
 
 <br />
 <p align="center">
 <img src=screenshot/ulp_observability4.png><br/>
-<em>Exemple de résumé des métriques totales</em> <br />
+<em>Exemple de rÃ©sumÃ© des mÃ©triques totales</em> <br />
 </p>

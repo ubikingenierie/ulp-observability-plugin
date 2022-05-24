@@ -26,7 +26,7 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 
 
 ## Technologies et dépendances:
-###### Back
+##### Back
 - [Java](https://www.java.com/) : Language utilisé par Jmeter
 - [Embedded Jetty](https://www.baeldung.com/jetty-embedded) : pour exposer les metrics récoltés par SamplerListener (propre à Jmeter) et calculés par HDRHistogram offre une implémentation de serveurs très légère
 - [Prometheus?](https://prometheus.io/) : (PrometheusMeterRegistry)/(io.micrometer.core.instrument.Metrics) pour calculer d'avantages de métrics et les exposer en un endpoint qui va servir comme source de données pour le front (en cours d'étude)
@@ -34,7 +34,19 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 - [openapi-generator-maven-plugin](https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-maven-plugin) : pour générer les APIs et modèles
 - [Junit](https://www.jmdoudoux.fr/java/dej/chap-junit.htm) : Tests Unitaires
 
-###### Front
+###### Back IHM
+
+<p align="center">
+<img src=screenshot/ulp_observability1.png><br/>
+<em>Panneau de configuration JMeter de listener ULP Observability</em> 
+<br/>
+<br/>
+<img src=screenshot/ulp_observability2.png><br/>
+<em>Exemple de résumé des métriques en mode non graphique</em>
+</p>
+
+
+##### Front
 - [TypeScript](https://www.typescriptlang.org/) : pour profiter du typage pour plus de rigueur et cohérence de données 
 - [AngularJs](https://reactjs.org/) : pour la partie front et graphing : 
         - Des states et hooks pour faciliter la manipulation de données (Métriques)
@@ -44,3 +56,19 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 - [ChartJs](https://www.npmjs.com/package/chart.js?activeTab=readme) : Librarie beaucoup utilisée, maintenu (dernière mise à jour le 16/02/2022) et gratuite.
 - [ng-openapi-gen](https://www.npmjs.com/package/ng-openapi-gen) : générer les objets et les services
 - [Jest](https://jestjs.io/) : Tests unitaires, populaire et préferé par la communauté react et angular
+
+###### Front IHM
+
+<p align="center">
+<img src=screenshot/ulp_observability3.png><br/>
+<em>Exemple d'histogramme pour une métrique</em> <br />
+</p>
+- Axe y gauche : métrique de chaque groupe d'échantillons
+- Axe y droite : nombre cumulé des threads de chaque groupe d'échantillons
+- Histogrammes actuellement mis en oeuvre pour : réponse moyenne, réponse maximale, centiles, pourcentage d'erreur et débit
+
+<br />
+<p align="center">
+<img src=screenshot/ulp_observability4.png><br/>
+<em>Exemple de résumé des métriques totales</em> <br />
+</p>
