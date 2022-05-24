@@ -12,6 +12,7 @@ local.properties
 .settings/
 .loadpath
 .recommenders
+javadoc.xml
 
 # External tool builders
 .externalToolBuilders/
