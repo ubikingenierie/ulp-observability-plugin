@@ -69,7 +69,6 @@ public class ULPObservabilityListener extends AbstractTestElement
      */
     private MicrometerRegistry micrometerReg;
     
-    
     public void setBufferCapacity(Integer bufferCapacity) {
     	setProperty(ULPObservabilityDefaultConfig.BUFFER_CAPACITY_PROP, bufferCapacity);
     }
@@ -322,7 +321,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 			log.info("Jetty Endpoint stopped");
 			
 		} catch (Exception e) {
-			log.error("error while starting Jetty server {}", getJettyPort() ,e);
+			e.printStackTrace();
 		}
 		 
 		 this.sampleQueue.clear();
@@ -332,7 +331,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 		 this.logTimer.purge();
 		 this.micrometerTaskList.forEach((task) -> {
 				task.stop();
-			});;
+			});
 	}
 
 	public void testEnded(String host) {

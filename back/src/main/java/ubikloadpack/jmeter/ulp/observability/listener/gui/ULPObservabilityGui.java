@@ -135,7 +135,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	GroupLayout layout = new GroupLayout(ulpObservabilityConfigPanel);
     	ulpObservabilityConfigPanel.setLayout(layout);
     	
-    	ArrayList<ArrayList<Component>> componentGroups = new ArrayList<>();
+    	List<List<Component>> componentGroups = new ArrayList<>();
     	
     	
     	componentGroups.add(
@@ -186,8 +186,8 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	SequentialGroup sequentialGroup = layout.createSequentialGroup();
     	
     	for(List<Component> componentGroup : componentGroups) {
-    		parallelGroup = addSequentialgroup(layout, parallelGroup, componentGroup);
-    		sequentialGroup = addParallelGroup(layout, sequentialGroup, componentGroup);
+    		addSequentialgroup(layout, parallelGroup, componentGroup);
+    		addParallelGroup(layout, sequentialGroup, componentGroup);
     	}
     
     	
@@ -199,22 +199,22 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     }
     
     
-    private ParallelGroup addSequentialgroup(GroupLayout layout, ParallelGroup parallelGroup, List<Component> components) {
+    private void addSequentialgroup(GroupLayout layout, ParallelGroup parallelGroup, List<Component> components) {
     	SequentialGroup newGroup = layout.createSequentialGroup();
     	for(Component c : components) {
     		newGroup = newGroup.addComponent(c).addPreferredGap(ComponentPlacement.RELATED);
     	
     	}
-    	return parallelGroup.addGroup(newGroup);
+    	parallelGroup.addGroup(newGroup);
     }
     
     
-    private SequentialGroup addParallelGroup(GroupLayout layout, SequentialGroup sequentialGroup, List<Component> components) {
+    private void addParallelGroup(GroupLayout layout, SequentialGroup sequentialGroup, List<Component> components) {
     	ParallelGroup newGroup = layout.createParallelGroup(Alignment.LEADING);
     	for(Component c : components) {
     		newGroup = newGroup.addComponent(c, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,GroupLayout.PREFERRED_SIZE);
     	}
-    	return sequentialGroup.addGroup(newGroup);
+    	sequentialGroup.addGroup(newGroup);
     }
 
     
@@ -239,6 +239,27 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		return ulpObservabilityListener;
 	}
 	
+	
+	private Integer validateNumeric(String text, Integer currentValue) {
+		try {
+			return Integer.parseInt(text);
+		} catch (NumberFormatException e) {
+	        log.error("Must be a number", e);
+	        return currentValue;
+	    }
+	}
+	
+	private String validateRoute(String text, String currentValue) {
+		if(!text.startsWith("/")) {
+			log.error("Route must start with '/'");
+			return currentValue;
+		}
+		if(text.equals("/config")) {
+			log.error("Route /config is reserved for plugin configuration route");
+			return currentValue;
+		}
+		return text;	
+	}
 
     /**
      * Validate and modify listener configuration
@@ -254,23 +275,8 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			if(this.metricsRoute.getText().equals(this.webAppRoute.getText())) {
 				log.error("Jetty Metrics and Web App routes must not be equal");
 			} else {
-				
-				if(!this.metricsRoute.getText().startsWith("/")) {
-					log.error("Jetty Metrics route must start with '/'");
-				} else if(this.metricsRoute.getText().equals("/config")) {
-					log.error("Route /config is reserved for plugin configuration route");
-				} else {
-					sampler.setMetricsRoute(this.metricsRoute.getText());
-				}
-				
-				if(!this.webAppRoute.getText().startsWith("/")) {
-					log.error("Jetty Web App route must start with '/'");
-				} else if(this.webAppRoute.getText().equals("/config")) {
-					log.error("Route /config is reserved for plugin configuration route");
-				} else {
-					sampler.setWebAppRoute(this.webAppRoute.getText());
-				}
-				
+				sampler.setMetricsRoute(validateRoute(metricsRoute.getText(),sampler.getMetricsRoute()));
+				sampler.setWebAppRoute(validateRoute(webAppRoute.getText(),sampler.getWebAppRoute()));	
 			}
 			
 			if(this.totalLabel.getText().isBlank()) {
@@ -279,54 +285,14 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 				sampler.setTotalLabel(this.totalLabel.getText());
 			}
 			
-			
-			try {
-				sampler.setJettyPort(Integer.parseInt(this.jettyPort.getText()));
-			} catch (NumberFormatException e) {
-		        log.error("Jetty Post must be a number", e);
-		    }
-			
-			try {
-				sampler.setThreadSize(Integer.parseInt(this.threadSize.getText()));
-			} catch (NumberFormatException e) {
-		        log.error("Thread size must be a number", e);
-		    }
-			
-			try {
-				sampler.setBufferCapacity(Integer.parseInt(this.bufferCapacity.getText()));
-			} catch (NumberFormatException e) {
-		        log.error("Buffer capacity must be a number", e);
-		    }
-			
-			try {
-				sampler.setPct1(Integer.parseInt(this.pct1.getText()));
-			} catch (NumberFormatException e) {
-		        log.error("Percentiles 1 must be a number", e);
-		    }
-			
-			try {
-				sampler.setPct2(Integer.parseInt(this.pct2.getText()));
-			} catch (NumberFormatException e) {
-		        log.error("Percentiles 2 must be a number", e);
-		    }
-			
-			try {
-				sampler.setPct3(Integer.parseInt(this.pct3.getText()));
-			} catch (NumberFormatException e) {
-		        log.error("Percentiles 3 must be a number", e);
-		    }
-			
-			try {
-				sampler.setPctPrecision(Integer.parseInt(this.pctPrecision.getText()));
-			} catch (NumberFormatException e) {
-		        log.error("Percentiles Precision must be a number", e);
-		    }
-			
-			try {
-				sampler.setLogFreq(Integer.parseInt(this.logFrequency.getText()));
-			} catch (NumberFormatException e) {
-		        log.error("Log Frequency must be a number", e);
-		    }
+			sampler.setJettyPort(validateNumeric(jettyPort.getText(), sampler.getJettyPort()));
+			sampler.setThreadSize(validateNumeric(threadSize.getText(), sampler.getThreadSize()));
+			sampler.setBufferCapacity(validateNumeric(bufferCapacity.getText(), sampler.getBufferCapacity()));
+			sampler.setPct1(validateNumeric(pct1.getText(), sampler.getPct1()));
+			sampler.setPct2(validateNumeric(pct2.getText(), sampler.getPct2()));
+			sampler.setPct3(validateNumeric(pct3.getText(), sampler.getPct3()));
+			sampler.setPctPrecision(validateNumeric(pctPrecision.getText(), sampler.getPctPrecision()));
+			sampler.setLogFreq(validateNumeric(logFrequency.getText(), sampler.getLogFreq()));
 			
 		}
 	}

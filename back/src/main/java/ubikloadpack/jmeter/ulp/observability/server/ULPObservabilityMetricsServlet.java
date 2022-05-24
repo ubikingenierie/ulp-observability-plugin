@@ -80,11 +80,7 @@ public class ULPObservabilityMetricsServlet extends HttpServlet {
 	 */
 	private List<String> getFilter(HttpServletRequest req) {
 		String[] includedParam = req.getParameterValues("name[]");
-		if(includedParam == null) {
-		  return new ArrayList<String>();
-		} else {
-		  return new ArrayList<String>(Arrays.asList(includedParam));
-		}
+		return includedParam == null ?  new ArrayList<String>() : new ArrayList<String>(Arrays.asList(includedParam));
 	}
 	
 	/**

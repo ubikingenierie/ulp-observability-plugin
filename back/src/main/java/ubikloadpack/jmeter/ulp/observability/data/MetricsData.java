@@ -72,11 +72,13 @@ public class MetricsData {
 	}
 	
 	public String read() {
-		if(isOpen) {
-			StringBuilder sBuilder = new StringBuilder();	
-			
-		}
-		return this.isOpen ? this.br.lines().collect(Collectors.joining(System.lineSeparator())) : "";
+		
+//		if(isOpen) {
+//			
+//		}
+//		return this.isOpen ? this.br.lines().collect(Collectors.joining(System.lineSeparator())) : "";
+		
+		return "";
 	}
 	
 	
