@@ -37,11 +37,11 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 ###### Back IHM
 
 <p align="center">
-<img src=screenshot/ulp_observability1.png><br/>
+<img src=back/screenshot/ulp_observability1.png><br/>
 <em>Panneau de configuration JMeter de listener ULP Observability</em> 
 <br/>
 <br/>
-<img src=screenshot/ulp_observability2.png><br/>
+<img src=back/screenshot/ulp_observability2.png><br/>
 <em>Exemple de résumé des métriques en mode non graphique</em>
 </p>
 
@@ -60,7 +60,7 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 ###### Front IHM
 
 <p align="center">
-<img src=screenshot/ulp_observability3.png><br/>
+<img src=back/screenshot/ulp_observability3.png><br/>
 <em>Exemple d'un graphique pour une métrique</em> <br />
 </p>
 
@@ -70,6 +70,6 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 
 <br />
 <p align="center">
-<img src=screenshot/ulp_observability4.png><br/>
+<img src=back/screenshot/ulp_observability4.png><br/>
 <em>Exemple de résumé des métriques totales</em> <br />
 </p>
