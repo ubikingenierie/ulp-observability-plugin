@@ -26,7 +26,7 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 
 
 ## Technologies et d√©pendances:
-###### Back
+##### Back
 - [Java](https://www.java.com/) : Language utilis√© par Jmeter
 - [Embedded Jetty](https://www.baeldung.com/jetty-embedded) : pour exposer les metrics r√©colt√©s par SamplerListener (propre √† Jmeter) et calcul√©s par HDRHistogram offre une impl√©mentation de serveurs tr√®s l√©g√®re
 - [Prometheus?](https://prometheus.io/) : (PrometheusMeterRegistry)/(io.micrometer.core.instrument.Metrics) pour calculer d'avantages de m√©trics et les exposer en un endpoint qui va servir comme source de donn√©es pour le front (en cours d'√©tude)
@@ -34,7 +34,22 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 - [openapi-generator-maven-plugin](https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-maven-plugin) : pour g√©n√©rer les APIs et mod√®les
 - [Junit](https://www.jmdoudoux.fr/java/dej/chap-junit.htm) : Tests Unitaires
 
-###### Front
+###### Back IHM
+
+<p align="center">
+
+<img src=screenshot/ulp_observability1.png><br/>
+<em>Panneau de configuration JMeter de l'Ècouteur ULP Observability</em> 
+<br/>
+<br/>
+<img src=screenshot/ulp_observability2.png><br/>
+<em>Exemple de rÈsumÈ des mÈtriques en mode non graphique</em>
+</p>
+
+
+
+
+##### Front
 - [TypeScript](https://www.typescriptlang.org/) : pour profiter du typage pour plus de rigueur et coh√©rence de donn√©es 
 - [AngularJs](https://reactjs.org/) : pour la partie front et graphing : 
         - Des states et hooks pour faciliter la manipulation de donn√©es (M√©triques)
@@ -44,3 +59,19 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 - [ChartJs](https://www.npmjs.com/package/chart.js?activeTab=readme) : Librarie beaucoup utilis√©e, maintenu (derni√®re mise √† jour le 16/02/2022) et gratuite.
 - [ng-openapi-gen](https://www.npmjs.com/package/ng-openapi-gen) : g√©n√©rer les objets et les services
 - [Jest](https://jestjs.io/) : Tests unitaires, populaire et pr√©fer√© par la communaut√© react et angular
+
+###### Front IHM
+
+<p align="center">
+<img src=screenshot/ulp_observability3.png><br/>
+<em>Exemple d'histogramme pour une mÈtrique spÈcifique</em> <br />
+</p>
+- Axe y gauche†: mÈtrique de chaque groupe d'Èchantillons
+- Axe y droit†: nombre de threads cumulÈs de chaque groupe d'Èchantillons
+- Histogrammes actuellement mis en úuvre pour†: rÈponse moyenne, rÈponse maximale, centiles, pourcentage d'erreur et dÈbit
+
+<br />
+<p align="center">
+<img src=screenshot/ulp_observability4.png><br/>
+<em>Exemple de rÈsumÈ des mÈtriques totales</em> <br />
+</p>
