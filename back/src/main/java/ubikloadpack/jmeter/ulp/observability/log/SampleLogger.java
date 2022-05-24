@@ -132,7 +132,7 @@ public class SampleLogger {
 	 * Generate sample metrics summary in OpenMetrics format
 	 * 
 	 * @param filter Sample name filter
-	 * @param lastOnly Retrieve sample records of all periods
+	 * @param all Retrieve sample records of all periods
 	 * @return List of sample records in OpenMetrics format
 	 */
 	public String openMetrics(List<String> filter, Boolean all) {
@@ -151,7 +151,6 @@ public class SampleLogger {
 	/**
 	 * Generate log summary for debug/non-gui mode
 	 * 
-	 * @param namePadding Padding space needed to fit all sample names in a column
 	 * @return Record logs in form of summary table
 	 */
 	public String guiLog() {

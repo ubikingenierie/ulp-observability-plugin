@@ -195,7 +195,7 @@ public class SampleLog {
 	/**
 	 * Create line for record debug log (see {@link ubikloadpack.jmeter.ulp.observability.log.SampleLogger})
 	 * 
-	 * @param namePadding Fixed padding space for sample name (see {@link ubikloadpack.jmeter.ulp.observability.log.SampleLogger#guiLog(Integer)})
+	 * @param namePadding Fixed padding space for sample name (see {@link ubikloadpack.jmeter.ulp.observability.log.SampleLogger#guiLog()})
 	 * @param totalLabel The label value assigned to record for total samples
 	 * @return Record in debug log format
 	 */

@@ -186,8 +186,8 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	SequentialGroup sequentialGroup = layout.createSequentialGroup();
     	
     	for(List<Component> componentGroup : componentGroups) {
-    		parallelGroup = addParallelGroup(layout, parallelGroup, componentGroup);
-    		sequentialGroup = addSequentialgroup(layout, sequentialGroup, componentGroup);
+    		parallelGroup = addSequentialgroup(layout, parallelGroup, componentGroup);
+    		sequentialGroup = addParallelGroup(layout, sequentialGroup, componentGroup);
     	}
     
     	
@@ -199,14 +199,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     }
     
     
-    /**
-     * Sets new parallel group to config panel
-     * @param layout
-     * @param parallelGroup
-     * @param components
-     * @return
-     */
-    private ParallelGroup addParallelGroup(GroupLayout layout, ParallelGroup parallelGroup, List<Component> components) {
+    private ParallelGroup addSequentialgroup(GroupLayout layout, ParallelGroup parallelGroup, List<Component> components) {
     	SequentialGroup newGroup = layout.createSequentialGroup();
     	for(Component c : components) {
     		newGroup = newGroup.addComponent(c).addPreferredGap(ComponentPlacement.RELATED);
@@ -215,14 +208,8 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	return parallelGroup.addGroup(newGroup);
     }
     
-    /**
-     * sets new sequential group to config panel
-     * @param layout
-     * @param parallelGroup
-     * @param components
-     * @return
-     */
-    private SequentialGroup addSequentialgroup(GroupLayout layout, SequentialGroup sequentialGroup, List<Component> components) {
+    
+    private SequentialGroup addParallelGroup(GroupLayout layout, SequentialGroup sequentialGroup, List<Component> components) {
     	ParallelGroup newGroup = layout.createParallelGroup(Alignment.LEADING);
     	for(Component c : components) {
     		newGroup = newGroup.addComponent(c, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,GroupLayout.PREFERRED_SIZE);

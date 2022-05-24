@@ -31,6 +31,12 @@ public class Util {
 	    	return name.trim().toLowerCase().replaceAll("[ _]",".").replaceAll("[^a-zA-Z0-9.]", "");
 	    }
 	    
+	    /**
+	     * Convert name from micrometer to OpenMetrics format
+	     * 
+	     * @param name Name to format
+	     * @return Name in OpenMetrics format
+	     */
 	    public static String micrometerToOpenMetrics(String name) {
 	    	return name.replace(".","_");
 	    }

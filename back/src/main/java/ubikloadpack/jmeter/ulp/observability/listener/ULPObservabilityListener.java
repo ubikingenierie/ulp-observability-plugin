@@ -32,10 +32,10 @@ import ubikloadpack.jmeter.ulp.observability.util.Util;
  * A class for listening and exposing extended JMeter metrics
  * this class extends AbstractTestElement to define it as a test element
  * and implements :
- * SampleListener: to be notified each time a sample occurred
- * TestStateListener : to be notified each time a test started or ended
- * NoThreadClone : to use the same thread for all samples, in an other way to disable cloning the tread for each sample 
- * Includes embedded Jetty server, sample registry and logger
+ * SampleListener: to be notified each time a sample occurred;
+ * TestStateListener : to be notified each time a test started or ended;
+ * NoThreadClone : to use the same thread for all samples, in an other way to disable cloning the tread for each sample;
+ * Includes embedded Jetty server, sample registry and logger.
  */
 
 public class ULPObservabilityListener extends AbstractTestElement
@@ -232,8 +232,8 @@ public class ULPObservabilityListener extends AbstractTestElement
     }
     
 	/**
-	 * Starts test with fresh sample registry and log
-	 * Creates a given number of registry worker threads
+	 * Starts test with fresh sample registry and log;
+	 * Creates a given number of registry worker threads;
 	 * Starts Jetty server if possible
 	 */
 	public void testStarted() {
@@ -308,8 +308,8 @@ public class ULPObservabilityListener extends AbstractTestElement
 	public void testStarted(String host) {}
 
 	/**
-	 * Ends test and clears sample registry and log
-	 * Stops all running registry task threads
+	 * Ends test and clears sample registry and log;
+	 * Stops all running registry task threads;
 	 * Stops Jetty server if it is running
 	 */
 	public void testEnded() {
