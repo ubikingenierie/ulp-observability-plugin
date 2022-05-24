@@ -2,7 +2,7 @@ package ubikloadpack.jmeter.ulp.observability.util;
 
 
 /**
- * Set of static utility functions
+ * Set of static utility methods
  * 
  * @author Valentin ZELIONII
  *

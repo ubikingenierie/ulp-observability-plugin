@@ -49,15 +49,15 @@ public class MetricsData {
 		try(FileWriter fw = new FileWriter(dataFile,false)) {
 			StringJoiner data = 
 					new StringJoiner(";")
-					.add(dataName+"_response_created")
-					.add(dataName+"_response")
+					.add(dataName+"_created")
+					.add(dataName+"_period")
 					.add(dataName+"_total")
 					.add(dataName+"_error")
-					.add(dataName+"_response_avg")
-					.add(dataName+"_response_max")
-					.add(dataName+"_response_pct1")
-					.add(dataName+"_response_pct2")
-					.add(dataName+"_response_pct3");
+					.add(dataName+"_avg")
+					.add(dataName+"_max")
+					.add(dataName+"_pct1")
+					.add(dataName+"_pct2")
+					.add(dataName+"_pct3");
 			fw.write(data.toString());
 		} catch (IOException e) { }
 		

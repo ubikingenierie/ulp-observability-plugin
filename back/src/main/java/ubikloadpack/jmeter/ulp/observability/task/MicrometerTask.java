@@ -9,14 +9,35 @@ import org.slf4j.LoggerFactory;
 import ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
 import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 
+/**
+ * Runnable task that retrieves sample results from buffer and records them in registry
+ * 
+ * @author Valentin ZELIONII
+ *
+ */
 public class MicrometerTask implements Runnable{
 	
 	private static final Logger log = LoggerFactory.getLogger(MicrometerTask.class);
 	
+	/**
+	 * Sample queue to retrieve results from
+	 */
 	private BlockingQueue<ResponseResult> sampleQueue;
+	/**
+	 * Used samplee registry
+	 */
 	private MicrometerRegistry registry;
+	/**
+	 * Task run status
+	 */
 	private AtomicBoolean running = new AtomicBoolean(false);
+	/**
+	 * Task terminated status
+	 */
 	private AtomicBoolean terminated = new AtomicBoolean(true);
+	/**
+	 * Main worker thread
+	 */
 	private Thread worker;
 	
 	public MicrometerTask(MicrometerRegistry registry, BlockingQueue<ResponseResult> sampleQueue) {
@@ -24,30 +45,49 @@ public class MicrometerTask implements Runnable{
 		this.sampleQueue = sampleQueue;
 	}
 	
+	/**
+	 * Starts the task with new worker thread
+	 */
 	public void start() {
         worker = new Thread(this);
         worker.start();
     }
 	
 
+	/**
+	 * Set run status to stop
+	 */
 	public void stop() {
         running.set(false);
     }
 
+    /**
+     * Interrupt worker thread and set run status to stop
+     */
     public void interrupt() {
     	worker.interrupt();
         running.set(false);
     }
 
+    /**
+     * @return Task run status
+     */
     boolean isRunning() {
         return running.get();
     }
 
 
+    /**
+     * @return Task terminated status
+     */
     boolean isTerminated() {
         return terminated.get();
     }
 
+    
+	/**
+	 * Retrieves sample results from queue and records them to registry while task is run, sets terminated status to true when stopped  
+	 */
 	@Override
 	public void run() {
 		running.set(true);

@@ -10,6 +10,8 @@ import java.util.List;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import ubikloadpack.jmeter.ulp.observability.config.ULPObservabilityDefaultConfig;
+import ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 
 /**
@@ -21,12 +23,32 @@ import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 public class ULPObservabilityMetricsServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 3917512890727558222L;
-	private MicrometerRegistry registry;
 	
-	public ULPObservabilityMetricsServlet(MicrometerRegistry registry) {
-		this.registry = registry;
+	/**
+	 * Period log records
+	 */
+	private SampleLogger logger;
+	
+	
+	/**
+	 * Create new servlet with unbound empty logger
+	 */
+	public ULPObservabilityMetricsServlet() {
+		this(new SampleLogger(ULPObservabilityDefaultConfig.totalLabel()));
 	}
 	
+	public ULPObservabilityMetricsServlet(SampleLogger logger) {
+		setLogger(logger);
+	}
+	
+	/**
+	 * Sets new logger to retrieve records, sets to unbound empty logger if input logger is null
+	 * 
+	 * @param logger Logger instance
+	 */
+	public void setLogger(SampleLogger logger) {
+		this.logger = logger == null ? new SampleLogger(ULPObservabilityDefaultConfig.totalLabel()) : logger;
+	}
 	
 	
 	 /**
@@ -39,7 +61,7 @@ public class ULPObservabilityMetricsServlet extends HttpServlet {
 		  resp.setContentType(contentType);
 		    
 		  try(Writer writer = new BufferedWriter(resp.getWriter())) {
-			  writer.write(registry.getLogger().openMetrics(getFilter(req), this.all(req)));
+			  writer.write(this.logger.openMetrics(getFilter(req), this.all(req)));
 			  writer.flush();
 		  }
 	  }

@@ -22,6 +22,7 @@ public class ULPObservabilityDefaultConfig {
 	public static final String LOG_FREQUENCY_PROP = "ULPObservability.LogFrequency";
 	public static final String METRICS_DATA_PROP = "ULPObservability.MetricsData";
 	public static final String ENABLE_DATA_OUTPUT_PROP = "ULPObservability.EnableDataOutput";
+	public static final String TOTAL_LABEL_PROP = "ULPObservability.TotalLabel";
 
 	
 	/**
@@ -40,7 +41,7 @@ public class ULPObservabilityDefaultConfig {
 	public static final String JETTY_METRICS_ROUTE = "/ulp-o-metrics";
 	
 	/**
-	 * Default route used to expose HTML page
+	 * Default route used to expose Angular web app page
 	 */
 	public static final String JETTY_WEBAPP_ROUTE = "/ulp-observability";
 	
@@ -48,16 +49,17 @@ public class ULPObservabilityDefaultConfig {
 	 * Default route reserved for eventual tests
 	 */
 	public static final String TEST_METRICS_ROUTE_TEST = "/ulp-o-metrics-test";
+
 	
 	/**
-	 * Default sample processing thread size
+	 * Default number of sample registry task threads
 	 */
-	public static final Integer THREAD_SIZE = 5;
+	public static final Integer THREAD_SIZE = 15;
 	
 	/**
 	 * Default sample result queue capacity
 	 */
-	public static final Integer BUFFER_CAPACITY = 20000;
+	public static final Integer BUFFER_CAPACITY = 5000;
 	
 	/**
 	 * Default 1st percentile score
@@ -94,14 +96,21 @@ public class ULPObservabilityDefaultConfig {
 	 */
 	public static final Boolean ENABLE_DATA_OUTPUT = false;
 	
+	/**
+	 * Default OpenMetrics name to denote total metrics
+	 */
+	public static final String TOTAL_LABEL = "total_info";
+	
 	public static Double PCT1_ERROR = 0.01;
 	public static Double PCT2_ERROR = 0.005;
 	public static Double PCT3_ERROR = 0.0025;
 	
-	public static final String TOTAL_LABEL = "total_info";
-	
 	public static String pluginName() {
 		return PLUGIN_NAME;
+	}
+	
+	public static String totalLabel() {
+		return JMeterUtils.getPropDefault(TOTAL_LABEL_PROP, TOTAL_LABEL);
 	}
 	
 	public static Integer jettyServerPort() {

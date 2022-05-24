@@ -53,21 +53,20 @@ public class SampleLog {
 	 */
 	private final Long avg;
 	
-	
 	/**
 	 * Max response time for given period
 	 */
 	private final Long max;
 	
 	/**
-	 * Response throughput per second for given period
+	 * Response throughput per minute for given period
 	 */
 	private final Long throughput;
 	
 	/**
-	 * Number of virtual users
+	 * Virtual users count
 	 */
-	private final Integer threads;
+	private final Long threads;
 	
 	
 	public SampleLog(
@@ -81,7 +80,7 @@ public class SampleLog {
 			Long avg, 
 			Long max, 
 			Long throughput,
-			Integer threads
+			Long threads
 			) {
 		this.sampleName = sampleName;
 		this.timeStamp = timeStamp;
@@ -141,7 +140,7 @@ public class SampleLog {
 		return throughput;
 	}
 	
-	public Integer getThreads() {
+	public Long getThreads() {
 		return threads;
 	}
 	
@@ -180,7 +179,7 @@ public class SampleLog {
 		.append(this.sampleName+"_total{count=\"period\"} "+ this.current + " " + this.timeStamp.getTime() +"\n")	
 		.append(this.sampleName+"_total{count=\"error\"} "+ this.error + " " + this.timeStamp.getTime() +"\n")	
 		
-		.append("# HELP "+this.sampleName+"_throughput Response throughput\n")
+		.append("# HELP "+this.sampleName+"_throughput Responses per second\n")
 		.append("# TYPE "+this.sampleName+"_throughput gauge\n")
 		.append(this.sampleName+"_throughput "+ this.throughput + " " + this.timeStamp.getTime() +"\n");
 		
@@ -217,7 +216,7 @@ public class SampleLog {
 			s.append(String.format("|%5d",(long)pc.value()));
 		}
 		
-		return s.append(String.format("|%5d|%10d|%n",this.max,this.throughput)).toString();
+		return s.append(String.format("|%5d|%10d|%10d|%n",this.max,this.throughput,this.threads)).toString();
 	}
 	
 	

@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ubikloadpack.jmeter.ulp.observability.data.MetricsData;
-
 /**
  * Represents the storage of periodic sample logs (see {@link ubikloadpack.jmeter.ulp.observability.log.SampleLog} ) 
  *
@@ -179,12 +177,13 @@ public class SampleLogger {
 				+ "+-----"
 				+ "+-----"
 				+ "+----------"
+				+ "+----------"
 				+ "+\n";
 		
 		s.append("\n"+ new Date().toString() + "\n" +divider);
 		
 		s.append(
-				String.format("|%"+namePadding+"s|%10s|%10s|%10s|%7s%%|%5s|%5s|%5s|%5s|%5s|%10s|%n",
+				String.format("|%"+namePadding+"s|%10s|%10s|%10s|%7s%%|%5s|%5s|%5s|%5s|%5s|%10s|%10s|%n",
 						"Thread Group Name",
 						"Total",
 						"Count",
@@ -195,7 +194,8 @@ public class SampleLogger {
 						"Pct 2",
 						"Pct 3",
 						"Max",
-						"Throughput"
+						"Throughput",
+						"Threads"
 						)
 				);
 		
