@@ -11,7 +11,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 
@@ -22,7 +21,6 @@ const materialModules = [
   MatSelectModule,
   MatIconModule,
   MatToolbarModule,
-  MatDividerModule,
   MatCardModule,
   MatTableModule
 ];

@@ -18,23 +18,24 @@
         </div>
 
         <div class="content" *ngSwitchCase="2">
-            <app-ulp-observability-metrics
-            [datasets]="datasets">
-            </app-ulp-observability-metrics>
             <div *ngFor="let chart of chartData | keyvalue">
                 <app-ulp-observability-chart
                 [datasets]="datasets[chart.key]"
+                [threads]="threads"
                 [title]="chart.value"
+                [totalLabel]="totalLabel"
                 ></app-ulp-observability-chart>
             </div>
+
+            <app-ulp-observability-metrics
+            [datasets]="datasets"
+            [totalLabel]="totalLabel"
+            [threads]="threads[totalLabel+'_threads']"
+            >
+            </app-ulp-observability-metrics>
         </div>
 
         <div class="info" *ngSwitchCase="3">
-            <mat-icon aria-hidden="false">error</mat-icon>
-            <span class="icon-align">Error on retrieving metrics data</span>
-        </div>
-
-        <div class="info" *ngSwitchCase="4">
             <mat-icon aria-hidden="false">error</mat-icon>
             <span class="icon-align">Startup error, retrying...</span>
         </div>
@@ -45,5 +46,14 @@
         </div>
 
     </div> 
+
+
+    <mat-card *ngIf="!reqSuccessful">
+        <mat-card-content>
+            <mat-icon aria-hidden="false">error</mat-icon>
+            <span class="icon-align">Error on retrieving metrics data</span>
+        </mat-card-content>    
+    </mat-card>
+    
 </div>
 

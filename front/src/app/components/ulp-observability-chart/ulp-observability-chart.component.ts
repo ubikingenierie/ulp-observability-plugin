@@ -13,7 +13,9 @@ import { DatasetGroup } from 'src/app/model/chart-data';
 export class UlpObservabilityChartComponent implements OnChanges, OnInit {
   
   @Input() datasets : DatasetGroup = {};
+  @Input() threads : DatasetGroup = {};
   @Input() title : string = '';
+  @Input() totalLabel = 'total_info';
 
   private names : Array<string> = [];
   
@@ -97,14 +99,14 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
 
   private updateChart(): void{
 
-    Object.entries(this.datasets).forEach(entry => {
-      if(entry[0] !== 'Total Info'){
+    Object.entries({...this.datasets, ...this.threads}).forEach(entry => {
+      if(entry[0] !== this.totalLabel && entry[0] !== this.totalLabel+'_threads'){
         if(this.names.indexOf(entry[0]) < 0){
           this.names.push(entry[0]);
           this.data.datasets.push({
             label: entry[0],
             data: [],
-            yAxisID: entry[0].endsWith(' Threads') ? 'y1' : 'y'
+            yAxisID: entry[0].endsWith('_threads') ? 'y1' : 'y'
           });
         }
   

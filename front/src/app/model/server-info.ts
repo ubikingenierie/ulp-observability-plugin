@@ -1,4 +1,5 @@
 export interface ServerInfo {
     metricsUrl: string,
-    logFreq: number
+    logFreq: number,
+    totalLabel: string
 }

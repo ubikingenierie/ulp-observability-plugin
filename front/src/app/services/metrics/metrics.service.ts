@@ -28,7 +28,7 @@ export class MetricsService {
   }
 
   getMetricsServerInfo(): Observable<ServerInfo>{
-    return this.http.get<ServerInfo>("/info",{ responseType: 'json' });
+    return this.http.get<ServerInfo>("/config",{ responseType: 'json' });
   }
 
 

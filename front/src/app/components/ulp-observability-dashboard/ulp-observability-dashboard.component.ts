@@ -4,8 +4,8 @@ import { seconds } from 'src/app/utility/time';
 import parsePrometheusTextFormat from 'src/app/utility/parser/prometheus-parser';
 import 'chartjs-adapter-moment';
 import { Sample } from 'src/app/model/sample';
-import { ChartData, Datasets } from 'src/app/model/chart-data';
-import { sample } from 'rxjs';
+import { ChartData, DatasetGroup, Datasets } from 'src/app/model/chart-data';
+import { Observable } from 'rxjs';
 
 
 interface NamePostfix {
@@ -17,8 +17,7 @@ const MetricsStatus = Object.freeze({
   INFO:0,
   EMPTY:1,
   SUCCESS:2,
-  ERROR:3,
-  INFO_ERROR:4
+  ERROR:3
 });
 
 @Component({
@@ -29,11 +28,15 @@ const MetricsStatus = Object.freeze({
 export class UlpObservabilityDashboardComponent implements OnInit{
 
   private postfix = ['total', 'avg', 'max', 'throughput', 'threads'];
+  private updateFrequencyS = 60;  
+  
+  totalLabel = 'total_info';
   chartData : ChartData = {};
   datasets: Datasets = {};
+  threads: DatasetGroup = {};
   status = MetricsStatus.INFO;
+  reqSuccessful = true;
 
-  private updateFrequencyS = 60;
 
   constructor(private metricService: MetricsService) { }
 
@@ -45,46 +48,38 @@ export class UlpObservabilityDashboardComponent implements OnInit{
     this.metricService.getMetricsServerInfo().subscribe({
       next: (info) =>{
         this.updateFrequencyS = info.logFreq;
+        this.totalLabel = info.totalLabel;
         this.metricService.setMetricsURL(info.metricsUrl);
+        this.status = MetricsStatus.EMPTY;
         this.requestMetrics();
       },
       error:() => {
-        this.status = MetricsStatus.INFO_ERROR;
+        this.status = MetricsStatus.ERROR;
         setTimeout(() => this.requestInfo(), seconds(10));
       }
     });
   }
 
   private requestMetrics(): void {
+    this.sendRequest(this.metricService.getAllMetrics());
+    setInterval(()=>this.sendRequest(this.metricService.getLastMetrics()), seconds(this.updateFrequencyS));
+  }
+  
 
-    this.metricService.getAllMetrics().subscribe({
+  private sendRequest(observable : Observable<String>) : void {
+    observable.subscribe({
       next: (metricsText) => {
         const samples : Array<Sample> = parsePrometheusTextFormat(metricsText);
-        if(samples.length == 0){
-          this.status = MetricsStatus.EMPTY;
-        }
-        else{
+        this.reqSuccessful = true;
+        if(samples.length > 0){
           this.status = MetricsStatus.SUCCESS;
           this.pushData(samples);
         }
       },
       error: () => {
-        this.status = MetricsStatus.ERROR;
+        this.reqSuccessful = false;
       }
-    });
-
-    setInterval(()=>{
-      this.metricService.getLastMetrics().subscribe({
-        next: (metricsText) => {
-          this.status = MetricsStatus.SUCCESS;
-          this.pushData(parsePrometheusTextFormat(metricsText));
-        },
-        error: () => {
-          this.status = MetricsStatus.ERROR;
-        }
-      });
-   }, seconds(this.updateFrequencyS));
-
+    })
   }
 
   private getNamePostfix(namePostfix: string): NamePostfix {
@@ -98,10 +93,6 @@ export class UlpObservabilityDashboardComponent implements OnInit{
         name: split.slice(0,split.length-1).join("_"),
         postfix: split[split.length - 1]
     }
-  }
-
-  private prettyName(name: string) : string {
-    return name.split("_").map(s => s.charAt(0).toUpperCase()+s.substring(1)).join(" ")
   }
 
   private pushMetric(type: string, name: string, timestamp: Date, value: any): void {
@@ -131,17 +122,15 @@ export class UlpObservabilityDashboardComponent implements OnInit{
     Object.keys(this.datasets).forEach(key => {
       this.datasets[key] = {};
     });
+    this.threads = {};
   }
 
   private pushData(samples: Array<Sample>) : void {
     this.clearData();
-    const threads: Array<{name: string, x: Date, y: any}> = [];
 
     samples.forEach(sample => {
       if(sample.metrics[0] !== undefined){
         const namePostfix : NamePostfix = this.getNamePostfix(sample.name);
-        const name = this.prettyName(namePostfix.name);
-
         const timestamp = new Date(+(sample.metrics[0].timestamp_ms ?? sample.metrics[0].created ?? 0));
 
         switch(namePostfix.postfix){
@@ -149,8 +138,9 @@ export class UlpObservabilityDashboardComponent implements OnInit{
           case('throughput'):
           case('max'):
             this.addChart(namePostfix.postfix,sample.help);
-            this.pushMetric(namePostfix.postfix, name, timestamp, sample.metrics[0].value);
+            this.pushMetric(namePostfix.postfix, namePostfix.name, timestamp, sample.metrics[0].value);
             break;
+
           case('total'):
             let error = 0;
             let count = 0;
@@ -158,15 +148,15 @@ export class UlpObservabilityDashboardComponent implements OnInit{
               if(metric.labels !== undefined){
                 switch(metric.labels['count']){
                   case('all'):
-                    this.pushMetric('total', name, timestamp, sample.metrics[0].value);
+                    this.pushMetric('total', namePostfix.name, timestamp, sample.metrics[0].value);
                     break;
                   case('error'):
                     error = metric.value ?? 0;
-                    this.pushMetric('error', name, new Date(timestamp), error);
+                    this.pushMetric('error', namePostfix.name, new Date(timestamp), error);
                     break;
                   case('period'):
                     count = metric.value ?? 0;
-                    this.pushMetric('period', name, new Date(timestamp), count);
+                    this.pushMetric('period', namePostfix.name, new Date(timestamp), count);
                     break;
                   default:
                 }
@@ -176,37 +166,34 @@ export class UlpObservabilityDashboardComponent implements OnInit{
             this.addChart('errorP','Error %');
             this.pushMetric(
               'errorP', 
-              name, 
+              namePostfix.name, 
               new Date(timestamp), 
               error == 0 ? 0 : error / count * 100
             );
             break;
+
           case('pc'):
             if(sample.metrics[0].quantiles !== undefined){
               Object.entries(sample.metrics[0].quantiles).forEach(quantile => {
                 this.addChart('pc'+quantile[0], sample.help+' ('+quantile[0]+'th)');
-                this.pushMetric('pc'+quantile[0], name, timestamp, quantile[1]);
+                this.pushMetric('pc'+quantile[0], namePostfix.name, timestamp, quantile[1]);
               });
             }
             break;
-            case('threads'):
-              if(namePostfix.name !== 'total_info'){
-                threads.push({
-                  name: name,
-                  x: timestamp,
-                  y: sample.metrics[0].value
-                });
-              }
-              break;
-            default:
+
+          case('threads'):
+            if(this.threads[namePostfix.name + '_threads'] === undefined){
+              this.threads[namePostfix.name + '_threads'] = [];
+            }
+            this.threads[namePostfix.name + '_threads'].push({
+              x: timestamp,
+              y: sample.metrics[0].value
+            });
+            break;
+
+          default:
         }
       } 
-    });
-
-    threads.forEach(thread =>{
-      Object.keys(this.datasets).forEach(key => {
-        this.pushMetric(key, thread.name+" Threads", thread.x, thread.y);
-      });
     });
   }
 }
