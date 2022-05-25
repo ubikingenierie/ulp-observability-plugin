@@ -47,9 +47,9 @@ export class UlpObservabilityDashboardComponent implements OnInit{
   private requestInfo() : void {
     this.metricService.getMetricsServerInfo().subscribe({
       next: (info) =>{
-        this.updateFrequencyS = info.logFreq;
+        this.updateFrequencyS = info.logFrequency;
         this.totalLabel = info.totalLabel;
-        this.metricService.setMetricsURL(info.metricsUrl);
+        this.metricService.setMetricsURL(info.metricsRoute);
         this.status = MetricsStatus.EMPTY;
         this.requestMetrics();
       },

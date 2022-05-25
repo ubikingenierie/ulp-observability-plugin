@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Observable} from "rxjs";
-import { ServerInfo } from 'src/app/model/server-info';
+import { PluginConfig } from 'src/app/model/plugin-config';
 
 @Injectable({
   providedIn: 'root'
@@ -27,8 +27,8 @@ export class MetricsService {
          return this.http.get<String>(this.metricsURL,{ headers: this.headers, responseType: 'text' as 'json' });
   }
 
-  getMetricsServerInfo(): Observable<ServerInfo>{
-    return this.http.get<ServerInfo>("/config",{ responseType: 'json' });
+  getMetricsServerInfo(): Observable<PluginConfig>{
+    return this.http.get<PluginConfig>("/config",{ responseType: 'json' });
   }
 
 
