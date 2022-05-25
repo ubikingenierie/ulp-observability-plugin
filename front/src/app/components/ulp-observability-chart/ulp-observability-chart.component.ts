@@ -3,6 +3,7 @@ import { ChartType, ChartConfiguration } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import 'chartjs-adapter-moment';
 import { DatasetGroup } from 'src/app/model/chart-data';
+import * as moment from 'moment';
 
 
 @Component({
@@ -61,7 +62,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
               tickColor: 'grey'
             },
             ticks: {
-              display: true
+              display: true,
             },
             time: {
               unit: 'minute',
@@ -96,6 +97,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
       },
     };
   }
+
 
   private updateChart(): void{
 

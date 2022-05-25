@@ -18,6 +18,7 @@ import org.apache.jmeter.testelement.TestStateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ubikloadpack.jmeter.ulp.observability.config.PluginConfig;
 import ubikloadpack.jmeter.ulp.observability.config.ULPObservabilityDefaultConfig;
 import ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
 import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
@@ -240,11 +241,20 @@ public class ULPObservabilityListener extends AbstractTestElement
 		init();
 		try {
  	    	this.ulpObservabilityServer = new ULPObservabilityServer(
- 	    			getJettyPort(), 
- 	    			getMetricsRoute(), 
- 	    			getWebAppRoute(), 
- 	    			getLogFreq(), 
- 	    			getTotalLabel(),
+ 	    			new PluginConfig(
+ 	    					ULPObservabilityDefaultConfig.PLUGIN_NAME,
+ 	    					getJettyPort(),
+ 	    					getMetricsRoute(),
+ 	    					getWebAppRoute(),
+ 	    					getThreadSize(), 
+ 	    					getBufferCapacity(),
+ 	    					getPct1(),
+ 	    					getPct2(), 
+ 	    					getPct3(), 
+ 	    					getPctPrecision(), 
+ 	    					getLogFreq(), 
+ 	    					getTotalLabel()
+ 	    					),
  	    			this.micrometerReg.getLogger()
  	    			);
 			ulpObservabilityServer.start();

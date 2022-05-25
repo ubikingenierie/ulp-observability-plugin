@@ -2,7 +2,7 @@
     <h1>Total Info</h1>
     <div fxLayout="row wrap" fxLayoutGap="16px grid">
         <div fxFlex="33%" *ngFor="let card of cards | keyvalue">
-            <mat-card>
+            <mat-card class="mat-elevation-z8">
                 <mat-card-title-group>
                     <mat-card-title>
                         <mat-icon>{{cards[card.key].icon}}</mat-icon>

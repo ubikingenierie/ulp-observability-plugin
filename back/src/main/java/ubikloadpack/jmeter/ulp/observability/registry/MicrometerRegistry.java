@@ -89,7 +89,7 @@ public class MicrometerRegistry {
 		
 		this.totalLabel = Util.makeMicrometerName(totalLabel);
 		
-		this.logger = new SampleLogger(Util.makeOpenMetricsName(totalLabel));
+		this.logger = new SampleLogger(Util.makeOpenMetricsName(totalLabel),pct1,pct2,pct3);
 		this.registry = new SimpleMeterRegistry();
 		this.totalReg = new SimpleMeterRegistry();
 		this.registry.config().meterFilter(filter);

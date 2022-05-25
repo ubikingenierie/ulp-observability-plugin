@@ -213,10 +213,10 @@ public class SampleLog {
 								)
 						);
 		for(ValueAtPercentile pc : pct) {
-			s.append(String.format("|%5d",(long)pc.value()));
+			s.append(String.format("|%7d",(long)pc.value()));
 		}
 		
-		return s.append(String.format("|%5d|%10d|%10d|%n",this.max,this.throughput,this.threads)).toString();
+		return s.append(String.format("|%5d|%10d|%7d|%n",this.max,this.throughput,this.threads)).toString();
 	}
 	
 	

@@ -4,9 +4,16 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import ubikloadpack.jmeter.ulp.observability.config.PluginConfig;
 
 /**
  * HttpServlet to expose plugin configuration
@@ -18,24 +25,21 @@ public class ULPObservabilityConfigServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 5903356626691130717L;
 	
-	/**
-	 * Metrics resource route
-	 */
-	private final String metricsRoute;
-	/**
-	 * Currently assigned total label
-	 */
-	private final String totalLabel;
-	/**
-	 * Log frequency
-	 */
-	private final Integer freqLog;
+	private static final Logger log = LoggerFactory.getLogger(ULPObservabilityConfigServlet.class);
+
+	
+	private final String pluginConfigJson;
 	
 	
-	public ULPObservabilityConfigServlet(String metricsRoute, Integer freqLog, String totalLabel) {
-		this.metricsRoute = metricsRoute;
-		this.freqLog = freqLog;
-		this.totalLabel = totalLabel;
+	public ULPObservabilityConfigServlet(PluginConfig pluginConfig) {
+		String json = "{}";
+		try {
+			json = new ObjectMapper().writeValueAsString(pluginConfig);
+		} catch (JsonProcessingException e) {
+			log.error("Unable to serialize plugin config into JSON {}",e);
+		} finally {
+			this.pluginConfigJson = json;
+		}
 	}
 	
 	/**
@@ -47,9 +51,7 @@ public class ULPObservabilityConfigServlet extends HttpServlet{
 		  resp.setContentType("application/json");
 		    
 		  try(Writer writer = new BufferedWriter(resp.getWriter())) {
-			  writer.write("{\"metricsUrl\":\""+this.metricsRoute
-					  +"\",\"logFreq\":"+this.freqLog
-					  +",\"totalLabel\":\""+this.totalLabel+"\"}");
+			  writer.write(pluginConfigJson);
 			  writer.flush();
 		  }
 	  }

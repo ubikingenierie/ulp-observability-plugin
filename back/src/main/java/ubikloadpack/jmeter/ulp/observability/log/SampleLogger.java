@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ubikloadpack.jmeter.ulp.observability.config.ULPObservabilityDefaultConfig;
+
 /**
  * Represents the storage of periodic sample logs (see {@link ubikloadpack.jmeter.ulp.observability.log.SampleLog} ) 
  *
@@ -32,15 +34,35 @@ public class SampleLogger {
 	 */
 	private final String total_label;
 	
+	/**
+	 * First percentile score
+	 */
+	private final Integer pct1;
+	/**
+	 * Second percentile score
+	 */
+	private final Integer pct2;
+	/**
+	 * third percentile score
+	 */
+	private final Integer pct3;
+	
 	private static final Logger log = LoggerFactory.getLogger(SampleLogger.class);
 
-	public SampleLogger(String total_label) {
-		this(total_label, new ArrayList<>());
+	public SampleLogger() {
+		this(ULPObservabilityDefaultConfig.totalLabel(), ULPObservabilityDefaultConfig.pct1(), ULPObservabilityDefaultConfig.pct2(), ULPObservabilityDefaultConfig.pct3(), new ArrayList<>());
 	}
 	
-	public SampleLogger(String total_label, Collection<SampleLog> logger) {
+	public SampleLogger(String total_label, Integer pct1, Integer pct2, Integer pct3) {
+		this(total_label,pct1,pct2,pct3,new ArrayList<>());
+	}
+	
+	public SampleLogger(String total_label, Integer pct1, Integer pct2, Integer pct3, Collection<SampleLog> logger) {
 		this.logger = new ConcurrentLinkedQueue<>(logger);
 		this.total_label = total_label;
+		this.pct1 = pct1;
+		this.pct2 = pct2;
+		this.pct3 = pct3;
 	}
 	
 	
@@ -171,27 +193,27 @@ public class SampleLogger {
 				+ "+----------"
 				+ "+--------"
 				+ "+-----"
-				+ "+-----"
-				+ "+-----"
-				+ "+-----"
+				+ "+-------"
+				+ "+-------"
+				+ "+-------"
 				+ "+-----"
 				+ "+----------"
-				+ "+----------"
+				+ "+-------"
 				+ "+\n";
 		
 		s.append("\n"+ new Date().toString() + "\n" +divider);
 		
 		s.append(
-				String.format("|%"+namePadding+"s|%10s|%10s|%10s|%7s%%|%5s|%5s|%5s|%5s|%5s|%10s|%10s|%n",
+				String.format("|%"+namePadding+"s|%10s|%10s|%10s|%7s%%|%5s|%7s|%7s|%7s|%5s|%10s|%7s|%n",
 						"Thread Group Name",
 						"Total",
 						"Count",
 						"Error",
 						"Err ",
 						"Avg",
-						"Pct 1",
-						"Pct 2",
-						"Pct 3",
+						"Pc "+pct1+"th",
+						"Pc "+pct2+"th",
+						"Pc "+pct3+"th",
 						"Max",
 						"Throughput",
 						"Threads"

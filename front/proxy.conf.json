@@ -4,7 +4,7 @@
     "secure": false
   },
 
-  "/info/*": {
+  "/config/*": {
     "target": "http://localhost:9090",
     "secure": false
   }

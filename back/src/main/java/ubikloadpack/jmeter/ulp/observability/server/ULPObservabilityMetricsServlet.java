@@ -34,7 +34,7 @@ public class ULPObservabilityMetricsServlet extends HttpServlet {
 	 * Create new servlet with unbound empty logger
 	 */
 	public ULPObservabilityMetricsServlet() {
-		this(new SampleLogger(ULPObservabilityDefaultConfig.totalLabel()));
+		this(new SampleLogger());
 	}
 	
 	public ULPObservabilityMetricsServlet(SampleLogger logger) {
@@ -47,7 +47,7 @@ public class ULPObservabilityMetricsServlet extends HttpServlet {
 	 * @param logger Logger instance
 	 */
 	public void setLogger(SampleLogger logger) {
-		this.logger = logger == null ? new SampleLogger(ULPObservabilityDefaultConfig.totalLabel()) : logger;
+		this.logger = logger == null ? new SampleLogger() : logger;
 	}
 	
 	
