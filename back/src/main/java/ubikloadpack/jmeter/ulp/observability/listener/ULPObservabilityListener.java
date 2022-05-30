@@ -18,8 +18,8 @@ import org.apache.jmeter.testelement.TestStateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ubikloadpack.jmeter.ulp.observability.config.PluginConfig;
-import ubikloadpack.jmeter.ulp.observability.config.ULPObservabilityDefaultConfig;
+import ubikloadpack.jmeter.ulp.observability.config.ULPODefaultConfig;
+import ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 import ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
 import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 import ubikloadpack.jmeter.ulp.observability.server.ULPObservabilityServer;
@@ -42,15 +42,27 @@ import ubikloadpack.jmeter.ulp.observability.util.Util;
 public class ULPObservabilityListener extends AbstractTestElement
              implements SampleListener, TestStateListener, NoThreadClone, Serializable {
 	
-
 	private static final long serialVersionUID = 8170705348132535834L;
 	
-	private static final Logger log = LoggerFactory.getLogger(ULPObservabilityListener.class);
+	/**
+	 * Debug logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(ULPObservabilityListener.class);
 
     /**
      * ULP Observability Jetty server
      */
     private ULPObservabilityServer ulpObservabilityServer;
+    
+    /**
+     * Sample record logger.
+     */
+    private SampleLogger logger;
+    
+    /**
+     * Sample metrics registry.
+     */
+    private MicrometerRegistry registry;
     
     /**
      * Logger timer
@@ -65,157 +77,132 @@ public class ULPObservabilityListener extends AbstractTestElement
      */
     private List<MicrometerTask> micrometerTaskList;
     
-    /**
-     * Sample registry
-     */
-    private MicrometerRegistry micrometerReg;
-    
     public void setBufferCapacity(Integer bufferCapacity) {
-    	setProperty(ULPObservabilityDefaultConfig.BUFFER_CAPACITY_PROP, bufferCapacity);
+    	setProperty(ULPODefaultConfig.BUFFER_CAPACITY_PROP, bufferCapacity);
     }
     
     public Integer getBufferCapacity() {
     	return getPropertyAsInt(
-    			ULPObservabilityDefaultConfig.BUFFER_CAPACITY_PROP, 
-    			ULPObservabilityDefaultConfig.bufferCapacity()
+    			ULPODefaultConfig.BUFFER_CAPACITY_PROP, 
+    			ULPODefaultConfig.bufferCapacity()
     			);
     }
     
     public void setJettyPort(Integer jettyPort) {
-    	setProperty(ULPObservabilityDefaultConfig.JETTY_SERVER_PORT_PROP,jettyPort);
+    	setProperty(ULPODefaultConfig.JETTY_SERVER_PORT_PROP,jettyPort);
     }
     
     public Integer getJettyPort() {
     	return getPropertyAsInt(
-    			ULPObservabilityDefaultConfig.JETTY_SERVER_PORT_PROP, 
-    			ULPObservabilityDefaultConfig.jettyServerPort()
+    			ULPODefaultConfig.JETTY_SERVER_PORT_PROP, 
+    			ULPODefaultConfig.jettyServerPort()
     			);
     }
     
     public void setMetricsRoute(String metricsRoute) {
-    	setProperty(ULPObservabilityDefaultConfig.JETTY_METRICS_ROUTE_PROP,metricsRoute);
+    	setProperty(ULPODefaultConfig.JETTY_METRICS_ROUTE_PROP,metricsRoute);
     }
     
     public String getMetricsRoute() {
     	return getPropertyAsString(
-    			ULPObservabilityDefaultConfig.JETTY_METRICS_ROUTE_PROP, 
-    			ULPObservabilityDefaultConfig.jettyMetricsRoute()
+    			ULPODefaultConfig.JETTY_METRICS_ROUTE_PROP, 
+    			ULPODefaultConfig.jettyMetricsRoute()
     			);
     }
     
     
     public void setWebAppRoute(String webAppRoute) {
-    	setProperty(ULPObservabilityDefaultConfig.JETTY_WEBAPP_ROUTE_PROP,webAppRoute);
+    	setProperty(ULPODefaultConfig.JETTY_WEBAPP_ROUTE_PROP,webAppRoute);
     }
     
     public String getWebAppRoute() {
     	return getPropertyAsString(
-    			ULPObservabilityDefaultConfig.JETTY_WEBAPP_ROUTE_PROP, 
-    			ULPObservabilityDefaultConfig.jettyWebAppRoute()
+    			ULPODefaultConfig.JETTY_WEBAPP_ROUTE_PROP, 
+    			ULPODefaultConfig.jettyWebAppRoute()
     			);
     }
     
     public void setThreadSize(Integer threadSize) {
-    	setProperty(ULPObservabilityDefaultConfig.THREAD_SIZE_PROP,threadSize);
+    	setProperty(ULPODefaultConfig.THREAD_SIZE_PROP,threadSize);
     }
     
     public Integer getThreadSize() {
     	return getPropertyAsInt(
-    			ULPObservabilityDefaultConfig.THREAD_SIZE_PROP, 
-    			ULPObservabilityDefaultConfig.threadSize()
+    			ULPODefaultConfig.THREAD_SIZE_PROP, 
+    			ULPODefaultConfig.threadSize()
     			);
     }
     
     
     public void setPct1(Integer pct1) {
-    	setProperty(ULPObservabilityDefaultConfig.PCT1_PROP,pct1);
+    	setProperty(ULPODefaultConfig.PCT1_PROP,pct1);
     }
     
     public Integer getPct1() {
     	return getPropertyAsInt(
-    			ULPObservabilityDefaultConfig.PCT1_PROP, 
-    			ULPObservabilityDefaultConfig.pct1()
+    			ULPODefaultConfig.PCT1_PROP, 
+    			ULPODefaultConfig.pct1()
     			);
     }
     
     public void setPct2(Integer pct2) {
-    	setProperty(ULPObservabilityDefaultConfig.PCT2_PROP,pct2);
+    	setProperty(ULPODefaultConfig.PCT2_PROP,pct2);
     }
     
     public Integer getPct2() {
     	return getPropertyAsInt(
-    			ULPObservabilityDefaultConfig.PCT2_PROP, 
-    			ULPObservabilityDefaultConfig.pct2()
+    			ULPODefaultConfig.PCT2_PROP, 
+    			ULPODefaultConfig.pct2()
     			);
     }
     
     public void setPct3(Integer pct3) {
-    	setProperty(ULPObservabilityDefaultConfig.PCT3_PROP,pct3);
+    	setProperty(ULPODefaultConfig.PCT3_PROP,pct3);
     }
     
     public Integer getPct3() {
     	return getPropertyAsInt(
-    			ULPObservabilityDefaultConfig.PCT3_PROP, 
-    			ULPObservabilityDefaultConfig.pct3()
+    			ULPODefaultConfig.PCT3_PROP, 
+    			ULPODefaultConfig.pct3()
     			);
     }
     
     public void setPctPrecision(Integer pct_precision) {
-    	setProperty(ULPObservabilityDefaultConfig.PCT_PRECISION_PROP, pct_precision);
+    	setProperty(ULPODefaultConfig.PCT_PRECISION_PROP, pct_precision);
     }
     
     
     public Integer getPctPrecision() {
     	return getPropertyAsInt(
-    			ULPObservabilityDefaultConfig.PCT_PRECISION_PROP, 
-    			ULPObservabilityDefaultConfig.pctPrecision()
+    			ULPODefaultConfig.PCT_PRECISION_PROP, 
+    			ULPODefaultConfig.pctPrecision()
     			);
     }
     
     public void setLogFreq(Integer logFreq) {
-    	setProperty(ULPObservabilityDefaultConfig.LOG_FREQUENCY_PROP, logFreq);
+    	setProperty(ULPODefaultConfig.LOG_FREQUENCY_PROP, logFreq);
     }
     
     public Integer getLogFreq() {
     	return getPropertyAsInt(
-    			ULPObservabilityDefaultConfig.LOG_FREQUENCY_PROP, 
-    			ULPObservabilityDefaultConfig.logFrequecny()
+    			ULPODefaultConfig.LOG_FREQUENCY_PROP, 
+    			ULPODefaultConfig.logFrequecny()
     			);
-    }
-    
-    
-    public void setMetricsData(String metricsData) {
-    	setProperty(ULPObservabilityDefaultConfig.METRICS_DATA_PROP,metricsData);
-    }
-    
-    public String getMetricsData() {
-    	return getPropertyAsString(
-    			ULPObservabilityDefaultConfig.METRICS_DATA_PROP, 
-    			ULPObservabilityDefaultConfig.metricsData()
-    			);
-    }
-    
-    public Boolean dataOutputEnabled() {
-    	return getPropertyAsBoolean(
-    			ULPObservabilityDefaultConfig.ENABLE_DATA_OUTPUT_PROP,
-    			ULPObservabilityDefaultConfig.enableDataOutput()
-    			);
-    }
-    
-    public void dataOutputEnabled(Boolean dataOutputEnabled) {
-    	setProperty(ULPObservabilityDefaultConfig.ENABLE_DATA_OUTPUT_PROP, dataOutputEnabled);
-    }
-    
+    }    
     
     public void setTotalLabel(String totalLbel) {
-    	setProperty(ULPObservabilityDefaultConfig.TOTAL_LABEL_PROP,totalLbel);
+    	setProperty(ULPODefaultConfig.TOTAL_LABEL_PROP,totalLbel);
     }
     
     public String getTotalLabel() {
     	return getPropertyAsString(
-    			ULPObservabilityDefaultConfig.TOTAL_LABEL_PROP, 
-    			ULPObservabilityDefaultConfig.totalLabel()
+    			ULPODefaultConfig.TOTAL_LABEL_PROP, 
+    			ULPODefaultConfig.totalLabel()
     			);
+    }
+    
+    public BlockingQueue<ResponseResult> getSampleQueue(){
+    	return sampleQueue;
     }
     
     public ULPObservabilityListener(){
@@ -225,7 +212,18 @@ public class ULPObservabilityListener extends AbstractTestElement
      * Initiates sample queue and registry  
      */
     public void init() {
-    	this.micrometerReg = new MicrometerRegistry(getTotalLabel(), getPct1(), getPct2(), getPct3(), getPctPrecision(), getLogFreq());
+    	this.logger = new SampleLogger(getTotalLabel());
+    	this.registry =
+    			new MicrometerRegistry(
+    					getTotalLabel(),
+    					getPct1(),
+    					getPct2(),
+    					getPct3(),
+    					getPctPrecision(),
+    					getLogFreq(),
+    					this.logger
+    					);
+    	
  	    this.sampleQueue = new ArrayBlockingQueue<ResponseResult>(getBufferCapacity());
  	    this.logTimer = new Timer();
  	    this.micrometerTaskList = new ArrayList<>(); 
@@ -237,40 +235,36 @@ public class ULPObservabilityListener extends AbstractTestElement
 	 * Starts Jetty server if possible
 	 */
 	public void testStarted() {
-		log.info("test started...");
+		LOG.info("test started...");
 		init();
 		try {
- 	    	this.ulpObservabilityServer = new ULPObservabilityServer(
- 	    			new PluginConfig(
- 	    					ULPObservabilityDefaultConfig.PLUGIN_NAME,
+ 	    	this.ulpObservabilityServer =
+ 	    			new ULPObservabilityServer(
  	    					getJettyPort(),
  	    					getMetricsRoute(),
  	    					getWebAppRoute(),
- 	    					getThreadSize(), 
- 	    					getBufferCapacity(),
- 	    					getPct1(),
- 	    					getPct2(), 
- 	    					getPct3(), 
- 	    					getPctPrecision(), 
- 	    					getLogFreq(), 
- 	    					getTotalLabel()
- 	    					),
- 	    			this.micrometerReg.getLogger()
- 	    			);
+ 	    					getLogFreq(),
+ 	    					getTotalLabel(),
+ 	    					this.logger
+ 	    					);
 			ulpObservabilityServer.start();
-			log.info("Jetty Endpoint started");
+			LOG.info("Jetty Endpoint started");
 		} catch (Exception e) {
-			log.error("error while starting Jetty server {}" ,e);
+			LOG.error("error while starting Jetty server {}" ,e);
 		}
 		
 		if(getLogFreq()>0) {
-			this.logTimer.scheduleAtFixedRate(new LogTask(this.micrometerReg, this.sampleQueue), getLogFreq()*1000, getLogFreq()*1000);
+			this.logTimer.scheduleAtFixedRate(
+					new LogTask(this.registry, this.sampleQueue),
+					getLogFreq()*1000,
+					getLogFreq()*1000
+					);
 		}
 		
 		System.out.printf("ULPO Listener will generate log each %d seconds%n",getLogFreq());
 		
 		for(int i = 0; i < this.getThreadSize(); i++) {
-			this.micrometerTaskList.add(new MicrometerTask(this.micrometerReg, this.sampleQueue));
+			this.micrometerTaskList.add(new MicrometerTask(this.registry, this.sampleQueue));
 			this.micrometerTaskList.get(i).start();
 		}
 		
@@ -284,7 +278,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 		if(sampleEvent != null) {	
 			try {
 				SampleResult sample = sampleEvent.getResult();
-				if(!this.sampleQueue.offer(
+				if(!sampleQueue.offer(
 						new ResponseResult(
 								 sampleEvent.getThreadGroup(),
 								 Util.getResponseTime(sample.getEndTime(),sample.getStartTime()),
@@ -295,23 +289,22 @@ public class ULPObservabilityListener extends AbstractTestElement
 						1000,
 						TimeUnit.MILLISECONDS
 						)) {
-					System.out.println("Sample queue overflow");
-					log.error("Sample queue overflow");
+					LOG.error("Sample queue overflow");
 					throw new BufferOverflowException();
 				}
 			} catch (InterruptedException e) {
-				log.warn(sampleEvent.getResult().getThreadName()+": Interrupting sample queue");
+				LOG.warn(sampleEvent.getResult().getThreadName()+": Interrupting sample queue");
 			};
 		}
 	}
 
 	public void sampleStarted(SampleEvent sampleEvent) {
-	    log.info("************sampler started**************");
+	    LOG.info("************sampler started**************");
 	}
 
 	
 	public void sampleStopped(SampleEvent sampleEvent) {
-		log.info("event stopped");
+		LOG.info("event stopped");
 	}
 
 	public void testStarted(String host) {}
@@ -323,29 +316,30 @@ public class ULPObservabilityListener extends AbstractTestElement
 	 */
 	public void testEnded() {
 		
-		log.info("test Ended...");
+		LOG.info("test Ended...");
 		try {
 			if(ulpObservabilityServer != null) {
 				ulpObservabilityServer.stop();
 			}
-			log.info("Jetty Endpoint stopped");
+			LOG.info("Jetty Endpoint stopped");
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		 
-		 this.sampleQueue.clear();
-		 this.micrometerReg.close();
 		 
 		 this.logTimer.cancel();
 		 this.logTimer.purge();
 		 this.micrometerTaskList.forEach((task) -> {
 				task.stop();
 			});
+		 
+		 this.sampleQueue.clear();
+		 this.logger.clear();
+		 this.registry.close();
 	}
 
 	public void testEnded(String host) {
-		 log.info("test stopped ", host);
+		 LOG.info("test stopped ", host);
 	}
 	
 

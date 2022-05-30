@@ -10,59 +10,72 @@ import ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
 import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 
 /**
- * Runnable task that retrieves sample results from buffer and records them in registry
- * 
+ * Runnable task that retrieves sample results
+ *  from buffer and records them in registry.
  * @author Valentin ZELIONII
  *
  */
-public class MicrometerTask implements Runnable{
-	
-	private static final Logger log = LoggerFactory.getLogger(MicrometerTask.class);
+public class MicrometerTask implements Runnable {
 	
 	/**
-	 * Sample queue to retrieve results from
+	 * Debug logger.
 	 */
-	private BlockingQueue<ResponseResult> sampleQueue;
+	private static final Logger LOG =
+			LoggerFactory.getLogger(MicrometerTask.class);
+
 	/**
-	 * Used samplee registry
-	 */
-	private MicrometerRegistry registry;
-	/**
-	 * Task run status
+	 * Task run status.
 	 */
 	private AtomicBoolean running = new AtomicBoolean(false);
 	/**
-	 * Task terminated status
+	 * Task terminated status.
 	 */
 	private AtomicBoolean terminated = new AtomicBoolean(true);
 	/**
-	 * Main worker thread
+	 * Main worker thread.
 	 */
 	private Thread worker;
 	
-	public MicrometerTask(MicrometerRegistry registry, BlockingQueue<ResponseResult> sampleQueue) {
+	/**
+     * Sample metrics registry.
+     */
+	private MicrometerRegistry registry;
+	
+	/**
+     * Occurred sample result queue
+     */
+	private BlockingQueue<ResponseResult> sampleQueue;
+
+	/**
+	 * New micrometer sample record task.
+	 * @param Registry sample metrics registry
+	 * @param sampleQueue Occurred sample result queue
+	 */
+	public MicrometerTask(
+			MicrometerRegistry registry,
+			BlockingQueue<ResponseResult> sampleQueue
+			) {
 		this.registry = registry;
 		this.sampleQueue = sampleQueue;
 	}
-	
+
 	/**
-	 * Starts the task with new worker thread
+	 * Starts the task with new worker thread.
 	 */
 	public void start() {
         worker = new Thread(this);
         worker.start();
     }
-	
 
 	/**
-	 * Set run status to stop
+	 * Set run status to stop.
 	 */
 	public void stop() {
         running.set(false);
     }
 
     /**
-     * Interrupt worker thread and set run status to stop
+     * Interrupt worker thread and set run status to stop.
      */
     public void interrupt() {
     	worker.interrupt();
@@ -84,26 +97,24 @@ public class MicrometerTask implements Runnable{
         return terminated.get();
     }
 
-    
 	/**
-	 * Retrieves sample results from queue and records them to registry while task is run, sets terminated status to true when stopped  
+	 * Retrieves sample results from queue
+	 *  and records them to registry while task is run,
+	 *   sets terminated status to true when stopped.
 	 */
 	@Override
 	public void run() {
 		running.set(true);
 		terminated.set(false);
-		while(running.get()) {
+		while (running.get()) {
 			try {
-				registry.addResponse(sampleQueue.take());
+				this.registry.addResponse(this.sampleQueue.take());
 			} catch (InterruptedException e) {
-				log.warn("Sample process task interrupted");
+				LOG.warn("Sample process task interrupted");
 				interrupt();
-				
-			};
+			}
 		}
 		terminated.set(true);
-		
 	}
-	
 
 }

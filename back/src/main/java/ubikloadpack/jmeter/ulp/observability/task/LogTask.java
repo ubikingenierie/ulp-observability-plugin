@@ -1,7 +1,7 @@
 package ubikloadpack.jmeter.ulp.observability.task;
 
+import java.util.Collection;
 import java.util.TimerTask;
-import java.util.concurrent.BlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,22 +17,31 @@ import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
  *
  */
 public class LogTask extends TimerTask{
-	private static final Logger log = LoggerFactory.getLogger(LogTask.class);
 	
 	/**
-	 * Sample registry to log results
+	 * Debug logger.
 	 */
+	private static final Logger LOG = LoggerFactory.getLogger(LogTask.class);
+	/**
+     * Sample metrics registry.
+     */
 	private MicrometerRegistry registry;
+	
 	/**
-	 * Sample result buffer for debug purposes
+     * Occurred sample result queue
+     */
+	private Collection<ResponseResult> sampleQueue;
+	
+	
+	/**
+	 * New sample metrics logging task.
+	 * @param Registry sample metrics registry
+	 * @param sampleQueue Occurred sample result queue
 	 */
-	private BlockingQueue<ResponseResult> sampleQueue;
-	
-	public LogTask(MicrometerRegistry registry) {
-		this(registry, null);
-	}
-	
-	public LogTask(MicrometerRegistry registry, BlockingQueue<ResponseResult> sampleQueue) {
+	public LogTask(
+			MicrometerRegistry registry,
+			Collection<ResponseResult> sampleQueue
+			) {
 		this.registry = registry;
 		this.sampleQueue = sampleQueue;
 	}
@@ -43,10 +52,9 @@ public class LogTask extends TimerTask{
 	 */
 	@Override
 	public void run() {
-		if(this.sampleQueue != null) {
-			log.warn("Sample buffer : {}",this.sampleQueue.size());
-		}
-		System.out.println(this.registry.logAndReset().guiLog());
+		LOG.warn("Sample buffer : {}",this.sampleQueue.size());
+		this.registry.logAndReset();
+		System.out.println(this.registry.guiLog());
 	}
 
 }

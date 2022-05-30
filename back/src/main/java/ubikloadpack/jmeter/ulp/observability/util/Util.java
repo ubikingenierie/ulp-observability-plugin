@@ -15,7 +15,7 @@ public class Util {
 	
 	private static final Pattern MATCH_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
 	private static final Pattern DELIMITER_PATTERN = Pattern.compile("[.]");
-	private static Set<String> delimiters = new HashSet<>(Arrays.asList("_",".", "-", " "));
+	private static final Set<String> DELIMITERS = new HashSet<>(Arrays.asList("_",".", "-", " "));
 	
 	
 	/** 
@@ -25,7 +25,7 @@ public class Util {
 	 * @return OpenMetrics delimiter if valid delimiter, else an empty string
 	 */
 	private static String openMetricsDelimeter(String match) {
-		return delimiters.contains(match) ? "_" : "";
+		return DELIMITERS.contains(match) ? "_" : "";
 	}
 	
 	/** 
@@ -35,7 +35,7 @@ public class Util {
 	 * @return Micrometer delimiter if valid delimiter, else an empty string
 	 */
 	private static String micrometerDelimeter(String match) {
-		return delimiters.contains(match) ? "." : "";
+		return DELIMITERS.contains(match) ? "." : "";
 	}
     
     /**

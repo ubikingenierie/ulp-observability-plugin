@@ -13,8 +13,6 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-import ubikloadpack.jmeter.ulp.observability.config.PluginConfig;
-import ubikloadpack.jmeter.ulp.observability.config.ULPObservabilityDefaultConfig;
 import ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 
 /**
@@ -30,6 +28,9 @@ import ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
  */
 public class ULPObservabilityServer {
 	
+    /**
+     * Webapp resources dir location.
+     */
     private static final String WEBAPP_RESOURCES_LOCATION = "webapp";
 	/**
 	 * Jetty server instance
@@ -50,20 +51,11 @@ public class ULPObservabilityServer {
     /**
      * Jetty server port
      */
-    private final Integer port;
-    
-    /**
-     * Creates new Jetty server and initiates with default values and unbound empty logger 
-     * 
-     * @throws Exception Init server exception
-     */
-    public ULPObservabilityServer() throws Exception {
-    	this(new PluginConfig(), new SampleLogger());
-    }
+    private Integer port;
     
     
     /**
-     * Creates new Jetty server and initiates with given parameters
+     * Creates new Jetty server and initiates with given current 
      * 
      * @param port Jetty server port to use
      * @param metricsRoute Metrics resource route
@@ -73,13 +65,26 @@ public class ULPObservabilityServer {
      * @param logger Metrics logger
      * @throws Exception Init server exception
      */
-    public ULPObservabilityServer(PluginConfig pluginConfig, SampleLogger logger) throws Exception {
-    	this.port = pluginConfig.getJettyServerPort();
+    public ULPObservabilityServer(
+    		Integer port, 
+    		String metricsRoute,
+    		String webAppRoute,
+    		Integer logFreq,
+    		String totalLabel,
+    		SampleLogger logger
+    		) throws Exception {
+    	this.port = port;
     	this.server = new Server();
     	this.webAppContext = new WebAppContext();
     	this.metricsHandler = new ServletContextHandler();
     	this.infoHandler = new ServletContextHandler();
-    	this.initServer(pluginConfig,logger);
+    	this.initServer(
+    			metricsRoute,
+    			webAppRoute,
+    			logFreq,
+    			totalLabel,
+    			logger
+    			);
     }
     
     
@@ -93,7 +98,13 @@ public class ULPObservabilityServer {
      * @param logger
      * @throws Exception
      */
-    private void initServer(PluginConfig pluginConfig, SampleLogger logger) throws Exception{
+    private void initServer(
+    		String metricsRoute,
+    		String webAppRoute,
+    		Integer logFreq,
+    		String totalLabel,
+    		SampleLogger logger
+    		) throws Exception{
     	
         ServerConnector connector = new ServerConnector(server);   
         connector.setPort(this.port);
@@ -101,20 +112,31 @@ public class ULPObservabilityServer {
         
         HandlerCollection handlers = new HandlerCollection();
         
-        this.metricsHandler.setContextPath(pluginConfig.getMetricsRoute());
+        this.metricsHandler.setContextPath(metricsRoute);
         this.metricsHandler.addServlet(new ServletHolder(new ULPObservabilityMetricsServlet(logger)), "/");
         handlers.addHandler(metricsHandler);
         
 
         this.infoHandler.setContextPath("/config");
-        this.infoHandler.addServlet(new ServletHolder(new ULPObservabilityConfigServlet(pluginConfig)), "/");
+        this.infoHandler.addServlet(
+        		new ServletHolder(
+        				new ULPObservabilityConfigServlet(
+        						metricsRoute,
+        						logFreq,
+        						totalLabel
+        						)
+        				), "/");
         handlers.addHandler(infoHandler);
         
-        URL webAppDir = Thread.currentThread().getContextClassLoader().getResource(WEBAPP_RESOURCES_LOCATION);
+        URL webAppDir =
+        		Thread.currentThread()
+        		.getContextClassLoader()
+        		.getResource(WEBAPP_RESOURCES_LOCATION);
         if (webAppDir == null) {
-            throw new Exception(String.format("No %s directory was found in the JAR file", WEBAPP_RESOURCES_LOCATION));
+            throw new Exception("No "+ WEBAPP_RESOURCES_LOCATION +" directory was found in the JAR file");
         }
-        webAppContext.setContextPath(pluginConfig.getWebAppRoute());
+        
+        webAppContext.setContextPath(webAppRoute);
 		webAppContext.setResourceBase(webAppDir.toURI().toString());
 		webAppContext.setParentLoaderPriority(true);
 		handlers.addHandler(webAppContext);
@@ -158,7 +180,6 @@ public class ULPObservabilityServer {
 
 
 	public Server getServer() {
-		
 		return server;
 	}
 
@@ -167,7 +188,6 @@ public class ULPObservabilityServer {
 	 * @return Used Jetty server port
 	 */
 	public Integer getPort() {
-		
 		return port;
 	}
 

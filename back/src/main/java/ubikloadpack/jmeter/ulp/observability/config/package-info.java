@@ -1,4 +1,4 @@
 /**
- * ULP Observability configuration package
+ * ULP Observability configuration package.
  */
 package ubikloadpack.jmeter.ulp.observability.config;

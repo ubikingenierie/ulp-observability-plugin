@@ -3,8 +3,6 @@ package ubikloadpack.jmeter.ulp.observability.listener.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,9 +12,6 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -27,7 +22,7 @@ import org.apache.jmeter.visualizers.gui.AbstractListenerGui;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ubikloadpack.jmeter.ulp.observability.config.ULPObservabilityDefaultConfig;
+import ubikloadpack.jmeter.ulp.observability.config.ULPODefaultConfig;
 import ubikloadpack.jmeter.ulp.observability.listener.ULPObservabilityListener;
 
 
@@ -40,7 +35,11 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 
 	
 	private static final long serialVersionUID = 1808039838820473713L;
-	private static final Logger log = LoggerFactory.getLogger(ULPObservabilityGui.class);
+	
+	/**
+	 * Debug logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(ULPObservabilityGui.class);
 	
 	/**
 	 * Jetty server port
@@ -86,9 +85,6 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	 * Sample result queue capacity
 	 */
 	private final JTextField bufferCapacity = new JTextField();
-	private final JLabel metricsData = new JLabel();
-	private final JButton setMetricsDataBtn = new JButton("Open"); 
-	private final JCheckBox enableDataOutput = new JCheckBox();
 
 	
 	public ULPObservabilityGui() {
@@ -99,22 +95,6 @@ public class ULPObservabilityGui extends AbstractListenerGui{
      * Initiates GUI with title and config panels
      */
     private void init() {
-    	
-    	this.setMetricsDataBtn.addActionListener(new ActionListener() {
-    	
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser fileChooser = new JFileChooser();
-				fileChooser.setDialogTitle("Set Sample Data Output Directory");
-				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				fileChooser.setCurrentDirectory(new java.io.File(metricsData.getText()));
-				fileChooser.setAcceptAllFileFilterUsed(false);
-				int option = fileChooser.showOpenDialog(getPrintableComponent());
-				if(option == JFileChooser.APPROVE_OPTION){
-		               metricsData.setText(fileChooser.getSelectedFile().getAbsolutePath());
-		            }
-			}
-		});
     	super.setLayout(new BorderLayout());
 	    super.setBorder(makeBorder());
 	    super.add(makeTitlePanel(), BorderLayout.NORTH);
@@ -171,17 +151,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	componentGroups.add(
     			new ArrayList<Component>(Arrays.asList(new JLabel("Total metrics label"), this.totalLabel))
     			);
-//    	componentGroups.add(
-//    			new ArrayList<Component>(Arrays.asList(new JLabel("Enable Sample data output"), this.enableDataOutput))
-//    			);
-//    	componentGroups.add(
-//    			new ArrayList<Component>(Arrays.asList(new JLabel("Sample data output directory"), this.metricsData))
-//    			);
-//    	componentGroups.add(
-//    			new ArrayList<Component>(Arrays.asList(this.setMetricsDataBtn))
-//    			);
 
- 
     	ParallelGroup parallelGroup = layout.createParallelGroup(Alignment.LEADING);
     	SequentialGroup sequentialGroup = layout.createSequentialGroup();
     	
@@ -220,7 +190,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     
     @Override
  	public String getLabelResource() {
- 		return ULPObservabilityDefaultConfig.pluginName();
+ 		return ULPODefaultConfig.pluginName();
  	}
  	
  	
@@ -244,18 +214,18 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		try {
 			return Integer.parseInt(text);
 		} catch (NumberFormatException e) {
-	        log.error("Must be a number", e);
+	        LOG.error("Must be a number", e);
 	        return currentValue;
 	    }
 	}
 	
 	private String validateRoute(String text, String currentValue) {
 		if(!text.startsWith("/")) {
-			log.error("Route must start with '/'");
+			LOG.error("Route must start with '/'");
 			return currentValue;
 		}
 		if(text.equals("/config")) {
-			log.error("Route /config is reserved for plugin configuration route");
+			LOG.error("Route /config is reserved for plugin configuration route");
 			return currentValue;
 		}
 		return text;	
@@ -269,18 +239,16 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		super.configureTestElement(element);
 		if(element instanceof ULPObservabilityListener) {
 			ULPObservabilityListener sampler = (ULPObservabilityListener) element;
-			sampler.setMetricsData(this.metricsData.getText());
-			sampler.dataOutputEnabled(this.enableDataOutput.isSelected());
 			
 			if(this.metricsRoute.getText().equals(this.webAppRoute.getText())) {
-				log.error("Jetty Metrics and Web App routes must not be equal");
+				LOG.error("Jetty Metrics and Web App routes must not be equal");
 			} else {
 				sampler.setMetricsRoute(validateRoute(metricsRoute.getText(),sampler.getMetricsRoute()));
 				sampler.setWebAppRoute(validateRoute(webAppRoute.getText(),sampler.getWebAppRoute()));	
 			}
 			
 			if(this.totalLabel.getText().isBlank()) {
-				log.error("Invalid label");
+				LOG.error("Invalid label");
 			} else {
 				sampler.setTotalLabel(this.totalLabel.getText());
 			}
@@ -319,8 +287,6 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			this.pctPrecision.setText(Integer.toString(ulpObservabilityListener.getPctPrecision()));
 			this.logFrequency.setText(Integer.toString(ulpObservabilityListener.getLogFreq()));
 			this.totalLabel.setText(ulpObservabilityListener.getTotalLabel());
-			this.enableDataOutput.setSelected(ulpObservabilityListener.dataOutputEnabled());
-			this.metricsData.setText(new java.io.File(ulpObservabilityListener.getMetricsData()).getAbsolutePath());
 		}
 
 	}
@@ -333,19 +299,17 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     @Override
     public void clearGui() {
 		super.clearGui();
-		this.jettyPort.setText(Integer.toString(ULPObservabilityDefaultConfig.jettyServerPort()));
-		this.metricsRoute.setText(ULPObservabilityDefaultConfig.jettyMetricsRoute());
-		this.webAppRoute.setText(ULPObservabilityDefaultConfig.jettyWebAppRoute());
-		this.threadSize.setText(Integer.toString(ULPObservabilityDefaultConfig.threadSize()));
-		this.bufferCapacity.setText(Integer.toString(ULPObservabilityDefaultConfig.bufferCapacity()));
-		this.pct1.setText(Integer.toString(ULPObservabilityDefaultConfig.pct1()));
-		this.pct2.setText(Integer.toString(ULPObservabilityDefaultConfig.pct2()));
-		this.pct3.setText(Integer.toString(ULPObservabilityDefaultConfig.pct3()));
-		this.pctPrecision.setText(Integer.toString(ULPObservabilityDefaultConfig.pctPrecision()));
-		this.logFrequency.setText(Integer.toString(ULPObservabilityDefaultConfig.logFrequecny()));
-		this.totalLabel.setText(ULPObservabilityDefaultConfig.totalLabel());
-		this.metricsData.setText(new java.io.File(ULPObservabilityDefaultConfig.metricsData()).getAbsolutePath());
-		this.enableDataOutput.setSelected(ULPObservabilityDefaultConfig.enableDataOutput());
+		this.jettyPort.setText(Integer.toString(ULPODefaultConfig.jettyServerPort()));
+		this.metricsRoute.setText(ULPODefaultConfig.jettyMetricsRoute());
+		this.webAppRoute.setText(ULPODefaultConfig.jettyWebAppRoute());
+		this.threadSize.setText(Integer.toString(ULPODefaultConfig.threadSize()));
+		this.bufferCapacity.setText(Integer.toString(ULPODefaultConfig.bufferCapacity()));
+		this.pct1.setText(Integer.toString(ULPODefaultConfig.pct1()));
+		this.pct2.setText(Integer.toString(ULPODefaultConfig.pct2()));
+		this.pct3.setText(Integer.toString(ULPODefaultConfig.pct3()));
+		this.pctPrecision.setText(Integer.toString(ULPODefaultConfig.pctPrecision()));
+		this.logFrequency.setText(Integer.toString(ULPODefaultConfig.logFrequecny()));
+		this.totalLabel.setText(ULPODefaultConfig.totalLabel());
 	}
 
 	

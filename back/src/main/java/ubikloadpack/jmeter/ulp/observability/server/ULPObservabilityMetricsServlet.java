@@ -10,9 +10,7 @@ import java.util.List;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ubikloadpack.jmeter.ulp.observability.config.ULPObservabilityDefaultConfig;
 import ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
-import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 
 /**
  * HttpServlet to expose sample metrics in OpenMetrics format
@@ -25,30 +23,16 @@ public class ULPObservabilityMetricsServlet extends HttpServlet {
 	private static final long serialVersionUID = 3917512890727558222L;
 	
 	/**
-	 * Period log records
-	 */
+     * Sample record logger.
+     */
 	private SampleLogger logger;
-	
 	
 	/**
 	 * Create new servlet with unbound empty logger
 	 */
-	public ULPObservabilityMetricsServlet() {
-		this(new SampleLogger());
-	}
-	
 	public ULPObservabilityMetricsServlet(SampleLogger logger) {
-		setLogger(logger);
-	}
-	
-	/**
-	 * Sets new logger to retrieve records, sets to unbound empty logger if input logger is null
-	 * 
-	 * @param logger Logger instance
-	 */
-	public void setLogger(SampleLogger logger) {
-		this.logger = logger == null ? new SampleLogger() : logger;
-	}
+		this.logger = logger;
+	}	
 	
 	
 	 /**

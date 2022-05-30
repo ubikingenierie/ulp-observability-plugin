@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ubikloadpack.jmeter.ulp.observability.config.PluginConfig;
 
 /**
  * HttpServlet to expose plugin configuration
@@ -25,18 +24,30 @@ public class ULPObservabilityConfigServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 5903356626691130717L;
 	
-	private static final Logger log = LoggerFactory.getLogger(ULPObservabilityConfigServlet.class);
-
+	/**
+	 * Debug logger.
+	 */
+	private static final Logger LOG = LoggerFactory.getLogger(ULPObservabilityConfigServlet.class);
 	
+	/**
+	 * Plugin configuration in JSON format.
+	 */
 	private final String pluginConfigJson;
 	
 	
-	public ULPObservabilityConfigServlet(PluginConfig pluginConfig) {
+	public ULPObservabilityConfigServlet(String metricsRoute, Integer logFrequeny, String totalLabel) {
 		String json = "{}";
 		try {
-			json = new ObjectMapper().writeValueAsString(pluginConfig);
+			json = new ObjectMapper()
+					.writeValueAsString(
+							new PluginConfig(
+									metricsRoute,
+									logFrequeny,
+									totalLabel
+									)
+							);
 		} catch (JsonProcessingException e) {
-			log.error("Unable to serialize plugin config into JSON {}",e);
+			LOG.error("Unable to serialize plugin config into JSON {}",e);
 		} finally {
 			this.pluginConfigJson = json;
 		}
@@ -46,19 +57,50 @@ public class ULPObservabilityConfigServlet extends HttpServlet{
 	 * Returns plugin configuration in JSON format
 	 */
 	@Override
-	  protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
-		  resp.setStatus(200);
-		  resp.setContentType("application/json");
+	protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) 
+			throws IOException {
+		resp.setStatus(200);
+		resp.setContentType("application/json");
 		    
-		  try(Writer writer = new BufferedWriter(resp.getWriter())) {
-			  writer.write(pluginConfigJson);
-			  writer.flush();
-		  }
-	  }
-	
-	  @Override
-	  protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
-	    doGet(req, resp);
-	  }
+		try(Writer writer = new BufferedWriter(resp.getWriter())) {
+			writer.write(pluginConfigJson);
+			writer.flush();
+		}
+	}
+
+	@Override
+	protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
+		doGet(req, resp);
+	}
+	  
+	class PluginConfig {
+		
+		private final String metricsRoute;
+		private final Integer logFrequency;
+		private final String totalLabel;
+
+		public PluginConfig(String metricsRoute, Integer logFrequency, String totalLabel) {
+			super();
+			this.metricsRoute = metricsRoute;
+			this.logFrequency = logFrequency;
+			this.totalLabel = totalLabel;
+		}
+		
+		public String getMetricsRoute() {
+			return this.metricsRoute;
+		}
+
+
+		public Integer getLogFrequency() {
+			return this.logFrequency;
+		}
+
+
+		public String getTotalLabel() {
+			return this.totalLabel;
+		}
+		
+		
+	}
 
 }

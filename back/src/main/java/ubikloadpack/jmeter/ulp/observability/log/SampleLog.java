@@ -1,5 +1,6 @@
 package ubikloadpack.jmeter.ulp.observability.log;
 
+import java.text.DecimalFormat;
 import java.util.Date;
 
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
@@ -12,6 +13,12 @@ import io.micrometer.core.instrument.distribution.ValueAtPercentile;
  *
  */
 public class SampleLog {
+	
+	
+	/**
+	 * Percentage value log format.
+	 */
+	private final static DecimalFormat PCT_FORMAT = new DecimalFormat("###.##");
 
 	/**
 	 * Sampler name 
@@ -97,26 +104,26 @@ public class SampleLog {
 	
 	
 	public String getSampleName() {
-		return sampleName;
+		return this.sampleName;
 	}
 
 
 	public Date getTimeStamp() {
-		return timeStamp;
+		return this.timeStamp;
 	}
 
 
 	public Long getTotal() {
-		return total;
+		return this.total;
 	}
 	
 	public Long getCurrent() {
-		return current;
+		return this.current;
 	}
 
 
 	public Long getError() {
-		return error;
+		return this.error;
 	}
 
 	public ValueAtPercentile[] getPct() {
@@ -124,24 +131,24 @@ public class SampleLog {
 	}
 	
 	public Long getSum() {
-		return sum;
+		return this.sum;
 	}
 
 	public Long getAvg() {
-		return avg;
+		return this.avg;
 	}
 
 
 	public Long getMax() {
-		return max;
+		return this.max;
 	}
 	
 	public Long getThroughput() {
-		return throughput;
+		return this.throughput;
 	}
 	
 	public Long getThreads() {
-		return threads;
+		return this.threads;
 	}
 	
 	/**
@@ -194,41 +201,62 @@ public class SampleLog {
 	
 	/**
 	 * Create line for record debug log (see {@link ubikloadpack.jmeter.ulp.observability.log.SampleLogger})
-	 * 
-	 * @param namePadding Fixed padding space for sample name (see {@link ubikloadpack.jmeter.ulp.observability.log.SampleLogger#guiLog()})
-	 * @param totalLabel The label value assigned to record for total samples
+	 * @param totalLabel Total metrics label
 	 * @return Record in debug log format
 	 */
-	public String toLog(Integer namePadding, String totalLabel) {
-		String sampleName = this.sampleName.equals(totalLabel) ? "TOTAL" : this.sampleName;
-		StringBuilder s = 
-				new StringBuilder().append(
-						String.format("|%"+namePadding+"s|%10d|%10d|%10d|%7.3f%%|%5d", 
-								sampleName, 
-								this.total, 
-								this.current,
-								this.error, 
-								(float) this.error / (float) (this.current) * 100.0,
-								this.avg
-								)
-						);
-		for(ValueAtPercentile pc : pct) {
-			s.append(String.format("|%7d",(long)pc.value()));
-		}
+	public String toLog() {
+		StringBuilder str = new StringBuilder();
 		
-		return s.append(String.format("|%5d|%10d|%7d|%n",this.max,this.throughput,this.threads)).toString();
+		str.append("\n")
+		.append(this.sampleName)
+		.append(":\n     Total: ")
+		.append(this.total)
+		.append("\n     Error: ")
+		.append(PCT_FORMAT.format((float) this.error / (float) (this.current) * 100.0))
+		.append("% (")
+		.append(this.error)
+		.append("/")
+		.append(this.current)
+		.append(")")
+		.append("\n     Avearage: ")
+		.append(this.avg)
+		.append("ms\n     Percentiles:");
+		
+		for(ValueAtPercentile pc : this.pct) {
+			str.append("\n        Percentile ")
+			.append((long)(pc.percentile()*100.))
+			.append("th: ")
+			.append((long)pc.value())
+			.append("ms");
+		}
+
+		str.append("\n     Max: ")
+		.append(this.max)
+		.append("ms\n     Throughput: ")
+		.append(this.throughput)
+		.append("req/s\n     Threads: ")
+		.append(this.threads)
+		.append("\n");
+		
+		return str.toString();
 	}
 	
 	
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder();
-		s.append("SampleLog [sampleName=" + sampleName + ", timeStamp=" + timeStamp + ", total=" + total + ", current="
-				+ current + ", error=" + error + ", pct={");
-		for(ValueAtPercentile pc : pct) {
+		s.append("SampleLog [sampleName=" + this.sampleName 
+				+ ", timeStamp=" + this.timeStamp + 
+				", total=" + this.total + 
+				", current="+ this.current + 
+				", error=" + this.error + 
+				", pct={");
+		for(ValueAtPercentile pc : this.pct) {
 			s.append(pc.percentile()+"="+(long)pc.value()+",");
 		}
-		s.append("}, avg=" + avg + ", max=" + max + ", throughput=" + throughput + "]");
+		s.append("}, avg=" + this.avg + 
+				", max=" + this.max + 
+				", throughput=" + this.throughput + "]");
 		return s.toString();
 	}
 	
