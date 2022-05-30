@@ -2,6 +2,7 @@ package ubikloadpack.jmeter.ulp.observability.listener;
 
 import java.io.Serializable;
 import java.nio.BufferOverflowException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -18,6 +19,7 @@ import org.apache.jmeter.testelement.TestStateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.timeandspace.cronscheduler.CronScheduler;
 import ubikloadpack.jmeter.ulp.observability.config.ULPODefaultConfig;
 import ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 import ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
@@ -65,9 +67,10 @@ public class ULPObservabilityListener extends AbstractTestElement
     private MicrometerRegistry registry;
     
     /**
-     * Logger timer
+     * Sample logger cron scheduler.
      */
-    private Timer logTimer;
+    CronScheduler logCron;
+    
     /**
      * Occurred sample result queue
      */
@@ -76,6 +79,8 @@ public class ULPObservabilityListener extends AbstractTestElement
      * List of registry task threads
      */
     private List<MicrometerTask> micrometerTaskList;
+    
+    
     
     public void setBufferCapacity(Integer bufferCapacity) {
     	setProperty(ULPODefaultConfig.BUFFER_CAPACITY_PROP, bufferCapacity);
@@ -225,7 +230,11 @@ public class ULPObservabilityListener extends AbstractTestElement
     					);
     	
  	    this.sampleQueue = new ArrayBlockingQueue<>(getBufferCapacity());
- 	    this.logTimer = new Timer();
+ 	    
+ 	    if(getLogFreq()>0) {
+ 		  this.logCron = CronScheduler.create(Duration.ofSeconds(getLogFreq()));
+		}
+ 	   
  	    this.micrometerTaskList = new ArrayList<>(); 
     }
     
@@ -253,13 +262,15 @@ public class ULPObservabilityListener extends AbstractTestElement
 			LOG.error("error while starting Jetty server {}" ,e);
 		}
 		
-		if(getLogFreq()>0) {
-			this.logTimer.scheduleAtFixedRate(
-					new LogTask(this.registry, this.sampleQueue),
-					getLogFreq()*1000,
-					getLogFreq()*1000
+		if(this.logCron != null) {
+			this.logCron.scheduleAtFixedRateSkippingToLatest(
+					getLogFreq(), 
+					getLogFreq(), 
+					TimeUnit.SECONDS, 
+					new LogTask(this.registry, this.sampleQueue)
 					);
 		}
+
 		
 		System.out.printf("ULPO Listener will generate log each %d seconds%n",getLogFreq());
 		
@@ -327,15 +338,17 @@ public class ULPObservabilityListener extends AbstractTestElement
 			e.printStackTrace();
 		}
 		 
-		 this.logTimer.cancel();
-		 this.logTimer.purge();
-		 this.micrometerTaskList.forEach((task) -> {
-				task.stop();
-			});
+		if(this.logCron.isThreadRunning()) {
+			this.logCron.shutdownNow();
+			this.logCron.purge();
+		}
+		this.micrometerTaskList.forEach((task) -> {
+			task.stop();
+		});
 		 
-		 this.sampleQueue.clear();
-		 this.logger.clear();
-		 this.registry.close();
+		this.sampleQueue.clear();
+		this.logger.clear();
+		this.registry.close();
 	}
 
 	public void testEnded(String host) {

@@ -160,7 +160,6 @@ public class ULPObservabilityServer {
     	
     	if(!this.server.isStarted()) {
     		this.server.start();
-       	    //this.server.join();
        	    
     	}
     	 

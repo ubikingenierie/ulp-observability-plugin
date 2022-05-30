@@ -82,6 +82,12 @@
 	    <artifactId>jackson-databind</artifactId>
 	    <version>${jackson.version}</version>
 	</dependency>
+	
+	<dependency>
+	  <groupId>io.timeandspace</groupId>
+	  <artifactId>cron-scheduler</artifactId>
+	  <version>0.1</version>
+	</dependency>
 
 </dependencies>
 

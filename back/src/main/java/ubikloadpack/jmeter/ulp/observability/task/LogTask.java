@@ -6,17 +6,18 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.timeandspace.cronscheduler.CronTask;
 import ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
 import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 
 
 /**
- * Runnable task that creates new period log records for accumulated sample metrics and then resets metrics
+ * Runnable cron task that creates new period log records for accumulated sample metrics and then resets metrics
  * 
  * @author Valentin ZELIONII
  *
  */
-public class LogTask extends TimerTask{
+public class LogTask implements CronTask{
 	
 	/**
 	 * Debug logger.
@@ -51,7 +52,7 @@ public class LogTask extends TimerTask{
 	 * Logs all samples in registry and shows summary in JMeter terminal, logs current sample buffer size in debug console
 	 */
 	@Override
-	public void run() {
+	public void run(long scheduledRunTimeMillis) {
 		LOG.warn("Sample buffer : {}",this.sampleQueue.size());
 		this.registry.logAndReset();
 		System.out.println(this.registry.guiLog());
