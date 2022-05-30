@@ -119,37 +119,37 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	
     	
     	componentGroups.add(
-    			new ArrayList<Component>(Arrays.asList(new JLabel("Jetty Server port"), this.jettyPort))
+    			new ArrayList<>(Arrays.asList(new JLabel("Jetty Server port"), this.jettyPort))
     			);
     	componentGroups.add(
-    			new ArrayList<Component>(Arrays.asList(new JLabel("Jetty Metrics route"), this.metricsRoute))
+    			new ArrayList<>(Arrays.asList(new JLabel("Jetty Metrics route"), this.metricsRoute))
     			);
     	componentGroups.add(
-    			new ArrayList<Component>(Arrays.asList(new JLabel("Jetty Wep Application route"), this.webAppRoute))
+    			new ArrayList<>(Arrays.asList(new JLabel("Jetty Wep Application route"), this.webAppRoute))
     			);
     	componentGroups.add(
-    			new ArrayList<Component>(Arrays.asList(new JLabel("Number of Processing Threads"), this.threadSize))
+    			new ArrayList<>(Arrays.asList(new JLabel("Number of Processing Threads"), this.threadSize))
     			);
     	componentGroups.add(
-    			new ArrayList<Component>(Arrays.asList(new JLabel("Sample Queue Buffer Capacity"), this.bufferCapacity))
+    			new ArrayList<>(Arrays.asList(new JLabel("Sample Queue Buffer Capacity"), this.bufferCapacity))
     			);
     	componentGroups.add(
-    			new ArrayList<Component>(Arrays.asList(new JLabel("Percentiles 1"), this.pct1))
+    			new ArrayList<>(Arrays.asList(new JLabel("Percentiles 1"), this.pct1))
     			);
     	componentGroups.add(
-    			new ArrayList<Component>(Arrays.asList(new JLabel("Percentiles 2"), this.pct2))
+    			new ArrayList<>(Arrays.asList(new JLabel("Percentiles 2"), this.pct2))
     			);
     	componentGroups.add(
-    			new ArrayList<Component>(Arrays.asList(new JLabel("Percentiles 3"), this.pct3))
+    			new ArrayList<>(Arrays.asList(new JLabel("Percentiles 3"), this.pct3))
     			);
     	componentGroups.add(
-    			new ArrayList<Component>(Arrays.asList(new JLabel("Percentiles precision"), this.pctPrecision))
+    			new ArrayList<>(Arrays.asList(new JLabel("Percentiles precision"), this.pctPrecision))
     			);
     	componentGroups.add(
-    			new ArrayList<Component>(Arrays.asList(new JLabel("Log Frequency in seconds"), this.logFrequency))
+    			new ArrayList<>(Arrays.asList(new JLabel("Log Frequency in seconds"), this.logFrequency))
     			);
     	componentGroups.add(
-    			new ArrayList<Component>(Arrays.asList(new JLabel("Total metrics label"), this.totalLabel))
+    			new ArrayList<>(Arrays.asList(new JLabel("Total metrics label"), this.totalLabel))
     			);
 
     	ParallelGroup parallelGroup = layout.createParallelGroup(Alignment.LEADING);

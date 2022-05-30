@@ -224,7 +224,7 @@ public class ULPObservabilityListener extends AbstractTestElement
     					this.logger
     					);
     	
- 	    this.sampleQueue = new ArrayBlockingQueue<ResponseResult>(getBufferCapacity());
+ 	    this.sampleQueue = new ArrayBlockingQueue<>(getBufferCapacity());
  	    this.logTimer = new Timer();
  	    this.micrometerTaskList = new ArrayList<>(); 
     }
