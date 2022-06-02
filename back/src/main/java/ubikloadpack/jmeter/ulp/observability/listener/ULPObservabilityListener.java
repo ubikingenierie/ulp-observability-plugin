@@ -257,9 +257,16 @@ public class ULPObservabilityListener extends AbstractTestElement
  	    					this.logger
  	    					);
 			ulpObservabilityServer.start();
-			LOG.info("Jetty Endpoint started");
+			LOG.info("Jetty Endpoint started\n"
+					+ "Port: {}\n"
+					+ "Metrics route: {}\n"
+					+ "Web app route: {}",
+					ulpObservabilityServer.getPort(),
+					ulpObservabilityServer.getServer().getURI()+getMetricsRoute(),
+					ulpObservabilityServer.getServer().getURI()+getWebAppRoute()
+					);
 		} catch (Exception e) {
-			LOG.error("error while starting Jetty server {}" ,e);
+			LOG.error("error while starting Jetty server: {}", e);
 		}
 		
 		if(this.logCron != null) {
@@ -300,8 +307,9 @@ public class ULPObservabilityListener extends AbstractTestElement
 						1000,
 						TimeUnit.MILLISECONDS
 						)) {
-					LOG.error("Sample queue overflow");
-					throw new BufferOverflowException();
+					LOG.error(
+							"Sample queue overflow. Sample dropped: {}",
+							sampleEvent.getThreadGroup());
 				}
 			} catch (InterruptedException e) {
 				LOG.warn(sampleEvent.getResult().getThreadName()+": Interrupting sample queue");
@@ -335,7 +343,8 @@ public class ULPObservabilityListener extends AbstractTestElement
 			LOG.info("Jetty Endpoint stopped");
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOG.error(
+					"Jetty server shutdown error: {}", e);
 		}
 		 
 		if(this.logCron.isThreadRunning()) {

@@ -1,8 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-    <groupId>jmeter.plugins.ulbobservatory.sampler</groupId>
-    <artifactId>ULPObservatory</artifactId>
+	<parent>
+		<groupId>jmeter.plugins.ulbobservatory.sampler</groupId>
+		<artifactId>ulp-observability</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+	
+    <artifactId>ulp-observability-listener</artifactId>
     <version>1.0</version>
     <name>ULP Observatory Sampler as JMeter plugin</name>
 
@@ -13,15 +18,24 @@
 	<micrometer.version>1.9.0</micrometer.version>
 	<jetty.version>11.0.8</jetty.version>
 	<jackson.version>2.13.2.2</jackson.version>
+	<jmeter.version>2.11</jmeter.version>
   </properties>
 
  <dependencies>
+ 
    <dependency>
      <groupId>org.apache.jmeter</groupId>
      <artifactId>ApacheJMeter_core</artifactId>
-     <version>5.0</version>
+     <version>${jmeter.version}</version>
      <scope>provided</scope>
    </dependency>
+   
+    <dependency>
+      <groupId>org.apache.jmeter</groupId>
+      <artifactId>jorphan</artifactId>
+      <version>${jmeter.version}</version>
+    </dependency>
+    
    <dependency>
      <groupId>org.slf4j</groupId>
      <artifactId>slf4j-api</artifactId>
@@ -69,12 +83,6 @@
 	  <artifactId>micrometer-core</artifactId>
 	  <version>${micrometer.version}</version>
 	</dependency>
-
-	<dependency>
-        <groupId>org.jctools</groupId>
-        <artifactId>jctools-core</artifactId>
-        <version>3.3.0</version>
-    </dependency>
     
     <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
 	<dependency>

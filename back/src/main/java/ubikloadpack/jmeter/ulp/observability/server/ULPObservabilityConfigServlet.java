@@ -47,7 +47,8 @@ public class ULPObservabilityConfigServlet extends HttpServlet{
 									)
 							);
 		} catch (JsonProcessingException e) {
-			LOG.error("Unable to serialize plugin config into JSON {}",e);
+			LOG.error(
+					"Unable to serialize plugin config into JSON {}", e);
 		} finally {
 			this.pluginConfigJson = json;
 		}

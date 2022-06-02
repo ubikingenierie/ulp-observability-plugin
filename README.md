@@ -29,20 +29,34 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 ##### Back
 - [Java](https://www.java.com/) : Language utilisé par Jmeter
 - [Embedded Jetty](https://www.baeldung.com/jetty-embedded) : pour exposer les metrics récoltés par SamplerListener (propre à Jmeter) et calculés par HDRHistogram offre une implémentation de serveurs très légère
-- [Prometheus?](https://prometheus.io/) : (PrometheusMeterRegistry)/(io.micrometer.core.instrument.Metrics) pour calculer d'avantages de métrics et les exposer en un endpoint qui va servir comme source de données pour le front (en cours d'étude)
-- [HDRHistogram](http://hdrhistogram.org/) : pour calculer les percentilles
+- [Micrometer](https://micrometer.io/) : pour enregistrer des échantillons et calculer d'avantages de métrics
+- [CronScheduler](https://github.com/TimeAndSpaceIO/CronScheduler/) : pour un planificateur de tâches insensible à la dérive d'horloge
 - [openapi-generator-maven-plugin](https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-maven-plugin) : pour générer les APIs et modèles
+- [Jackson](https://github.com/FasterXML/jackson) : pour la sérialisation des réponses d'API
 - [Junit](https://www.jmdoudoux.fr/java/dej/chap-junit.htm) : Tests Unitaires
 
-###### Back IHM
+
+###### Tâches accomplies
+- Traitement des samples multithread
+- Configuration personnalisée de sampler
+- Journalisation de métriques
+- Exposition des métriques au format OpenMetrics avec le serveur Jetty
+- Exposition d'une page HTML avec des graphiques de métriques
+- Javadoc
+
+###### IHM
 
 <p align="center">
-<img src=back/screenshot/ulp_observability1.png><br/>
+<img src=screenshot/ulp_observability1.png><br/>
 <em>Panneau de configuration JMeter de listener ULP Observability</em> 
 <br/>
 <br/>
-<img src=back/screenshot/ulp_observability2.png><br/>
+<img src=screenshot/ulp_observability2.png><br/>
 <em>Exemple de résumé des métriques en mode non graphique</em>
+<br/>
+<br/>
+<img src=screenshot/ulp_observability5.png><br/>
+<em>Exemple de réponse du serveur Jetty pour les métriques d'un échantillon au format OpenMetrics</em>
 </p>
 
 
@@ -57,10 +71,15 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 - [ng-openapi-gen](https://www.npmjs.com/package/ng-openapi-gen) : générer les objets et les services
 - [Jest](https://jestjs.io/) : Tests unitaires, populaire et préferé par la communauté react et angular
 
-###### Front IHM
+###### Tâches accomplies
+- Synchronisation avec la configuration du plugin
+- La page HTML avec des métriques affiche correctement des graphiques multi-axes pour chaque type de métrique
+- Récapitulative des métriques totales en bas de la page
+
+###### IHM
 
 <p align="center">
-<img src=back/screenshot/ulp_observability3.png><br/>
+<img src=screenshot/ulp_observability3.png><br/>
 <em>Exemple d'un graphique pour une métrique</em> <br />
 </p>
 
@@ -70,6 +89,14 @@ Ulp observability plugin est une extension pour Jmeter qui va permettre d'affich
 
 <br />
 <p align="center">
-<img src=back/screenshot/ulp_observability4.png><br/>
+<img src=screenshot/ulp_observability4.png><br/>
 <em>Exemple de résumé des métriques totales</em> <br />
 </p>
+
+###### A faire
+- La sérialisation/désérialisation des enregistrements d'échantillons dans un fichier local
+- Appliquer checkstyle pour la partie back
+- Créer Action github de build du plugin
+- Faire le packaging du plugin approprié (`mvn clean install` depuis le projet parent génèrant un JAR de plugin avec un webapp depuis front build)
+- Tests unitaires
+- Pour la partie front : ajouter un tableau des statistiques équivalent au tableau de bord JMeter (<https://jmeter.apache.org/usermanual/generating-dashboard.html>)

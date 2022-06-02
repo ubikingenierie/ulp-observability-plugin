@@ -113,7 +113,10 @@ public class ULPObservabilityServer {
         HandlerCollection handlers = new HandlerCollection();
         
         this.metricsHandler.setContextPath(metricsRoute);
-        this.metricsHandler.addServlet(new ServletHolder(new ULPObservabilityMetricsServlet(logger)), "/");
+        this.metricsHandler.addServlet(
+        		new ServletHolder(
+        				new ULPObservabilityMetricsServlet(logger)
+        				), "/");
         handlers.addHandler(metricsHandler);
         
 
@@ -133,7 +136,8 @@ public class ULPObservabilityServer {
         		.getContextClassLoader()
         		.getResource(WEBAPP_RESOURCES_LOCATION);
         if (webAppDir == null) {
-            throw new Exception("No "+ WEBAPP_RESOURCES_LOCATION +" directory was found in the JAR file");
+            throw new Exception("No "+ WEBAPP_RESOURCES_LOCATION 
+            		+ " directory was found in the JAR file");
         }
         
         webAppContext.setContextPath(webAppRoute);

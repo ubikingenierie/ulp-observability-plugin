@@ -1,7 +1,6 @@
 package ubikloadpack.jmeter.ulp.observability.task;
 
 import java.util.Collection;
-import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
