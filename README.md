@@ -1,6 +1,6 @@
 # ULP OBSERVABILITY PLUGIN
 
-Ulp observability plugin est une extension pour Jmeter qui va permettre d'afficher des metriques plus détaillées sur des tests de charge (implémentées et exécutées par Jmeter)
+Ulp observability plugin is an extension for Jmeter which will allow to display more detailed metrics on load tests (implemented and executed by Jmeter)
 
 ## Les métriques à afficher:
 - Nom du Sampler utilisé pour le test de charge
