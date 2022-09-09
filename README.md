@@ -47,7 +47,7 @@
 - More graphs
 - More metrics
 
-###### HMI
+###### Screenshots
 
 <p align="center">
 <img src=screenshot/ulp_observability1.png><br/>
@@ -65,7 +65,7 @@
 
 ##### Front
 - [TypeScript](https://www.typescriptlang.org/) : to take advantage of a strongly typed language for more rigor and data consistency 
-- [AngularJs](https://reactjs.org/): for the front and graphing part:
+- [AngularJs](https://angularjs.org/): for the front and graphing part :
          - States and hooks to facilitate data manipulation (Metrics)
          - npm repo for various dependencies
          - ChartJs available
@@ -77,7 +77,7 @@
 - HTML page with metrics correctly displays multi-axis charts for each type of metric
 - Summary of total metrics at the bottom of the page
 
-###### IHM
+###### Screenshots
 
 <p align="center">
 <img src=screenshot/ulp_observability3.png><br/>
@@ -94,10 +94,5 @@
 <em>Example summary of total metrics</em> <br />
 </p>
 
-###### To do
-- Serialization/deserialization of sample records to a local file
-- Apply checkstyle for the back part
-- Create plugin build github action
-- Packaging the appropriate plugin (`mvn clean install` from the parent project generating a plugin JAR with a webapp from front build)
-- Unit tests
-- For the front part: add a table of statistics equivalent to the JMeter dashboard (<https://jmeter.apache.org/usermanual/generating-dashboard.html>)
+
+###### [To do](https://github.com/ubikingenierie/ulp-observability-plugin/issues)
