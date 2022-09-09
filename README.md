@@ -1,6 +1,6 @@
 # ULP OBSERVABILITY PLUGIN
 
-Ulp observability plugin is an extension for Jmeter which will allow to display more detailed metrics on load tests (implemented and executed by Jmeter)
+[UbikLoadPack](https://UbikLoadPack.com) observability plugin is an extension for Jmeter which will allow to display more detailed metrics on load tests (implemented and executed by Apache JMeter)
 
 ## Metrics to display:
 - Name of the Sampler used for the load test
@@ -15,7 +15,7 @@ Ulp observability plugin is an extension for Jmeter which will allow to display 
 
 ## Constraints:
 
-- See the lightest possible memory / CPU impact on the JMeter side
+- Have the lightest possible memory / CPU impact on JMeter performances
 - Ability to handle up to 1 million requests per minute
 - Select a Javascript graphing library that is free and Open Source compatible or paid but in One Shot only
 - Develop the solution in Plugin
@@ -40,7 +40,12 @@ Ulp observability plugin is an extension for Jmeter which will allow to display 
 - Metrics logging
 - Exposing metrics in OpenMetrics format with the Jetty server
 - Exposing an HTML page with metric charts
--Javadoc
+- Javadoc
+
+###### Tasks to be completed:
+- Support distributed testing
+- More graphs
+- More metrics
 
 ###### HMI
 
@@ -59,15 +64,13 @@ Ulp observability plugin is an extension for Jmeter which will allow to display 
 
 
 ##### Front
-- [TypeScript](https://www.typescriptlang.org/) : to take advantage of typing for more rigor and data consistency 
+- [TypeScript](https://www.typescriptlang.org/) : to take advantage of a strongly typed language for more rigor and data consistency 
 - [AngularJs](https://reactjs.org/): for the front and graphing part:
          - States and hooks to facilitate data manipulation (Metrics)
          - npm repo for various dependencies
          - ChartJs available
          - Material UI for elegant rendering
 - [ChartJs](https://www.npmjs.com/package/chart.js?activeTab=readme) : Library used a lot, maintained (last update on 02/16/2022) and free
-- [ng-openapi-gen](https://www.npmjs.com/package/ng-openapi-gen) : generate objects and services
-- [Jest](https://jestjs.io/) : Unit testing, popular and preferred by react and angular community
 
 ###### Completed tasks
 - Synchronization with plugin configuration
