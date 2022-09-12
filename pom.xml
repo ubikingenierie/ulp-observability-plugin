@@ -29,8 +29,8 @@
   </build>
 
 	<modules>
-		<module>back</module>
 		<module>ulp-observability-front</module>
+		<module>back</module>
 	</modules>
 
 </project>
