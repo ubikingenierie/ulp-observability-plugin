@@ -95,4 +95,4 @@
 </p>
 
 
-###### [To do](https://github.com/ubikingenierie/ulp-observability-plugin/issues)
+###### [To do](https://github.com/ubikingenierie/ulp-observability-plugin/issues?q=is%3Aopen+is%3Aissue+milestone%3A1.0.0)
