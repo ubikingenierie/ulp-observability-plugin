@@ -101,6 +101,29 @@
 
  <build>
     <plugins>
+    
+		<plugin>
+		<artifactId>maven-resources-plugin</artifactId>
+		<version>3.0.2</version>
+		<executions>
+			<execution>
+				<id>copy-resources</id>
+				<phase>process-resources</phase>
+				<goals>
+					<goal>copy-resources</goal>
+				</goals>
+				<configuration>
+					<outputDirectory>${project.build.outputDirectory}/webapp</outputDirectory>
+					<resources>
+						<resource>
+							<directory>../ulp-observability-front/src/main/front/dist/webapp</directory>
+							<filtering>false</filtering>
+						</resource>
+					</resources>
+				</configuration>
+			</execution>
+		</executions>
+	</plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
