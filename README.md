@@ -1,6 +1,6 @@
 # ULP OBSERVABILITY PLUGIN
 
-[UbikLoadPack](https://UbikLoadPack.com) observability plugin is an extension for Jmeter which will allow to display more detailed metrics on load tests (implemented and executed by Apache JMeter)
+[UbikLoadPack](https://UbikLoadPack.com) observability plugin is an extension for Apache JMeter which will allow to display more detailed metrics on load tests (implemented and executed by JMeter)
 
 ## Metrics to display:
 - Name of the Sampler used for the load test
@@ -26,8 +26,8 @@
 
 ## Technologies and dependencies:
 ##### Back
-- [Java](https://www.java.com/) : Language used by Jmeter
-- [Embedded Jetty](https://www.baeldung.com/jetty-embedded) : to expose the metrics collected by SamplerListener (specific to Jmeter) and calculated by HDRHistogram offers a very light server implementation
+- [Java](https://www.java.com/) : Language used by JMeter
+- [Embedded Jetty](https://www.baeldung.com/jetty-embedded) : to expose the metrics collected by SamplerListener (specific to JMeter) and calculated by HDRHistogram offers a very light server implementation
 - [Micrometer](https://micrometer.io/) : to save samples and calculate more metrics
 - [CronScheduler](https://github.com/TimeAndSpaceIO/CronScheduler/) : for a clock drift insensitive task scheduler
 - [openapi-generator-maven-plugin](https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-maven-plugin) : to generate APIs and models
