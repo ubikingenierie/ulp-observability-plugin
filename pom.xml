@@ -23,10 +23,16 @@
     
     <distributionManagement>
 		<repository>
-		  <id>mvn-repo</id>
-		  <name>ubikingenierie</name>
+		  <id>releases</id>
+		  <name>Releases</name>
 		  <url>https://maven.pkg.github.com/ubikingenierie/ulp-observability-plugin</url>
 		</repository>
+		
+		<snapshotRepository>
+		  <id>snapshots</id>
+		  <name>Snapshots</name>
+		  <url>https://maven.pkg.github.com/ubikingenierie/ulp-observability-plugin</url>
+		</snapshotRepository>
 	 </distributionManagement>
   
   <build>
