@@ -16,7 +16,7 @@
 	  
 
   <scm>
-    <developerConnection>scm:git:https://github.com/ubikingenierie/ulp-observability-plugin</developerConnection>
+    <developerConnection>scm:git:https://github.com/ubikingenierie/ulp-observabilitye-plugin</developerConnection>
   </scm>
   
   <build>
