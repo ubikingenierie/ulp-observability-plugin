@@ -3,7 +3,7 @@
   <parent>
     <groupId>jmeter.plugins.ulbobservatory.sampler</groupId>
     <artifactId>ulp-observability</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>ulp-observability-front</artifactId>
   <name>front</name>
