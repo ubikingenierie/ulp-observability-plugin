@@ -24,11 +24,17 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
+        settings-path: ${{ github.workspace }} 
         
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-      
-    - name: List the target folder
+
+    - name: Maven Release x GitHub Packages
       run: |
-        cd back/target
-        ls -a
+        git config --global user.name "tibodirou"
+        git config --global user.email "thibo44240@hotmail.com"
+        mvn release:prepare --batch-mode 
+        mvn release:perform -s $GITHUB_WORKSPACE/settings.xml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      
