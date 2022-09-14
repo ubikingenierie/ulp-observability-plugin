@@ -13,6 +13,11 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+      permissions:
+        contents: write
+        actions: write
+        repository-projects: write
+        packages: write
 
     steps:
     - name: Checkout main branch from Github
