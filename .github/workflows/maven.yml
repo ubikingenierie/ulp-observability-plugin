@@ -28,13 +28,8 @@ jobs:
 
     - name: Configure Git user
       run: |
-        git config user.email "thibo44240@hotmail.com"
-        git config user.name "tibodirou"
-
-    - name: View settings.xml
-      run: |
-        cat $GITHUB_WORKSPACE/settings.xml
-        echo "GITHUB_ACTOR: ${env.GITHUB_TOKEN}"
+        git config --global user.email "thibo44240@hotmail.com"
+        git config --global user.name "tibodirou"
       
     - name: Maven Release x GitHub Packages
       run: |
