@@ -5,9 +5,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "issue_24_tibodirou" ]
+    branches: [ "develop" ]
   pull_request:
-    branches: [ "issue_24_tibodirou" ]
+    branches: [ "develop" ]
 
 jobs:
   build:
@@ -30,6 +30,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
         settings-path: ${{ github.workspace }} 
+        server-id: github
 
     - name: Build with Maven
       run: mvn clean install
@@ -45,5 +46,4 @@ jobs:
         mvn release:perform -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_ACTOR: ${ GITHUB_ACTOR }
       
