@@ -36,8 +36,10 @@ jobs:
       
     - name: Maven Release x GitHub Packages
       run: |
+        echo "GITHUB_ACTOR: ${GITHUB_ACTOR}"
         mvn -B release:prepare
         mvn release:perform -s $GITHUB_WORKSPACE/settings.xml
       env:
+        GITHUB_ACTOR: tibodirou
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       
