@@ -38,7 +38,11 @@ jobs:
       
     - name: Maven Release x GitHub Packages
       run: |
-        mvn -B release:prepare -X
+        echo "actor : ${GITHUB_ACTOR}"
+        echo "token : $GITHUB_TOKEN"
+        echo "actor2 : ${env.GITHUB_ACTOR}"
+        echo "token2 : ${env.GITHUB_TOKEN}"
+        mvn -B release:prepare
         mvn release:perform -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
