@@ -13,6 +13,7 @@
 		<frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
 	    <node.version>v16.17.0</node.version>
 	    <node.url>https://nodejs.org/dist/</node.url>
+	    <maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
 
 		<build>
