@@ -23,7 +23,7 @@
     
     <distributionManagement>
 		<repository>
-		  <id>mvn-repo</id>
+		  <id>github</id>
 		  <name>Releases</name>
 		  <url>https://maven.pkg.github.com/ubikingenierie/ulp-observability-plugin</url>
 		</repository>

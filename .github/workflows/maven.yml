@@ -31,10 +31,12 @@ jobs:
         git config user.email "thibo44240@hotmail.com"
         git config user.name "tibodirou"
 
+    - name: View settings.xml
+      run: cat /home/runner/.m2/settings.xml
+
     - name: Maven Release x GitHub Packages
       run: |
-        mvn -B release:prepare
-        mvn release:perform -s $GITHUB_WORKSPACE/settings.xml
+        ./mvnw -B release:prepare release:perform
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       
