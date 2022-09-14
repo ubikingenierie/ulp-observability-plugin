@@ -38,7 +38,7 @@ jobs:
       
     - name: Maven Release x GitHub Packages
       run: |
-        mvn -B release:prepare
+        mvn -B release:prepare -X
         mvn release:perform -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
