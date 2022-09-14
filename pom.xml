@@ -3,7 +3,7 @@
 
     <groupId>jmeter.plugins.ulbobservatory.sampler</groupId>
     <artifactId>ulp-observability</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.3</version>
     <name>ULP Observatory Sampler as JMeter plugin</name>
     
     <packaging>pom</packaging>
@@ -17,7 +17,8 @@
 	  
     <scm>
         <developerConnection>scm:git:https://github.com/ubikingenierie/ulp-observability-plugin.git</developerConnection>
-    </scm>
+      <tag>ulp-observability-1.0.3</tag>
+  </scm>
     
     <distributionManagement>
 		<repository>
