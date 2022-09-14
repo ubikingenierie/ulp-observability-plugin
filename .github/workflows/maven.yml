@@ -32,11 +32,12 @@ jobs:
         git config user.name "tibodirou"
 
     - name: View settings.xml
-      run: cat /home/runner/.m2/settings.xml
-
+      run: cat $GITHUB_WORKSPACE/settings.xml
+      
     - name: Maven Release x GitHub Packages
       run: |
-        ./mvnw -B release:prepare release:perform
+        mvn -B release:prepare
+        mvn release:perform -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       
