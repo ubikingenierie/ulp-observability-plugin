@@ -31,6 +31,9 @@ jobs:
         cache: maven
         settings-path: ${{ github.workspace }} 
 
+    - name: Build with Maven
+      run: mvn clean install
+
     - name: Configure Git user
       run: |
         git config --global user.email "thibo44240@hotmail.com"
@@ -38,10 +41,9 @@ jobs:
       
     - name: Maven Release x GitHub Packages
       run: |
-        echo "actor : ${GITHUB_ACTOR}"
-        echo "token : $GITHUB_TOKEN"
         mvn -B release:prepare
         mvn release:perform -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_ACTOR: ${ GITHUB_ACTOR }
       
