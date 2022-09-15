@@ -5,7 +5,7 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "issue_24_tibodirou" ]
   pull_request:
     branches: [ "develop" ]
 
@@ -33,9 +33,7 @@ jobs:
         server-id: github
 
     - name: Configure Git user
-      run: |
-        git config --global user.email "thibo44240@hotmail.com"
-        git config --global user.name "tibodirou"
+      uses: fregante/setup-git-user@v1.1.0
       
     - name: Maven Release x GitHub Packages
       run: |
