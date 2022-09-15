@@ -32,9 +32,6 @@ jobs:
         settings-path: ${{ github.workspace }} 
         server-id: github
 
-    - name: Build with Maven
-      run: mvn clean install
-
     - name: Configure Git user
       run: |
         git config --global user.email "thibo44240@hotmail.com"
