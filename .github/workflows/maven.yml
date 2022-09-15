@@ -41,10 +41,4 @@ jobs:
         mvn release:perform -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Release
-      uses: ncipollo/release-action@v1
-      with:
-        artifacts: back/target/ulp-observability-listener-*-jar-with-dependencies.jar
-        token : ${{ secrets.GITHUB_TOKEN }}
       
