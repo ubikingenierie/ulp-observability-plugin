@@ -68,8 +68,7 @@ Each credentials pair requires a unique server identifier.
 Personal access tokens (PATs) are an alternative to using passwords for authentication to GitHub. 
   Follow this quick guide to generate a PAT :
 https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
-**Make sure to check the permissions**
-Then copy-paste it in ```<password></password>```
+**Make sure to check the permissions**, then copy-paste it in ```<password></password>```
 
 
 - **In pom.xml**
