@@ -34,8 +34,3 @@ jobs:
         mvn release:perform -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: back/target/ulp-observability-listener-*-jar-with-dependencies.jar
