@@ -19,7 +19,7 @@
     <scm>
         <developerConnection>scm:git:https://github.com/ubikingenierie/ulp-observability-plugin.git</developerConnection>
       <tag>HEAD</tag>
-   </scm>
+    </scm>
     
     <distributionManagement>
 		<repository>
