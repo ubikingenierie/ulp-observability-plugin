@@ -69,7 +69,7 @@ Personal access tokens (PATs) are an alternative to using passwords for authenti
   Follow this quick guide to generate a PAT :
 https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 **Make sure to check the permissions**
-Then copy-paste it in ***<password>***
+Then copy-paste it in ```<password></password>```
 
 
 - **In pom.xml**
