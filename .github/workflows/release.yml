@@ -38,6 +38,5 @@ jobs:
     - uses: ncipollo/release-action@v1
       with:
         artifacts: back/target/ulp-observability-listener-*-jar-with-dependencies.jar
-        bodyFile: "body.md"
         token: ${{ secrets.YOUR_GITHUB_TOKEN }}
 
