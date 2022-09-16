@@ -27,10 +27,8 @@ jobs:
 
     - name: Configure Git user
       uses: fregante/setup-git-user@v1.1.0
+
+    - name: test
+      run: echo ${{github.ref_name}}
     
-    - name: Maven Release x GitHub Packages
-      run: |
-        mvn -B release:prepare
-        mvn release:perform -s $GITHUB_WORKSPACE/settings.xml
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
