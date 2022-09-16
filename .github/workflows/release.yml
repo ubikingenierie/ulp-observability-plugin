@@ -38,5 +38,8 @@ jobs:
       uses: "WyriHaximus/github-action-get-previous-tag@v1"
       with:
         fallback: 1.0.0 # Optional fallback tag to use when no tag can be found
+
+    - name: print
+      run: echo ${{ steps.previoustag.outputs.tag }}
     
 
