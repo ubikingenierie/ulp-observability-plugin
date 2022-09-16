@@ -44,9 +44,10 @@ jobs:
         fallback: 1.0.0 # Optional fallback tag to use when no tag can be found
 
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: ncipollo/release-action@v1
       with:
-        tag_name: $ {{steps.previoustag.outputs.tag}}
-        files: back/target/ulp-observability-listener-*-jar-with-dependencies.jar
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: $ {{steps.previoustag.outputs.tag}}
+        artifacts: back/target/ulp-observability-listener-*-jar-with-dependencies.jar
 
 
