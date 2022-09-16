@@ -35,8 +35,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - uses: ncipollo/release-action@v1
+    - name: Release
+      uses: softprops/action-gh-release@v1
       with:
-        artifacts: back/target/ulp-observability-listener-*-jar-with-dependencies.jar
-        token: ${{ secrets.YOUR_GITHUB_TOKEN }}
-
+        files: back/target/ulp-observability-listener-*-jar-with-dependencies.jar
