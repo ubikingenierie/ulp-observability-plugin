@@ -1,0 +1,17 @@
+name: Releases
+on:
+  push:
+    branches:
+      - refs/tags/*
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v1
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: back/target/ulp-observability-listener-*-jar-with-dependencies.jar
