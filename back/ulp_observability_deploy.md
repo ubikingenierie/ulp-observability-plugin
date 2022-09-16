@@ -2,7 +2,7 @@
 
 ---
 
-### Maven release plugin	
+### I Maven release plugin :
 	
 The Maven Release plugin manages the release process. It provides two complementary goals, prepare and perform. They do the following :	
 	
@@ -21,8 +21,10 @@ The Maven Release plugin manages the release process. It provides two complement
 
 ---
 
+### II Maven release plugin configuration :
 For the required SCM information, the Maven POM offers a dedicated section to configure it :
 
+- **In pom.xml :**
 &lt;scm>  
 	&lt;developerConnection>
 		scm:git:https://github.com/[organization]/[repository].git
@@ -33,10 +35,8 @@ Authenticating with the git protocol requires a SSH key. In the context of a CI 
 This requires credentials in the form of a user/password pair written in ***$HOME/.m2/settings.xml***
 Each credentials pair requires a unique server identifier.
 
-**Content of settings.xml :**
-
-
-***&lt;settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+- **In settings.xml :**
+&lt;settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
                               https://maven.apache.org/xsd/settings-1.0.0.xsd">
@@ -47,17 +47,17 @@ Each credentials pair requires a unique server identifier.
       &lt;password>[Github personal access token]&lt;/password>
     &lt;/server>
   &lt;/servers>
-&lt;/settings>***
+&lt;/settings>
 
 
 
 
 To configure a Maven project to use a specific server, in pom.xml, add a property with the **project.scm.id** key and the server id as the value.
 
-
-***&lt;properties>
+- **In pom.xml**
+&lt;properties>
   &lt;project.scm.id>github&lt;/project.scm.id>  
-&lt;/properties>***
+&lt;/properties>
 
 The project will use the github server configured on the settings file **[server id]**. They must be the same.
 
@@ -66,6 +66,7 @@ Calling the ***release:perform*** goal launches a Maven fork that runs the deplo
 In the context of this project, the artifact is a JAR, and the registry, GitHub.
 This translates into the following configuration snippet:
 
+- **In pom.xml**
 &lt;distributionManagement>
 	&lt;repository>
 	  &lt;id>github</id>
@@ -79,34 +80,35 @@ The root of GitHub registry is at https://maven.pkg.github.com
  
  ---
 
-### Github action
+### III Github action :
 
  Github action files are located in ***/.github/workflows/***
 
  There are two files :
 
  * **build.yml** is used to build the project everytime there is a push on the *develop* branch. 
- * **release.yml** will run mvn release:prepare and mvn release:perform thanks to the configuration of the maven plugin. It will also release the jar-with-dependencies in the Github tags. This workflow have to be started manualy in github.
+ * **release.yml** will run mvn release:prepare and mvn release:perform thanks to the configuration of the maven plugin. It will also release the jar-with-dependencies in the Github tags. This workflow have to be started manualy in Github.
  
   
-
+ ---
  
  #### links
  
- Maven release plugin
+ Maven release plugin documentation
  https://maven.apache.org/maven-release/maven-release-plugin/
-
  Github action documentation
  https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
+ Creating a personal access token
+ https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 
  Action get previous tag
  https://github.com/WyriHaximus/github-action-get-previous-tag
-
  Action release artifact 
  https://github.com/ncipollo/release-action
 
- Managing Maven releases with GitHub Actions (tutorial)
+ Managing Maven releases with GitHub Actions (tutorials)
  https://statusneo.com/ci-cd-with-github-x-apache-maven/
+ https://blog.frankel.ch/github-actions-maven-releases/
 
 
  #### Tips
