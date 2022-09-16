@@ -25,53 +25,59 @@ The Maven Release plugin manages the release process. It provides two complement
 
 Add the maven-release-plugin to the project :
 - **In pom.xml :**
->&lt;plugin>
-  &lt;groupId>org.apache.maven.plugins</groupId>
-  &lt;artifactId>maven-release-plugin</artifactId>
-  &lt;version>3.0.0-M6</version>
-&lt;/plugin>
+```
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-release-plugin</artifactId>
+  <version>3.0.0-M6</version>
+</plugin>
+```
 
 For the required SCM information, the Maven POM offers a dedicated section to configure it :
 
 
 - **In pom.xml :**
->&lt;scm>  
-	&lt;developerConnection>
+```
+<scm>  
+	<developerConnection>
 		scm:git:https://github.com/[organization]/[repository].git
-	&lt;/developerConnection>
-&lt;/scm>
+	</developerConnection>
+</scm>
+```
 
 Authenticating with the git protocol requires a SSH key. In the context of a CI pipeline, this is not desirable. That is why we are using the **http** protocol.
 This requires credentials in the form of a user/password pair written in ***$HOME/.m2/settings.xml***
 Each credentials pair requires a unique server identifier.
 
 - **In settings.xml :**
-  
->&lt;settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+```  
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
                               https://maven.apache.org/xsd/settings-1.0.0.xsd">
-  &lt;servers>
-    &lt;server>
-      &lt;id>[server id]&lt;/id>
-      &lt;username>[github username]&lt;/username>
-      &lt;password>[Personal access token]&lt;/password>
-    &lt;/server>
-  &lt;/servers>
-&lt;/settings>
-
+  <servers>
+    <server>
+      <id>[server id]</id>
+      <username>[github username]</username>
+      <password>[Personal access token]</password>
+    </server>
+  </servers>
+</settings>
+```
 
 Personal access tokens (PATs) are an alternative to using passwords for authentication to GitHub. 
   Follow this quick guide to generate a PAT :
 https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
-Then copy-paste it in ***&lt;password>***
+**Make sure to check the permissions**
+Then copy-paste it in ***<password>***
 
 
 - **In pom.xml**
->&lt;properties>
-  &lt;project.scm.id>github&lt;/project.scm.id>  
-&lt;/properties>
-
+```
+<properties>
+  <project.scm.id>github</project.scm.id>  
+</properties>
+```
 To configure a Maven project to use a specific server, in pom.xml, add a property with the **project.scm.id** key and the server id as the value.
 
 The project will identify and use the github server configured on the settings file **[server id]**. They must be the same.
@@ -79,13 +85,15 @@ The project will identify and use the github server configured on the settings f
 
 
 - **In pom.xml**
->&lt;distributionManagement>
-	&lt;repository>
-	  &lt;id>github</id>
-	  &lt;name>Releases</name>
-	  &lt;url>https://maven.pkg.github.com/ubikingenierie/ulp-observability-plugin</url>
-	&lt;/repository>
-&lt;/distributionManagement>
+```
+<distributionManagement>
+	<repository>
+	  <id>github</id>
+	  <name>Releases</name>
+	  <url>https://maven.pkg.github.com/ubikingenierie/ulp-observability-plugin</url>
+	</repository>
+</distributionManagement>
+```
 
 Calling the ***release:perform*** goal launches a Maven fork that runs the deploy phase.
 In the context of this project, the artifact is a JAR, and the registry, GitHub.
@@ -132,7 +140,7 @@ The root of GitHub registry is at https://maven.pkg.github.com
 
  * At the start of each workflow run, GitHub automatically creates a unique ***GITHUB_TOKEN*** secret to use in your workflow. You can use the GITHUB_TOKEN to authenticate in a workflow run.
  Before each job begins, GitHub fetches an installation access token for the job. The GITHUB_TOKEN expires when a job finishes.
- You can use the GITHUB_TOKEN by using the standard syntax for referencing secrets: ***${{ secrets.GITHUB_TOKEN }}***
+ You can use the GITHUB_TOKEN by using the standard syntax for referencing secrets: ```${{ secrets.GITHUB_TOKEN }}```
 
  ---
  
@@ -159,8 +167,8 @@ The root of GitHub registry is at https://maven.pkg.github.com
  #### Tips
 
  To manualy set tag a version (ex : 1.0.0) on local, run : 
- ***mvn versions:set -DnewVersion=1.0.0-SNAPSHOT***
+ ```mvn versions:set -DnewVersion=1.0.0-SNAPSHOT```
 
  To publish jar files into **Github package** set the following property in the parent pom :
- ***&lt;maven.deploy.skip>false&lt;/maven.deploy.skip>*** 
+ ```<maven.deploy.skip>false</maven.deploy.skip>``` 
  
