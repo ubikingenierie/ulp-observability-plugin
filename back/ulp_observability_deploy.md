@@ -1,6 +1,6 @@
 
 To manualy set tag version on local : 
-	mvn versions:set -DnewVersion=1.0.1-SNAPSHOT
+	mvn versions:set -DnewVersion=1.0.0-SNAPSHOT
 	
 		
 	

@@ -3,7 +3,7 @@
 
     <groupId>jmeter.plugins.ulbobservatory.sampler</groupId>
     <artifactId>ulp-observability</artifactId>
-    <version>1.0.8-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>ULP Observatory Sampler as JMeter plugin</name>
     
     <packaging>pom</packaging>
@@ -13,7 +13,6 @@
 	    <maven.compiler.source>11</maven.compiler.source>
 	    <maven.compiler.target>11</maven.compiler.target>
 	    <project.scm.id>github</project.scm.id>
-	    <maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
 	  
     <scm>
