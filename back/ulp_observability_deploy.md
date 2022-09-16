@@ -22,10 +22,20 @@ The Maven Release plugin manages the release process. It provides two complement
 ---
 
 ### II Maven release plugin configuration :
+
+Add the maven-release-plugin to the project :
+- **In pom.xml :**
+>&lt;plugin>
+  &lt;groupId>org.apache.maven.plugins</groupId>
+  &lt;artifactId>maven-release-plugin</artifactId>
+  &lt;version>3.0.0-M6</version>
+&lt;/plugin>
+
 For the required SCM information, the Maven POM offers a dedicated section to configure it :
 
+
 - **In pom.xml :**
-&lt;scm>  
+>&lt;scm>  
 	&lt;developerConnection>
 		scm:git:https://github.com/[organization]/[repository].git
 	&lt;/developerConnection>
@@ -36,7 +46,8 @@ This requires credentials in the form of a user/password pair written in ***$HOM
 Each credentials pair requires a unique server identifier.
 
 - **In settings.xml :**
-&lt;settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  
+>&lt;settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
                               https://maven.apache.org/xsd/settings-1.0.0.xsd">
@@ -44,36 +55,41 @@ Each credentials pair requires a unique server identifier.
     &lt;server>
       &lt;id>[server id]&lt;/id>
       &lt;username>[github username]&lt;/username>
-      &lt;password>[Github personal access token]&lt;/password>
+      &lt;password>[Personal access token]&lt;/password>
     &lt;/server>
   &lt;/servers>
 &lt;/settings>
 
 
+Personal access tokens (PATs) are an alternative to using passwords for authentication to GitHub. 
+  Follow this quick guide to generate a PAT :
+https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+Then copy-paste it in ***&lt;password>***
 
-
-To configure a Maven project to use a specific server, in pom.xml, add a property with the **project.scm.id** key and the server id as the value.
 
 - **In pom.xml**
-&lt;properties>
+>&lt;properties>
   &lt;project.scm.id>github&lt;/project.scm.id>  
 &lt;/properties>
 
-The project will use the github server configured on the settings file **[server id]**. They must be the same.
+To configure a Maven project to use a specific server, in pom.xml, add a property with the **project.scm.id** key and the server id as the value.
+
+The project will identify and use the github server configured on the settings file **[server id]**. They must be the same.
 
 
-Calling the ***release:perform*** goal launches a Maven fork that runs the deploy phase.
-In the context of this project, the artifact is a JAR, and the registry, GitHub.
-This translates into the following configuration snippet:
 
 - **In pom.xml**
-&lt;distributionManagement>
+>&lt;distributionManagement>
 	&lt;repository>
 	  &lt;id>github</id>
 	  &lt;name>Releases</name>
 	  &lt;url>https://maven.pkg.github.com/ubikingenierie/ulp-observability-plugin</url>
 	&lt;/repository>
 &lt;/distributionManagement>
+
+Calling the ***release:perform*** goal launches a Maven fork that runs the deploy phase.
+In the context of this project, the artifact is a JAR, and the registry, GitHub.
+This translates into the configuration snippet above.
 
 The root of GitHub registry is at https://maven.pkg.github.com
  
@@ -84,12 +100,40 @@ The root of GitHub registry is at https://maven.pkg.github.com
 
  Github action files are located in ***/.github/workflows/***
 
- There are two files :
+ #### There are two action files :
 
  * **build.yml** is used to build the project everytime there is a push on the *develop* branch. 
  * **release.yml** will run mvn release:prepare and mvn release:perform thanks to the configuration of the maven plugin. It will also release the jar-with-dependencies in the Github tags. This workflow have to be started manualy in Github.
  
-  
+#### Actions used these two files :
+
+**actions/checkout@v3 :**
+
+ * This action checks-out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
+
+**actions/setup-java@v3 :**
+ * This action provides the following functionality for GitHub Actions runners:
+   * Downloading and setting up a requested version of Java.
+   * Configuring runner for publishing using Apache Maven.
+   * Caching dependencies managed by Apache Maven
+
+**fregante/setup-git-user :**
+  * This action sets generic git user and email to enable commiting. New commits and tags will be assigned to the @actions user
+
+**WyriHaximus/github-action-get-previous-tag :**
+* GitHub Action that gets the latest tag from Git.
+  ***set "fetch-depth: 0" in actions/checkout@v3 to make it work.***
+
+**ncipollo/release-action :**
+* This action will upload an artifact to a GitHub release.
+  ***use "github-action-get-previous-tag" output to set the "tag" input of this action***
+
+ **Github_token :**
+
+ * At the start of each workflow run, GitHub automatically creates a unique ***GITHUB_TOKEN*** secret to use in your workflow. You can use the GITHUB_TOKEN to authenticate in a workflow run.
+ Before each job begins, GitHub fetches an installation access token for the job. The GITHUB_TOKEN expires when a job finishes.
+ You can use the GITHUB_TOKEN by using the standard syntax for referencing secrets: ***${{ secrets.GITHUB_TOKEN }}***
+
  ---
  
  #### links
@@ -98,13 +142,14 @@ The root of GitHub registry is at https://maven.pkg.github.com
  https://maven.apache.org/maven-release/maven-release-plugin/
  Github action documentation
  https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
- Creating a personal access token
- https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 
+ Action setup git user
+ https://github.com/fregante/setup-git-user
  Action get previous tag
  https://github.com/WyriHaximus/github-action-get-previous-tag
  Action release artifact 
  https://github.com/ncipollo/release-action
+
 
  Managing Maven releases with GitHub Actions (tutorials)
  https://statusneo.com/ci-cd-with-github-x-apache-maven/
@@ -113,8 +158,9 @@ The root of GitHub registry is at https://maven.pkg.github.com
 
  #### Tips
 
- To manualy set tag version on local, run : 
-	***mvn versions:set -DnewVersion=1.0.0-SNAPSHOT***
+ To manualy set tag a version (ex : 1.0.0) on local, run : 
+ ***mvn versions:set -DnewVersion=1.0.0-SNAPSHOT***
 
- To publish jar files into **Github package** set the property 
- ***&lt;maven.deploy.skip>false&lt;/maven.deploy.skip>*** in the parent pom.
+ To publish jar files into **Github package** set the following property in the parent pom :
+ ***&lt;maven.deploy.skip>false&lt;/maven.deploy.skip>*** 
+ 
