@@ -49,6 +49,10 @@ Authenticating with the git protocol requires a SSH key. In the context of a CI 
 This requires credentials in the form of a user/password pair written in ***$HOME/.m2/settings.xml***
 Each credentials pair requires a unique server identifier.
 
+``
+If you want to release from local, you will need to create that setting.xml file and fill in your personnal informations.
+If you only want to release from Github Action, this is unnecessary since this file will be automatically created and filled during the workflow.
+``
 - **In settings.xml :**
 ```  
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
