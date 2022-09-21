@@ -369,8 +369,9 @@ public class ULPObservabilityListener extends AbstractTestElement
     private transient String myName;
 	
     private transient ListenerClientData listenerClientData;
+ 
 	
-	public void testStarted(String host) {
+	public synchronized void testStarted(String host) {
 		
 		LOG.info("test started ", host);
 		
@@ -473,7 +474,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 		this.registry.close();
 	}
 
-	public void testEnded(String host) {
+	public synchronized void testEnded(String host) {
 		 LOG.info("test stopped ", host);
 		 
 		 
