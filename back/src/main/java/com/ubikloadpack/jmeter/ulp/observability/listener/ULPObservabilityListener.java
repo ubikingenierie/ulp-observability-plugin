@@ -323,6 +323,8 @@ public class ULPObservabilityListener extends AbstractTestElement
 			};
 		}
 	}
+	
+	
 
 	public void sampleStarted(SampleEvent sampleEvent) {
 	    LOG.info("************sampler started**************");
@@ -415,13 +417,6 @@ public class ULPObservabilityListener extends AbstractTestElement
                 listenerClientData = new ListenerClientData();
                 listenerClientData.queue = new ArrayBlockingQueue<>(queueSize);
                                 
-                if (LOG.isInfoEnabled()) {
-                	LOG.info("{}: Starting worker with queue capacity: {}", getName(), queueSize);                			
-                }               
-                
-                if (LOG.isInfoEnabled()) {
-                	LOG.info("{}: Started  worker", getName());
-                }
                 queuesByTestElementName.put(myName, listenerClientData);
             }
             listenerClientData.instanceCount++;
