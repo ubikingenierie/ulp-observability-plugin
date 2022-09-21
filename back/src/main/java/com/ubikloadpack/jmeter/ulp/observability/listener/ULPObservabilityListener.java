@@ -10,18 +10,13 @@ import java.util.Timer;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.LongAdder;
 
-import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.engine.util.NoThreadClone;
-import org.apache.jmeter.samplers.Remoteable;
 import org.apache.jmeter.samplers.SampleEvent;
 import org.apache.jmeter.samplers.SampleListener;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.AbstractTestElement;
-import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestStateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +44,7 @@ import com.ubikloadpack.jmeter.ulp.observability.util.Util;
  */
 
 public class ULPObservabilityListener extends AbstractTestElement
-             implements SampleListener, TestStateListener, NoThreadClone, Serializable, Remoteable {
+             implements SampleListener, TestStateListener, NoThreadClone, Serializable {
 	
 	private static final long serialVersionUID = 8170705348132535834L;
 	
@@ -303,28 +298,48 @@ public class ULPObservabilityListener extends AbstractTestElement
 		if(sampleEvent != null) {	
 			try {
 				SampleResult sample = sampleEvent.getResult();
-				if(!sampleQueue.offer(
-						new ResponseResult(
-								 sampleEvent.getThreadGroup(),
-								 Util.getResponseTime(sample.getEndTime(),sample.getStartTime()),
-								 sample.getErrorCount() > 0,
-								 sample.getGroupThreads(),
-								 sample.getAllThreads()
-								 ),
-						1000,
-						TimeUnit.MILLISECONDS
-						)) {
-					LOG.error(
-							"Sample queue overflow. Sample dropped: {}",
-							sampleEvent.getThreadGroup());
+				
+				
+				if(queuesByTestElementName.size() > 0) {
+					if(!listenerClientData.queue.offer(
+							new ResponseResult(
+									 sampleEvent.getThreadGroup(),
+									 Util.getResponseTime(sample.getEndTime(),sample.getStartTime()),
+									 sample.getErrorCount() > 0,
+									 sample.getGroupThreads(),
+									 sample.getAllThreads()
+									 ),
+							1000,
+							TimeUnit.MILLISECONDS
+							)) {
+						LOG.error(
+								"Sample queue overflow. Sample dropped: {}",
+								sampleEvent.getThreadGroup());
+					}
 				}
+				else {
+					if(!sampleQueue.offer(
+							new ResponseResult(
+									 sampleEvent.getThreadGroup(),
+									 Util.getResponseTime(sample.getEndTime(),sample.getStartTime()),
+									 sample.getErrorCount() > 0,
+									 sample.getGroupThreads(),
+									 sample.getAllThreads()
+									 ),
+							1000,
+							TimeUnit.MILLISECONDS
+							)) {
+						LOG.error(
+								"Sample queue overflow. Sample dropped: {}",
+								sampleEvent.getThreadGroup());
+					}
+				}
+
 			} catch (InterruptedException e) {
 				LOG.warn(sampleEvent.getResult().getThreadName()+": Interrupting sample queue");
 			};
 		}
 	}
-	
-	
 
 	public void sampleStarted(SampleEvent sampleEvent) {
 	    LOG.info("************sampler started**************");
@@ -335,34 +350,31 @@ public class ULPObservabilityListener extends AbstractTestElement
 		LOG.info("event stopped");
 	}
 
-    // ------------------------------------------------------------------------------------------------------------ //
 	
-    /**
-     * Lock used to protect accumulators update + instanceCount update
-     */
-    private static final Object LOCK = new Object();
-    
     private static final class ListenerClientData {
+    	
         private BlockingQueue<ResponseResult> queue;
+
         private int instanceCount; // number of active tests
+        
+        private List<MicrometerTask> micrometerTaskList;
+        
+        private CronScheduler logCron;
+
     }
 	
-	
-	// Name of the test element. Set up by testStarted().
-    private transient String myName;
-    
-    private transient ListenerClientData listenerClientData;
-    
     private static final Map<String, ListenerClientData> queuesByTestElementName =
             new ConcurrentHashMap<>();
     
-
+    private transient String myName;
+	
+    private transient ListenerClientData listenerClientData;
+	
 	public void testStarted(String host) {
 		
-		LOG.info("test started :{}",host);
+		LOG.info("test started ", host);
 		
-		if (queuesByTestElementName.size() == 0) {
-			init();			
+		if (queuesByTestElementName.size() == 0){
 			try {
 	 	    	this.ulpObservabilityServer =
 	 	    			new ULPObservabilityServer(
@@ -386,41 +398,47 @@ public class ULPObservabilityListener extends AbstractTestElement
 				LOG.error("error while starting Jetty server: {}", e);
 			}
 			
-			if(this.logCron != null) {
-				this.logCron.scheduleAtFixedRateSkippingToLatest(
-						getLogFreq(), 
-						getLogFreq(), 
-						TimeUnit.SECONDS, 
-						new LogTask(this.registry, this.sampleQueue)
-						);
-			}
-
-			
-			System.out.printf("ULPO Listener will generate log each %d seconds%n",getLogFreq());
-			
-			for(int i = 0; i < this.getThreadSize(); i++) {
-				this.micrometerTaskList.add(new MicrometerTask(this.registry, this.sampleQueue));
-				this.micrometerTaskList.get(i).start();
-			}
+	    	this.registry =
+	    			new MicrometerRegistry(
+	    					getTotalLabel(),
+	    					getPct1(),
+	    					getPct2(),
+	    					getPct3(),
+	    					getPctPrecision(),
+	    					getLogFreq(),
+	    					this.logger
+	    					);
+			}				
+		
+		myName = getName();
+		int queueSize = this.getBufferCapacity();
+		
+		if (listenerClientData == null) {
+            listenerClientData = new ListenerClientData();
+            listenerClientData.queue = new ArrayBlockingQueue<>(queueSize);
+            queuesByTestElementName.put(myName, listenerClientData);
 		}
 		
+		if(listenerClientData.logCron != null) {
+			listenerClientData.logCron.scheduleAtFixedRateSkippingToLatest(
+					getLogFreq(), 
+					getLogFreq(), 
+					TimeUnit.SECONDS, 
+					new LogTask(this.registry, listenerClientData.queue)
+					);
+		}
+		System.out.printf("ULPO Listener will generate log each %d seconds%n",getLogFreq());
 		
-        int queueSize = getBufferCapacity();        
-
-        synchronized (LOCK) {
-            myName = getName();
-            listenerClientData = queuesByTestElementName.get(myName);
-            if (listenerClientData == null) {
-                // We need to do this to ensure in Distributed testing
-                // that only 1 instance of BackendListenerClient is used              
-
-                listenerClientData = new ListenerClientData();
-                listenerClientData.queue = new ArrayBlockingQueue<>(queueSize);
-                                
-                queuesByTestElementName.put(myName, listenerClientData);
-            }
-            listenerClientData.instanceCount++;
-        }
+		for(int i = 0; i < this.getThreadSize(); i++) {
+			listenerClientData.micrometerTaskList.add(new MicrometerTask(this.registry, listenerClientData.queue));
+			listenerClientData.micrometerTaskList.get(i).start();
+		}
+				
+		
+		listenerClientData.instanceCount++;
+		
+		
+		
 	}
 
 	/**
@@ -455,54 +473,59 @@ public class ULPObservabilityListener extends AbstractTestElement
 		this.registry.close();
 	}
 
-
-    
 	public void testEnded(String host) {
-		
-		LOG.info("test stopped ", host);
-		
-        synchronized (LOCK) {
-            ListenerClientData listenerClientDataForName = queuesByTestElementName.get(myName);
-            if (LOG.isDebugEnabled()) {
-            	LOG.debug("testEnded called on instance {}#{}", myName, listenerClientDataForName.instanceCount);
-            }
-            if (listenerClientDataForName != null) {
-                listenerClientDataForName.instanceCount--;
-                if (listenerClientDataForName.instanceCount > 0) {
-                    // Not the last instance of myName
-                    return;
-                } else {
-                    queuesByTestElementName.remove(myName);
-                }
-            } else {
-            	LOG.error("No listener client data found for BackendListener {}", myName);
-            }
-        }        
-        
-        if (queuesByTestElementName.size() == 0) {
-        	try {
-    			if(ulpObservabilityServer != null) {
-    				ulpObservabilityServer.stop();
-    			}
-    			LOG.info("Jetty Endpoint stopped");
-    			
-    		} catch (Exception e) {
-    			LOG.error(
-    					"Jetty server shutdown error: {}", e);
-    		}
-    		 
-    		if(this.logCron.isThreadRunning()) {
-    			this.logCron.shutdownNow();
-    			this.logCron.purge();
-    		}
-    		this.micrometerTaskList.forEach((task) -> {
-    			task.stop();
-    		});
-    		 
-    		this.sampleQueue.clear();
-    		this.logger.clear();
-    		this.registry.close();
-        }	 
+		 LOG.info("test stopped ", host);
+		 
+		 
+		 ListenerClientData listenerClientDataForName = queuesByTestElementName.get(myName);
+		 
+         if (LOG.isDebugEnabled()) {
+        	 LOG.debug("testEnded called on instance {}#{}", myName, listenerClientDataForName.instanceCount);
+         }
+         
+         if (listenerClientDataForName != null) {
+             listenerClientDataForName.instanceCount--;
+             if (listenerClientDataForName.instanceCount > 0) {
+                 // Not the last instance of myName
+                 return;
+             } else {
+            	 
+    			 if(listenerClientDataForName.logCron.isThreadRunning()) {
+    				 listenerClientDataForName.logCron.shutdownNow();
+    				 listenerClientDataForName.logCron.purge();
+ 				 }
+    			 
+    			 listenerClientDataForName.micrometerTaskList.forEach((task) -> {
+					task.stop();
+				});
+                 queuesByTestElementName.remove(myName);
+             }
+         } else {
+        	 LOG.error("No listener client data found for BackendListener {}", myName);
+         }
+		 
+         
+		 
+		 if (queuesByTestElementName.size() == 0) {
+			 try {
+					if(ulpObservabilityServer != null) {
+						ulpObservabilityServer.stop();
+					}
+					LOG.info("Jetty Endpoint stopped");				
+				} 
+			 catch (Exception e) {
+					LOG.error(
+							"Jetty server shutdown error: {}", e);
+				}
+		 				 
+			this.sampleQueue.clear();
+			this.logger.clear();
+			this.registry.close();
+		 
+		 }	 		 
+     
 	}
+	
 }
+
 	
