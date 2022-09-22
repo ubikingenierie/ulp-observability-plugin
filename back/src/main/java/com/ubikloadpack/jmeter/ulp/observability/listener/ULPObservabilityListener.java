@@ -78,7 +78,15 @@ public class ULPObservabilityListener extends AbstractTestElement
      */
     private static volatile List<MicrometerTask> micrometerTaskList;
     
+    /**
+     * Name of the listener in the test plan
+     */
+    private static volatile String myName;
     
+    /**
+     * Number of threads running for distributed testing 
+     */
+    private static volatile int instanceCount;
     
     public void setBufferCapacity(Integer bufferCapacity) {
     	setProperty(ULPODefaultConfig.BUFFER_CAPACITY_PROP, bufferCapacity);
@@ -276,9 +284,6 @@ public class ULPObservabilityListener extends AbstractTestElement
 	}
 
     
-    private static volatile String myName;
-    
-    private static volatile int instanceCount;
 	
     
 	/**
