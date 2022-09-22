@@ -47,5 +47,5 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{steps.previoustag.outputs.tag}}
-        artifacts: back/target/ulp-observability-listener-*-jar-with-dependencies.jar
+        artifacts: back/target/ulp-observability-listener-*.jar
 
