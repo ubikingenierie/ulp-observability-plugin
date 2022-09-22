@@ -417,28 +417,25 @@ public class ULPObservabilityListener extends AbstractTestElement
 		if (listenerClientData == null) {
             listenerClientData = new ListenerClientData();
             listenerClientData.queue = new ArrayBlockingQueue<>(queueSize);
-            queuesByTestElementName.put(myName, listenerClientData);
-		}
-		
-		if(listenerClientData.logCron != null) {
+            
 			listenerClientData.logCron.scheduleAtFixedRateSkippingToLatest(
 					getLogFreq(), 
 					getLogFreq(), 
 					TimeUnit.SECONDS, 
 					new LogTask(this.registry, listenerClientData.queue)
 					);
-		}
-		System.out.printf("ULPO Listener will generate log each %d seconds%n",getLogFreq());
-		
-		for(int i = 0; i < this.getThreadSize(); i++) {
-			listenerClientData.micrometerTaskList.add(new MicrometerTask(this.registry, listenerClientData.queue));
-			listenerClientData.micrometerTaskList.get(i).start();
+            
+            
+            System.out.printf("ULPO Listener will generate log each %d seconds%n",getLogFreq());
+            
+    		for(int i = 0; i < this.getThreadSize(); i++) {
+    			listenerClientData.micrometerTaskList.add(new MicrometerTask(this.registry, listenerClientData.queue));
+    			listenerClientData.micrometerTaskList.get(i).start();
+    		}
+            queuesByTestElementName.put(myName, listenerClientData);
 		}
 				
-		
-		listenerClientData.instanceCount++;
-		
-		
+		listenerClientData.instanceCount++;	
 		
 	}
 
