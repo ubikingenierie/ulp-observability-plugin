@@ -1,15 +1,11 @@
 package com.ubikloadpack.jmeter.ulp.observability.listener;
 
 import java.io.Serializable;
-import java.nio.BufferOverflowException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Timer;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.jmeter.engine.util.NoThreadClone;
