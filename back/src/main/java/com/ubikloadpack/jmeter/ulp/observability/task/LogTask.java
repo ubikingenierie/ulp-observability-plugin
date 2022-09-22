@@ -1,4 +1,4 @@
-package ubikloadpack.jmeter.ulp.observability.task;
+package com.ubikloadpack.jmeter.ulp.observability.task;
 
 import java.util.Collection;
 
@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.timeandspace.cronscheduler.CronTask;
-import ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
-import ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
+import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
+import com.ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 
 
 /**

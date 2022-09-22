@@ -1,4 +1,4 @@
 /**
  * Sample runnable tasks
  */
-package ubikloadpack.jmeter.ulp.observability.task;
+package com.ubikloadpack.jmeter.ulp.observability.task;

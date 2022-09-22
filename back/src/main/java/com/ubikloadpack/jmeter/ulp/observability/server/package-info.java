@@ -1,4 +1,4 @@
 /**
  * Jetty metrics server
  */
-package ubikloadpack.jmeter.ulp.observability.server;
+package com.ubikloadpack.jmeter.ulp.observability.server;

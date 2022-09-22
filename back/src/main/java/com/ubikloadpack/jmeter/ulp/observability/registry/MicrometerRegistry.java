@@ -1,4 +1,4 @@
-package ubikloadpack.jmeter.ulp.observability.registry;
+package com.ubikloadpack.jmeter.ulp.observability.registry;
 
 import java.util.Date;
 import java.util.List;
@@ -11,10 +11,10 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.config.MeterFilter;
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import ubikloadpack.jmeter.ulp.observability.log.SampleLog;
-import ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
-import ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
-import ubikloadpack.jmeter.ulp.observability.util.Util;
+import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
+import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
+import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
+import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 /**
  * Registry class for managing sample records and metrics calculations.

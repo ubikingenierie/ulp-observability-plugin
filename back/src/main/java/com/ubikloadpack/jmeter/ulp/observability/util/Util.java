@@ -1,4 +1,4 @@
-package ubikloadpack.jmeter.ulp.observability.util;
+package com.ubikloadpack.jmeter.ulp.observability.util;
 
 import java.util.Arrays;
 import java.util.HashSet;

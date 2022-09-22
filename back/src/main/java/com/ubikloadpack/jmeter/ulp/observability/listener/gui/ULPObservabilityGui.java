@@ -1,4 +1,4 @@
-package ubikloadpack.jmeter.ulp.observability.listener.gui;
+package com.ubikloadpack.jmeter.ulp.observability.listener.gui;
 
 
 import java.awt.BorderLayout;
@@ -22,8 +22,8 @@ import org.apache.jmeter.visualizers.gui.AbstractListenerGui;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ubikloadpack.jmeter.ulp.observability.config.ULPODefaultConfig;
-import ubikloadpack.jmeter.ulp.observability.listener.ULPObservabilityListener;
+import com.ubikloadpack.jmeter.ulp.observability.config.ULPODefaultConfig;
+import com.ubikloadpack.jmeter.ulp.observability.listener.ULPObservabilityListener;
 
 
 /**

@@ -1,4 +1,4 @@
-package ubikloadpack.jmeter.ulp.observability.server;
+package com.ubikloadpack.jmeter.ulp.observability.server;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -10,7 +10,7 @@ import java.util.List;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
+import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 
 /**
  * HttpServlet to expose sample metrics in OpenMetrics format

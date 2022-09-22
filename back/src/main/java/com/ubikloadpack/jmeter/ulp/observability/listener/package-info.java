@@ -1,4 +1,4 @@
 /**
  * JMeter components
  */
-package ubikloadpack.jmeter.ulp.observability.listener;
+package com.ubikloadpack.jmeter.ulp.observability.listener;

@@ -1,4 +1,4 @@
-package ubikloadpack.jmeter.ulp.observability.config;
+package com.ubikloadpack.jmeter.ulp.observability.config;
 
 import org.apache.jmeter.util.JMeterUtils;
 

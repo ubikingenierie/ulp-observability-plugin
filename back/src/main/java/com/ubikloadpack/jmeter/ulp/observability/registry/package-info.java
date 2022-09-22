@@ -1,4 +1,4 @@
 /**
  * Sample registry.
  */
-package ubikloadpack.jmeter.ulp.observability.registry;
+package com.ubikloadpack.jmeter.ulp.observability.registry;

@@ -1,4 +1,4 @@
-package ubikloadpack.jmeter.ulp.observability.log;
+package com.ubikloadpack.jmeter.ulp.observability.log;
 
 import java.util.Collection;
 import java.util.Date;

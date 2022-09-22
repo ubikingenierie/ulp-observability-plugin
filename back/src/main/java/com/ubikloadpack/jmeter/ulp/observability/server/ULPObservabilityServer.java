@@ -1,4 +1,4 @@
-package ubikloadpack.jmeter.ulp.observability.server;
+package com.ubikloadpack.jmeter.ulp.observability.server;
 
 
 
@@ -13,7 +13,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-import ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
+import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 
 /**
  * ULP Observability Jetty server with custom metrics and plugin config servlets 

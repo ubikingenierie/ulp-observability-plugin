@@ -1,4 +1,4 @@
 /**
  * JMeter GUI
  */
-package ubikloadpack.jmeter.ulp.observability.listener.gui;
+package com.ubikloadpack.jmeter.ulp.observability.listener.gui;

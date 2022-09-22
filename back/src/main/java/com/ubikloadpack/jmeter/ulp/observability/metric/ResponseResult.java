@@ -1,4 +1,4 @@
-package ubikloadpack.jmeter.ulp.observability.metric;
+package com.ubikloadpack.jmeter.ulp.observability.metric;
 
 /**
  * Represents response data received from sampler 

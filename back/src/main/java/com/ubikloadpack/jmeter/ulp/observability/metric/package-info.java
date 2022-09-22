@@ -1,4 +1,4 @@
 /**
  * Sample metrics model
  */
-package ubikloadpack.jmeter.ulp.observability.metric;
+package com.ubikloadpack.jmeter.ulp.observability.metric;

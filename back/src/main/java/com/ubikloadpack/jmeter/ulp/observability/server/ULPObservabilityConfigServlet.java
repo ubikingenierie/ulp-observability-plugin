@@ -1,4 +1,4 @@
-package ubikloadpack.jmeter.ulp.observability.server;
+package com.ubikloadpack.jmeter.ulp.observability.server;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
