@@ -276,9 +276,9 @@ public class ULPObservabilityListener extends AbstractTestElement
 	}
 
     
-    private static String myName;
+    private static volatile String myName;
     
-    private static int instanceCount;
+    private static volatile int instanceCount;
 	
     
 	/**
