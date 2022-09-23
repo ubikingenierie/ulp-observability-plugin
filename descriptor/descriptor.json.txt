@@ -1,0 +1,18 @@
+[
+    {
+        "id" : "ulp-observability-plugin",
+        "name" : "ULP Observability",
+        "description" : "This plugin displays more detailed metrics on load tests",
+        "screenshotUrl" : "https://github.com/ubikingenierie/ulp-observability-plugin/blob/main/screenshot/ulp_observability3.png",
+        "helpUrl": "https://github.com/ubikingenierie/ulp-observability-plugin",
+        "vendor": "https://ubikloadpack.com",
+        "markerClass": "ubikloadpack.jmeter.ulp.observability.listener.ULPObservabilityListener",
+        "versions" : {
+            "1.0.0" : {
+                "downloadUrl" : "https://github.com/ubikingenierie/ulp-observability-plugin/releases/download/ulp-observability-1.0.0/ulp-observability-listener-1.0.0.jar",
+	          "libs": {}
+                
+            }
+        }
+    }
+]

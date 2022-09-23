@@ -1,0 +1,61 @@
+avalon
+bcmail
+bcprov
+bckix
+commonhttpclient
+excalibur-datasource
+excalibur instrument
+excalibur logger
+excalibur pool
+htmllexer
+htmlparser
+jdom
+logkit
+soap
+vorbis java tika
+vorbis java core
+netcdf
+apache-mime4j-dom
+apache-mime4j-core
+common compress
+xz
+pdfbox
+fontbox
+bcmail-jdk15
+bcprov-jdk15
+poi-3.9
+poi-scratchpad
+poi-ooxml-3.9
+poi-ooxml-schemas-3.9
+xmlbeans
+dom4j
+geronimo-stax-api
+tagsoup
+asm-debug-all
+isoparser
+aspectjrt
+metadata-extractor
+xmpcore
+boilerpipe
+rome-0.9
+jdom
+vorbis-java-core
+juniversalchardet
+xpp3
+activation
+slf4j-nop
+hdrHistogram
+jetty-server
+jetty-jakarta-servlet-api
+jetty-http
+jetty-io
+jetty-servlet
+jetty-security
+jetty-servlets
+jetty-util
+jetty-webapp
+jetty-xml
+micrometter-core
+latencyUtils
+cron-sheduler
+
