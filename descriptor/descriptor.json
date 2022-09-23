@@ -2,7 +2,7 @@
     {
         "id" : "ulp-observability-plugin",
         "name" : "ULP Observability",
-        "description" : "This plugin displays more detailed metrics on load tests",
+        "description" : "This plugin allows you to obtain your load test live results on your browser with more detailed metrics",
         "screenshotUrl" : "https://github.com/ubikingenierie/ulp-observability-plugin/blob/main/screenshot/ulp_observability3.png",
         "helpUrl": "https://github.com/ubikingenierie/ulp-observability-plugin",
         "vendor": "https://ubikloadpack.com",
