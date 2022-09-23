@@ -1,5 +1,4 @@
 HdrHistogram
 jetty
 micrometer
-fasterxml.jackson
 cron-scheduler
