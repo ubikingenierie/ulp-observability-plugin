@@ -3,7 +3,7 @@
         "id" : "ulp-observability-plugin",
         "name" : "ULP Observability",
         "description" : "This plugin allows you to obtain your load test live results on your browser with more detailed metrics",
-        "screenshotUrl" : "https://github.com/ubikingenierie/ulp-observability-plugin/blob/main/screenshot/ulp_observability3.png",
+        "screenshotUrl" : "https://raw.githubusercontent.com/ubikingenierie/ulp-observability-plugin/main/screenshot/ulp_observability3.png",
         "helpUrl": "https://github.com/ubikingenierie/ulp-observability-plugin",
         "vendor": "https://ubikloadpack.com",
         "markerClass": "ubikloadpack.jmeter.ulp.observability.listener.ULPObservabilityListener",
@@ -15,9 +15,17 @@
                     "jetty-servlet":"https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-servlet/11.0.8/jetty-servlet-11.0.8.jar",
                     "jetty-servlets":"https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-servlets/11.0.8/jetty-servlets-11.0.8.jar",
                     "jetty-webapp":"https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-webapp/11.0.8/jetty-webapp-11.0.8.jar",
+                    "jetty-util":"https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-util/11.0.8/jetty-util-11.0.8.jar",
+					"jetty-http":"https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-http/11.0.8/jetty-http-11.0.8.jar",   
+              		"jetty-security":"https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-security/11.0.8/jetty-security-11.0.8.jar",
+              		"jetty-io":"https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-io/11.0.8/jetty-io-11.0.8.jar",
+              		"jetty-xml":"https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-xml/11.0.8/jetty-xml-11.0.8.jar",
+                    "jakarta.servlet-api":"https://repo1.maven.org/maven2/jakarta/servlet/jakarta.servlet-api/5.0.0-M2/jakarta.servlet-api-5.0.0-M2.jar",
                     "micrometer-core":"https://repo1.maven.org/maven2/io/micrometer/micrometer-core/1.9.0/micrometer-core-1.9.0.jar",
                     "cron-scheduler":"https://repo1.maven.org/maven2/io/timeandspace/cron-scheduler/0.1/cron-scheduler-0.1.jar",
                     "HdrHistogram":"https://repo1.maven.org/maven2/org/hdrhistogram/HdrHistogram/2.1.12/HdrHistogram-2.1.12.jar"
+                    
+
                 }               
             }
         }
