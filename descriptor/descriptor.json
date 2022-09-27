@@ -1,8 +1,8 @@
 [
     {
         "id" : "ulp-observability-plugin",
-        "name" : "ULP Observability",
-        "description" : "This plugin allows you to obtain your load test live results on your browser with more detailed metrics",
+        "name" : "UbikLoadPack Observability Plugin",
+        "description" : "This plugin allows you to monitor your JMeter CLI performance test from your favorite browser without having to start JMeter in GUI mode",
         "screenshotUrl" : "https://raw.githubusercontent.com/ubikingenierie/ulp-observability-plugin/main/screenshot/ulp_observability3.png",
         "helpUrl": "https://github.com/ubikingenierie/ulp-observability-plugin",
         "vendor": "https://ubikloadpack.com",
