@@ -322,7 +322,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 						ulpObservabilityServer.getServer().getURI()+getWebAppRoute()
 						);
 			} catch (Exception e) {
-				LOG.error("error while starting Jetty server: {}", e);
+				throw new IllegalStateException("error while starting Jetty server: {}", e);
 			}
 			
 			if(logCron != null) {
@@ -345,7 +345,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 		}
 		
 		if (!myName.equals(getName())) {
-			throw new java.lang.Error("Two Ulp Observability Listerner are running at the same time");		
+			throw new IllegalStateException("Two Ulp Observability Listerner are running at the same time");		
 		}
 		
 		instanceCount++;			
