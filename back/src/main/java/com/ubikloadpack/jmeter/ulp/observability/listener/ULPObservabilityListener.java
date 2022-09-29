@@ -9,6 +9,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.jmeter.engine.util.NoThreadClone;
+import org.apache.jmeter.samplers.Remoteable;
 import org.apache.jmeter.samplers.SampleEvent;
 import org.apache.jmeter.samplers.SampleListener;
 import org.apache.jmeter.samplers.SampleResult;
@@ -40,7 +41,7 @@ import com.ubikloadpack.jmeter.ulp.observability.util.Util;
  */
 
 public class ULPObservabilityListener extends AbstractTestElement
-             implements SampleListener, TestStateListener, NoThreadClone, Serializable {
+             implements SampleListener, TestStateListener, NoThreadClone, Serializable, Remoteable {
 	
 	private static final long serialVersionUID = 8170705348132535834L;
 	
@@ -82,6 +83,11 @@ public class ULPObservabilityListener extends AbstractTestElement
      * Name of the listener in the test plan
      */
     private static volatile String myName;
+    
+    /**
+     * Lock used to protect instanceCount update
+     */
+    private static final Object LOCK = new Object();
     
     /**
      * Number of threads running for distributed testing 
@@ -284,7 +290,6 @@ public class ULPObservabilityListener extends AbstractTestElement
 	}
 
     
-	
     
 	/**
 	 * Starts test with fresh sample registry and log;
@@ -295,62 +300,62 @@ public class ULPObservabilityListener extends AbstractTestElement
 		testStarted("local");
 	}
     
-	public synchronized void testStarted(String host) {
+	public void testStarted(String host) {
 		
-		LOG.info("test started : ", host);
+		LOG.info("test started : {}", host);
 		
-		if (instanceCount == 0){
-			myName = getName();
-			init();		
-			try {
-	 	    	ulpObservabilityServer =
-	 	    			new ULPObservabilityServer(
-	 	    					getJettyPort(),
-	 	    					getMetricsRoute(),
-	 	    					getWebAppRoute(),
-	 	    					getLogFreq(),
-	 	    					getTotalLabel(),
-	 	    					logger
-	 	    					);
-				ulpObservabilityServer.start();
-				LOG.info("Jetty Endpoint started\n"
-						+ "Port: {}\n"
-						+ "Metrics route: {}\n"
-						+ "Web app route: {}",
-						ulpObservabilityServer.getPort(),
-						ulpObservabilityServer.getServer().getURI()+getMetricsRoute(),
-						ulpObservabilityServer.getServer().getURI()+getWebAppRoute()
-						);
-			} catch (Exception e) {
-				throw new IllegalStateException("error while starting Jetty server: {}", e);
+		synchronized (LOCK) {
+			if (instanceCount == 0){			
+				myName = getName();
+				init();		
+				try {
+		 	    	ulpObservabilityServer =
+		 	    			new ULPObservabilityServer(
+		 	    					getJettyPort(),
+		 	    					getMetricsRoute(),
+		 	    					getWebAppRoute(),
+		 	    					getLogFreq(),
+		 	    					getTotalLabel(),
+		 	    					logger
+		 	    					);
+					ulpObservabilityServer.start();
+					LOG.info("Jetty Endpoint started\n"
+							+ "Port: {}\n"
+							+ "Metrics route: {}\n"
+							+ "Web app route: {}",
+							ulpObservabilityServer.getPort(),
+							ulpObservabilityServer.getServer().getURI()+getMetricsRoute(),
+							ulpObservabilityServer.getServer().getURI()+getWebAppRoute()
+							);
+				} catch (Exception e) {
+					throw new IllegalStateException("error while starting Jetty server: ", e);
+				}
+				
+				if(logCron != null) {
+					logCron.scheduleAtFixedRateSkippingToLatest(
+							getLogFreq(), 
+							getLogFreq(), 
+							TimeUnit.SECONDS, 
+							new LogTask(registry, sampleQueue)
+							);
+				}
+	
+				
+				System.out.printf("ULPO Listener will generate log each %d seconds%n",getLogFreq());
+				
+				for(int i = 0; i < this.getThreadSize(); i++) {
+					micrometerTaskList.add(new MicrometerTask(registry, sampleQueue));
+					micrometerTaskList.get(i).start();
+				}
+				
 			}
 			
-			if(logCron != null) {
-				logCron.scheduleAtFixedRateSkippingToLatest(
-						getLogFreq(), 
-						getLogFreq(), 
-						TimeUnit.SECONDS, 
-						new LogTask(registry, sampleQueue)
-						);
-			}
-
-			
-			System.out.printf("ULPO Listener will generate log each %d seconds%n",getLogFreq());
-			
-			for(int i = 0; i < this.getThreadSize(); i++) {
-				micrometerTaskList.add(new MicrometerTask(registry, sampleQueue));
-				micrometerTaskList.get(i).start();
+			if (!myName.equals(getName())) {
+				throw new IllegalStateException("Several Ulp Observability Listerner are running at the same time");		
 			}
 			
+			instanceCount ++;			
 		}
-		
-		if (!myName.equals(getName())) {
-			throw new IllegalStateException("Two Ulp Observability Listerner are running at the same time");		
-		}
-		
-		instanceCount++;			
-			
-		
 	}
 
 	/**
@@ -364,37 +369,37 @@ public class ULPObservabilityListener extends AbstractTestElement
 	}
 
 	public synchronized void testEnded(String host) {
-		LOG.info("test stopped : ", host);
-		
-		instanceCount--;
-		
-		if(instanceCount == 0) {
-			try {
-				if(ulpObservabilityServer != null) {
-					ulpObservabilityServer.stop();
-				}
-				LOG.info("Jetty Endpoint stopped");
+		LOG.info("test stopped : {}", host);
+		synchronized (LOCK) {
+			instanceCount--;
 				
-			} catch (Exception e) {
-				LOG.error(
-						"Jetty server shutdown error: {}", e);
+			if(instanceCount == 0) {
+				try {
+					if(ulpObservabilityServer != null) {
+						ulpObservabilityServer.stop();
+					}
+					LOG.info("Jetty Endpoint stopped");
+					
+				} catch (Exception e) {
+					LOG.error(
+							"Jetty server shutdown error: {}", e);
+				}
+				 
+				if(logCron.isThreadRunning()) {
+					logCron.shutdownNow();
+					logCron.purge();
+				}
+				micrometerTaskList.forEach((task) -> {
+					task.stop();
+				});
+				 
+				sampleQueue.clear();
+				logger.clear();
+				registry.close();	
+				
+				LOG.info("All tests have stopped");			
 			}
-			 
-			if(logCron.isThreadRunning()) {
-				logCron.shutdownNow();
-				logCron.purge();
-			}
-			micrometerTaskList.forEach((task) -> {
-				task.stop();
-			});
-			 
-			sampleQueue.clear();
-			logger.clear();
-			registry.close();	
-			
-			LOG.info("All tests have stopped");			
-		}
-		 	 
+		} 
      
 	}
 	
