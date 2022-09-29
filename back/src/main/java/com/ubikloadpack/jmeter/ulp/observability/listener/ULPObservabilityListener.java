@@ -70,7 +70,7 @@ public class ULPObservabilityListener extends AbstractTestElement
         /**
          * Sample logger cron scheduler.
          */
-        CronScheduler logCron;
+        private CronScheduler logCron;
         
         /**
          * Occurred sample result queue
@@ -235,7 +235,7 @@ public class ULPObservabilityListener extends AbstractTestElement
     /**
      * Initiates sample queue and registry  
      */
-    public void init() {
+    public void init(ListenerClientData listenerClientData) {
     	listenerClientData.logger = new SampleLogger(getTotalLabel());
     	listenerClientData.registry =
     			new MicrometerRegistry(
@@ -262,7 +262,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	/**
 	 * Receives occurred samples and adds them to sample result queue if possible, log buffer overflow exception otherwise
 	 */
-	public synchronized void sampleOccurred(SampleEvent sampleEvent) {
+	public void sampleOccurred(SampleEvent sampleEvent) {
 		if(sampleEvent != null) {	
 			try {
 				SampleResult sample = sampleEvent.getResult();
@@ -309,13 +309,13 @@ public class ULPObservabilityListener extends AbstractTestElement
     
 	public void testStarted(String host) {
 		
-		LOG.info("test started : {}", host);
+		LOG.info("test started from host {}", host);
 		
 		synchronized (LOCK) {
 			if (instanceCount == 0){
 				listenerClientData = new ListenerClientData();
 				listenerClientData.myName = getName();
-				init();		
+				init(listenerClientData);		
 				try {
 					listenerClientData.ulpObservabilityServer =
 		 	    			new ULPObservabilityServer(
@@ -336,7 +336,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 							listenerClientData.ulpObservabilityServer.getServer().getURI()+getWebAppRoute()
 							);
 				} catch (Exception e) {
-					throw new IllegalStateException("error while starting Jetty server: ", e);
+					throw new IllegalStateException("error while starting Jetty server on port " + listenerClientData.ulpObservabilityServer.getPort() + " : ", e);
 				}
 				
 				if(listenerClientData.logCron != null) {
@@ -352,14 +352,15 @@ public class ULPObservabilityListener extends AbstractTestElement
 				System.out.printf("ULPO Listener will generate log each %d seconds%n",getLogFreq());
 				
 				for(int i = 0; i < this.getThreadSize(); i++) {
-					listenerClientData.micrometerTaskList.add(new MicrometerTask(listenerClientData.registry, listenerClientData.sampleQueue));
-					listenerClientData.micrometerTaskList.get(i).start();
+					MicrometerTask task = new MicrometerTask(listenerClientData.registry, listenerClientData.sampleQueue);
+					listenerClientData.micrometerTaskList.add(task);
+					task.start();
 				}
 				
 			}
 			
 			if (!listenerClientData.myName.equals(getName())) {
-				throw new IllegalStateException("Several Ulp Observability Listerner are running at the same time");		
+				throw new IllegalStateException("You have at least 2 ULP Observability Listerners in your Test plan : " + listenerClientData.myName + " and " + getName());		
 			}
 			
 			instanceCount ++;			
@@ -382,6 +383,8 @@ public class ULPObservabilityListener extends AbstractTestElement
 			instanceCount--;
 				
 			if(instanceCount == 0) {
+				
+				LOG.info("No more test running, shutting down");
 				try {
 					if(listenerClientData.ulpObservabilityServer != null) {
 						listenerClientData.ulpObservabilityServer.stop();
@@ -393,19 +396,32 @@ public class ULPObservabilityListener extends AbstractTestElement
 							"Jetty server shutdown error: {}", e);
 				}
 				 
-				if(listenerClientData.logCron.isThreadRunning()) {
-					listenerClientData.logCron.shutdownNow();
-					listenerClientData.logCron.purge();
+				
+				try {
+					if(listenerClientData.logCron.isThreadRunning()) {
+						listenerClientData.logCron.shutdownNow();
+						listenerClientData.logCron.purge();
+					}
 				}
-				listenerClientData.micrometerTaskList.forEach((task) -> {
-					task.stop();
-				});
-				 
+				catch (Exception e) {
+					LOG.error(
+							"Logcron shutdown error: {}", e);
+				}
+
+				try {
+					listenerClientData.micrometerTaskList.forEach((task) -> {
+						task.stop();
+					});
+				} catch(Exception e){
+					LOG.error(
+							"Micrometer shutdown error: {}", e);
+				}
+				
 				listenerClientData.sampleQueue.clear();
 				listenerClientData.logger.clear();
 				listenerClientData.registry.close();	
 				
-				LOG.info("All tests have stopped");			
+				LOG.info("All JMeter servers have stopped their tests");			
 			}
 		} 
      
