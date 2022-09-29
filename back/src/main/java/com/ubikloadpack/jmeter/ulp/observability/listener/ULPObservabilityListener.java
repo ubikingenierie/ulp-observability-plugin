@@ -288,12 +288,12 @@ public class ULPObservabilityListener extends AbstractTestElement
 	}
 
 	public void sampleStarted(SampleEvent sampleEvent) {
-	    LOG.info("************sampler started**************");
+	    LOG.info("************Sampler started**************");
 	}
 
 	
 	public void sampleStopped(SampleEvent sampleEvent) {
-		LOG.info("event stopped");
+		LOG.info("Event stopped");
 	}
 
     
@@ -309,7 +309,7 @@ public class ULPObservabilityListener extends AbstractTestElement
     
 	public void testStarted(String host) {
 		
-		LOG.info("test started from host {}", host);
+		LOG.info("Test started from host {}", host);
 		
 		synchronized (LOCK) {
 			if (instanceCount == 0){
@@ -336,7 +336,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 							listenerClientData.ulpObservabilityServer.getServer().getURI()+getWebAppRoute()
 							);
 				} catch (Exception e) {
-					throw new IllegalStateException("error while starting Jetty server on port " + listenerClientData.ulpObservabilityServer.getPort() + " : ", e);
+					throw new IllegalStateException("Error while starting Jetty server on port " + listenerClientData.ulpObservabilityServer.getPort() + " : ", e);
 				}
 				
 				if(listenerClientData.logCron != null) {
@@ -378,7 +378,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	}
 
 	public void testEnded(String host) {
-		LOG.info("test stopped : {}", host);
+		LOG.info("Test stopped : {}", host);
 		synchronized (LOCK) {
 			instanceCount--;
 				
