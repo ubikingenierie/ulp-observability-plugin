@@ -368,7 +368,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 
 	}
 
-	public synchronized void testEnded(String host) {
+	public void testEnded(String host) {
 		LOG.info("test stopped : {}", host);
 		synchronized (LOCK) {
 			instanceCount--;
