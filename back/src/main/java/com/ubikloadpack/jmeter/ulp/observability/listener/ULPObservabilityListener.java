@@ -312,6 +312,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	 * Starts test with fresh sample registry and log;
 	 * Creates a given number of registry worker threads;
 	 * Starts Jetty server if needed
+	 * @param host Host of jmeter-server
 	 */
 	public void testStarted(String host) {
 		
@@ -387,6 +388,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	 * Ends test and clears sample registry and log;
 	 * Stops all running registry task threads;
 	 * Stops Jetty server if it is running
+	 * @param host Host of jmeter-server
 	 */
 	public void testEnded(String host) {
 		LOG.info("Test stopped : {}", host);
