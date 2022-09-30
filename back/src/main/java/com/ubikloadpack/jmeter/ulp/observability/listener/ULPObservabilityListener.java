@@ -97,7 +97,7 @@ public class ULPObservabilityListener extends AbstractTestElement
     private static final Object LOCK = new Object();
     
     /**
-     * Number of threads running for distributed testing 
+     * Number of JMeter Servers running for distributed testing 
      */
     private static volatile int instanceCount;
     
@@ -288,12 +288,12 @@ public class ULPObservabilityListener extends AbstractTestElement
 	}
 
 	public void sampleStarted(SampleEvent sampleEvent) {
-	    LOG.info("************Sampler started**************");
+		// NOOP
 	}
 
 	
 	public void sampleStopped(SampleEvent sampleEvent) {
-		LOG.info("Event stopped");
+		// NOOP
 	}
 
     
@@ -301,12 +301,18 @@ public class ULPObservabilityListener extends AbstractTestElement
 	/**
 	 * Starts test with fresh sample registry and log;
 	 * Creates a given number of registry worker threads;
-	 * Starts Jetty server if possible
+	 * Starts Jetty server if needed
 	 */
 	public void testStarted() {
 		testStarted("local");
 	}
     
+	
+	/**
+	 * Starts test with fresh sample registry and log;
+	 * Creates a given number of registry worker threads;
+	 * Starts Jetty server if needed
+	 */
 	public void testStarted(String host) {
 		
 		LOG.info("Test started from host {}", host);
@@ -377,6 +383,11 @@ public class ULPObservabilityListener extends AbstractTestElement
 
 	}
 
+	/**
+	 * Ends test and clears sample registry and log;
+	 * Stops all running registry task threads;
+	 * Stops Jetty server if it is running
+	 */
 	public void testEnded(String host) {
 		LOG.info("Test stopped : {}", host);
 		synchronized (LOCK) {
