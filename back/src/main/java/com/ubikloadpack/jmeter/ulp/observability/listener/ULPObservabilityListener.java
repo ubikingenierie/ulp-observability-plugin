@@ -1,16 +1,15 @@
 package com.ubikloadpack.jmeter.ulp.observability.listener;
 
 import java.io.Serializable;
-import java.nio.BufferOverflowException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.jmeter.engine.util.NoThreadClone;
+import org.apache.jmeter.samplers.Remoteable;
 import org.apache.jmeter.samplers.SampleEvent;
 import org.apache.jmeter.samplers.SampleListener;
 import org.apache.jmeter.samplers.SampleResult;
@@ -42,7 +41,7 @@ import com.ubikloadpack.jmeter.ulp.observability.util.Util;
  */
 
 public class ULPObservabilityListener extends AbstractTestElement
-             implements SampleListener, TestStateListener, NoThreadClone, Serializable {
+             implements SampleListener, TestStateListener, NoThreadClone, Serializable, Remoteable {
 	
 	private static final long serialVersionUID = 8170705348132535834L;
 	
@@ -51,36 +50,56 @@ public class ULPObservabilityListener extends AbstractTestElement
 	 */
 	private static final Logger LOG = LoggerFactory.getLogger(ULPObservabilityListener.class);
 
-    /**
-     * ULP Observability Jetty server
-     */
-    private ULPObservabilityServer ulpObservabilityServer;
+	
+    private class ListenerClientData {
+        /**
+         * ULP Observability Jetty server
+         */
+        private ULPObservabilityServer ulpObservabilityServer;
+        
+        /**
+         * Sample record logger.
+         */
+        private SampleLogger logger;
+        
+        /**
+         * Sample metrics registry.
+         */
+        private MicrometerRegistry registry;
+        
+        /**
+         * Sample logger cron scheduler.
+         */
+        private CronScheduler logCron;
+        
+        /**
+         * Occurred sample result queue
+         */
+        private BlockingQueue<ResponseResult> sampleQueue;
+        /**
+         * List of registry task threads
+         */
+        private List<MicrometerTask> micrometerTaskList;
+        
+        /**
+         * Name of the listener in the test plan
+         */
+        private String myName;
+    }
+    
+
+    private static volatile ListenerClientData listenerClientData;
+    
     
     /**
-     * Sample record logger.
+     * Lock used to protect instanceCount update
      */
-    private SampleLogger logger;
+    private static final Object LOCK = new Object();
     
     /**
-     * Sample metrics registry.
+     * Number of JMeter Servers running for distributed testing 
      */
-    private MicrometerRegistry registry;
-    
-    /**
-     * Sample logger cron scheduler.
-     */
-    CronScheduler logCron;
-    
-    /**
-     * Occurred sample result queue
-     */
-    private BlockingQueue<ResponseResult> sampleQueue;
-    /**
-     * List of registry task threads
-     */
-    private List<MicrometerTask> micrometerTaskList;
-    
-    
+    private static volatile int instanceCount;
     
     public void setBufferCapacity(Integer bufferCapacity) {
     	setProperty(ULPODefaultConfig.BUFFER_CAPACITY_PROP, bufferCapacity);
@@ -207,7 +226,7 @@ public class ULPObservabilityListener extends AbstractTestElement
     }
     
     public BlockingQueue<ResponseResult> getSampleQueue(){
-    	return sampleQueue;
+    	return listenerClientData.sampleQueue;
     }
     
     public ULPObservabilityListener(){
@@ -216,9 +235,9 @@ public class ULPObservabilityListener extends AbstractTestElement
     /**
      * Initiates sample queue and registry  
      */
-    public void init() {
-    	this.logger = new SampleLogger(getTotalLabel());
-    	this.registry =
+    public void init(ListenerClientData listenerClientData) {
+    	listenerClientData.logger = new SampleLogger(getTotalLabel());
+    	listenerClientData.registry =
     			new MicrometerRegistry(
     					getTotalLabel(),
     					getPct1(),
@@ -226,67 +245,18 @@ public class ULPObservabilityListener extends AbstractTestElement
     					getPct3(),
     					getPctPrecision(),
     					getLogFreq(),
-    					this.logger
+    					listenerClientData.logger
     					);
     	
- 	    this.sampleQueue = new ArrayBlockingQueue<>(getBufferCapacity());
+    	listenerClientData.sampleQueue = new ArrayBlockingQueue<>(getBufferCapacity());
  	    
  	    if(getLogFreq()>0) {
- 		  this.logCron = CronScheduler.create(Duration.ofSeconds(getLogFreq()));
+ 	    	listenerClientData.logCron = CronScheduler.create(Duration.ofSeconds(getLogFreq()));
 		}
  	   
- 	    this.micrometerTaskList = new ArrayList<>(); 
+ 	   listenerClientData.micrometerTaskList = new ArrayList<>(); 
     }
     
-	/**
-	 * Starts test with fresh sample registry and log;
-	 * Creates a given number of registry worker threads;
-	 * Starts Jetty server if possible
-	 */
-	public void testStarted() {
-		LOG.info("test started...");
-		init();
-		try {
- 	    	this.ulpObservabilityServer =
- 	    			new ULPObservabilityServer(
- 	    					getJettyPort(),
- 	    					getMetricsRoute(),
- 	    					getWebAppRoute(),
- 	    					getLogFreq(),
- 	    					getTotalLabel(),
- 	    					this.logger
- 	    					);
-			ulpObservabilityServer.start();
-			LOG.info("Jetty Endpoint started\n"
-					+ "Port: {}\n"
-					+ "Metrics route: {}\n"
-					+ "Web app route: {}",
-					ulpObservabilityServer.getPort(),
-					ulpObservabilityServer.getServer().getURI()+getMetricsRoute(),
-					ulpObservabilityServer.getServer().getURI()+getWebAppRoute()
-					);
-		} catch (Exception e) {
-			LOG.error("error while starting Jetty server: {}", e);
-		}
-		
-		if(this.logCron != null) {
-			this.logCron.scheduleAtFixedRateSkippingToLatest(
-					getLogFreq(), 
-					getLogFreq(), 
-					TimeUnit.SECONDS, 
-					new LogTask(this.registry, this.sampleQueue)
-					);
-		}
-
-		
-		System.out.printf("ULPO Listener will generate log each %d seconds%n",getLogFreq());
-		
-		for(int i = 0; i < this.getThreadSize(); i++) {
-			this.micrometerTaskList.add(new MicrometerTask(this.registry, this.sampleQueue));
-			this.micrometerTaskList.get(i).start();
-		}
-		
-	}
     
     
 	/**
@@ -296,7 +266,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 		if(sampleEvent != null) {	
 			try {
 				SampleResult sample = sampleEvent.getResult();
-				if(!sampleQueue.offer(
+				if(!listenerClientData.sampleQueue.offer(
 						new ResponseResult(
 								 sampleEvent.getThreadGroup(),
 								 Util.getResponseTime(sample.getEndTime(),sample.getStartTime()),
@@ -318,15 +288,91 @@ public class ULPObservabilityListener extends AbstractTestElement
 	}
 
 	public void sampleStarted(SampleEvent sampleEvent) {
-	    LOG.info("************sampler started**************");
+		// NOOP
 	}
 
 	
 	public void sampleStopped(SampleEvent sampleEvent) {
-		LOG.info("event stopped");
+		// NOOP
 	}
 
-	public void testStarted(String host) {}
+    
+    
+	/**
+	 * Starts test with fresh sample registry and log;
+	 * Creates a given number of registry worker threads;
+	 * Starts Jetty server if needed
+	 */
+	public void testStarted() {
+		testStarted("local");
+	}
+    
+	
+	/**
+	 * Starts test with fresh sample registry and log;
+	 * Creates a given number of registry worker threads;
+	 * Starts Jetty server if needed
+	 * @param host Host of jmeter-server
+	 */
+	public void testStarted(String host) {
+		
+		LOG.info("Test started from host {}", host);
+		
+		synchronized (LOCK) {
+			if (instanceCount == 0){
+				listenerClientData = new ListenerClientData();
+				listenerClientData.myName = getName();
+				init(listenerClientData);		
+				try {
+					listenerClientData.ulpObservabilityServer =
+		 	    			new ULPObservabilityServer(
+		 	    					getJettyPort(),
+		 	    					getMetricsRoute(),
+		 	    					getWebAppRoute(),
+		 	    					getLogFreq(),
+		 	    					getTotalLabel(),
+		 	    					listenerClientData.logger
+		 	    					);
+					listenerClientData.ulpObservabilityServer.start();
+					LOG.info("Jetty Endpoint started\n"
+							+ "Port: {}\n"
+							+ "Metrics route: {}\n"
+							+ "Web app route: {}",
+							listenerClientData.ulpObservabilityServer.getPort(),
+							listenerClientData.ulpObservabilityServer.getServer().getURI()+getMetricsRoute(),
+							listenerClientData.ulpObservabilityServer.getServer().getURI()+getWebAppRoute()
+							);
+				} catch (Exception e) {
+					throw new IllegalStateException("Error while starting Jetty server on port " + listenerClientData.ulpObservabilityServer.getPort() + " : ", e);
+				}
+				
+				if(listenerClientData.logCron != null) {
+					listenerClientData.logCron.scheduleAtFixedRateSkippingToLatest(
+							getLogFreq(), 
+							getLogFreq(), 
+							TimeUnit.SECONDS, 
+							new LogTask(listenerClientData.registry, listenerClientData.sampleQueue)
+							);
+				}
+	
+				
+				System.out.printf("ULPO Listener will generate log each %d seconds%n",getLogFreq());
+				
+				for(int i = 0; i < this.getThreadSize(); i++) {
+					MicrometerTask task = new MicrometerTask(listenerClientData.registry, listenerClientData.sampleQueue);
+					listenerClientData.micrometerTaskList.add(task);
+					task.start();
+				}
+				
+			}
+			
+			if (!listenerClientData.myName.equals(getName())) {
+				throw new IllegalStateException("You have at least 2 ULP Observability Listerners in your Test plan : " + listenerClientData.myName + " and " + getName());		
+			}
+			
+			instanceCount ++;			
+		}
+	}
 
 	/**
 	 * Ends test and clears sample registry and log;
@@ -334,40 +380,66 @@ public class ULPObservabilityListener extends AbstractTestElement
 	 * Stops Jetty server if it is running
 	 */
 	public void testEnded() {
-		
-		LOG.info("test Ended...");
-		try {
-			if(ulpObservabilityServer != null) {
-				ulpObservabilityServer.stop();
-			}
-			LOG.info("Jetty Endpoint stopped");
-			
-		} catch (Exception e) {
-			LOG.error(
-					"Jetty server shutdown error: {}", e);
-		}
-		 
-		if(this.logCron.isThreadRunning()) {
-			this.logCron.shutdownNow();
-			this.logCron.purge();
-		}
-		this.micrometerTaskList.forEach((task) -> {
-			task.stop();
-		});
-		 
-		this.sampleQueue.clear();
-		this.logger.clear();
-		this.registry.close();
+		testEnded("local");
+
 	}
 
+	/**
+	 * Ends test and clears sample registry and log;
+	 * Stops all running registry task threads;
+	 * Stops Jetty server if it is running
+	 * @param host Host of jmeter-server
+	 */
 	public void testEnded(String host) {
-		 LOG.info("test stopped ", host);
+		LOG.info("Test stopped : {}", host);
+		synchronized (LOCK) {
+			instanceCount--;
+				
+			if(instanceCount == 0) {
+				
+				LOG.info("No more test running, shutting down");
+				try {
+					if(listenerClientData.ulpObservabilityServer != null) {
+						listenerClientData.ulpObservabilityServer.stop();
+					}
+					LOG.info("Jetty Endpoint stopped");
+					
+				} catch (Exception e) {
+					LOG.error(
+							"Jetty server shutdown error: {}", e);
+				}
+				 
+				
+				try {
+					if(listenerClientData.logCron.isThreadRunning()) {
+						listenerClientData.logCron.shutdownNow();
+						listenerClientData.logCron.purge();
+					}
+				}
+				catch (Exception e) {
+					LOG.error(
+							"Logcron shutdown error: {}", e);
+				}
+
+				try {
+					listenerClientData.micrometerTaskList.forEach((task) -> {
+						task.stop();
+					});
+				} catch(Exception e){
+					LOG.error(
+							"Micrometer shutdown error: {}", e);
+				}
+				
+				listenerClientData.sampleQueue.clear();
+				listenerClientData.logger.clear();
+				listenerClientData.registry.close();	
+				
+				LOG.info("All JMeter servers have stopped their tests");			
+			}
+		} 
+     
 	}
-	
-
-	
-	
-	
-
 	
 }
+
+	
