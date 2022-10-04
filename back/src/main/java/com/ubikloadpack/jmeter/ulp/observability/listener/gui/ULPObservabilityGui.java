@@ -219,6 +219,15 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	    }
 	}
 	
+	private Integer validateNotNullNumeric(String text, Integer currentValue) {
+		int inputNumber = validateNumeric(text,currentValue);
+		if(!(inputNumber>=1)) {
+			LOG.error("Input must be greater than 0");
+			return currentValue;
+		}
+		return inputNumber;
+	}
+	
 	private String validateRoute(String text, String currentValue) {
 		if(!text.startsWith("/")) {
 			LOG.error("Route must start with '/'");
@@ -254,13 +263,13 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			}
 			
 			sampler.setJettyPort(validateNumeric(jettyPort.getText(), sampler.getJettyPort()));
-			sampler.setThreadSize(validateNumeric(threadSize.getText(), sampler.getThreadSize()));
-			sampler.setBufferCapacity(validateNumeric(bufferCapacity.getText(), sampler.getBufferCapacity()));
+			sampler.setThreadSize(validateNotNullNumeric(threadSize.getText(), sampler.getThreadSize()));
+			sampler.setBufferCapacity(validateNotNullNumeric(bufferCapacity.getText(), sampler.getBufferCapacity()));
 			sampler.setPct1(validateNumeric(pct1.getText(), sampler.getPct1()));
 			sampler.setPct2(validateNumeric(pct2.getText(), sampler.getPct2()));
 			sampler.setPct3(validateNumeric(pct3.getText(), sampler.getPct3()));
 			sampler.setPctPrecision(validateNumeric(pctPrecision.getText(), sampler.getPctPrecision()));
-			sampler.setLogFreq(validateNumeric(logFrequency.getText(), sampler.getLogFreq()));
+			sampler.setLogFreq(validateNotNullNumeric(logFrequency.getText(), sampler.getLogFreq()));
 			
 		}
 	}
