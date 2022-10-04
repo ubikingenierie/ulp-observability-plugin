@@ -209,8 +209,19 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		return ulpObservabilityListener;
 	}
 	
+	private Integer validatePercentile(String text, Integer currentValue) {
+		
+		int pctValue = validateNumeric(text,currentValue);
+		
+		if(pctValue > 100 || pctValue < 0) {
+			LOG.error("percentiles must contain only the values between 0 and 100. Found {}",text);
+			return currentValue;
+		}
+		return pctValue;
+	}
 	
 	private Integer validateNumeric(String text, Integer currentValue) {
+		
 		try {
 			return Integer.parseInt(text);
 		} catch (NumberFormatException e) {
@@ -256,9 +267,9 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			sampler.setJettyPort(validateNumeric(jettyPort.getText(), sampler.getJettyPort()));
 			sampler.setThreadSize(validateNumeric(threadSize.getText(), sampler.getThreadSize()));
 			sampler.setBufferCapacity(validateNumeric(bufferCapacity.getText(), sampler.getBufferCapacity()));
-			sampler.setPct1(validateNumeric(pct1.getText(), sampler.getPct1()));
-			sampler.setPct2(validateNumeric(pct2.getText(), sampler.getPct2()));
-			sampler.setPct3(validateNumeric(pct3.getText(), sampler.getPct3()));
+			sampler.setPct1(validatePercentile(pct1.getText(), sampler.getPct1()));
+			sampler.setPct2(validatePercentile(pct2.getText(), sampler.getPct2()));
+			sampler.setPct3(validatePercentile(pct3.getText(), sampler.getPct3()));
 			sampler.setPctPrecision(validateNumeric(pctPrecision.getText(), sampler.getPctPrecision()));
 			sampler.setLogFreq(validateNumeric(logFrequency.getText(), sampler.getLogFreq()));
 			
