@@ -214,7 +214,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		int pctValue = validateNumeric(text,currentValue);
 		
 		if(pctValue > 100 || pctValue < 0) {
-			LOG.error("percentiles must contain only the values between 0 and 100. Found {}",text);
+			LOG.error("percentiles must contain only values between 0 and 100. Found {}",text);
 			return currentValue;
 		}
 		return pctValue;
