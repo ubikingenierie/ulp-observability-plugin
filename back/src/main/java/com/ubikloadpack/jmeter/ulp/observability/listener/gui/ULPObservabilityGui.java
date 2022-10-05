@@ -219,10 +219,10 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	    }
 	}
 	
-	private Integer validateNotNullNumeric(String text, Integer currentValue) {
+	private Integer validatePositiveNumeric(String text, Integer currentValue, String parameter) {
 		int inputNumber = validateNumeric(text,currentValue);
 		if(!(inputNumber>=1)) {
-			LOG.error("Input must be greater than 0");
+			LOG.error("{} must be greater than 0", parameter);
 			return currentValue;
 		}
 		return inputNumber;
@@ -263,13 +263,13 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			}
 			
 			sampler.setJettyPort(validateNumeric(jettyPort.getText(), sampler.getJettyPort()));
-			sampler.setThreadSize(validateNotNullNumeric(threadSize.getText(), sampler.getThreadSize()));
-			sampler.setBufferCapacity(validateNotNullNumeric(bufferCapacity.getText(), sampler.getBufferCapacity()));
+			sampler.setThreadSize(validatePositiveNumeric(threadSize.getText(), sampler.getThreadSize(),"thread size"));
+			sampler.setBufferCapacity(validatePositiveNumeric(bufferCapacity.getText(), sampler.getBufferCapacity(),"buffer capacity"));
 			sampler.setPct1(validateNumeric(pct1.getText(), sampler.getPct1()));
 			sampler.setPct2(validateNumeric(pct2.getText(), sampler.getPct2()));
 			sampler.setPct3(validateNumeric(pct3.getText(), sampler.getPct3()));
-			sampler.setPctPrecision(validateNumeric(pctPrecision.getText(), sampler.getPctPrecision()));
-			sampler.setLogFreq(validateNotNullNumeric(logFrequency.getText(), sampler.getLogFreq()));
+			sampler.setPctPrecision(validatePositiveNumeric(pctPrecision.getText(), sampler.getPctPrecision(),"percentiles precision"));
+			sampler.setLogFreq(validatePositiveNumeric(logFrequency.getText(), sampler.getLogFreq(),"log frequency"));
 			
 		}
 	}
