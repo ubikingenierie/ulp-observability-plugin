@@ -168,7 +168,9 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	return ulpObservabilityConfigPanel;
     }
     
-    
+	/**
+	 * Add a new element to the GUI horizontally 
+	 */
     private void addSequentialgroup(GroupLayout layout, ParallelGroup parallelGroup, List<Component> components) {
     	SequentialGroup newGroup = layout.createSequentialGroup();
     	for(Component c : components) {
@@ -178,7 +180,9 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	parallelGroup.addGroup(newGroup);
     }
     
-    
+	/**
+	 * add a new element to the GUI vertically
+	 */
     private void addParallelGroup(GroupLayout layout, SequentialGroup sequentialGroup, List<Component> components) {
     	ParallelGroup newGroup = layout.createParallelGroup(Alignment.LEADING);
     	for(Component c : components) {
@@ -209,8 +213,25 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		return ulpObservabilityListener;
 	}
 	
+	/**
+	 * Check the listener configuration percentiles are in the correct format
+	 */
+	private Integer validatePercentile(String text, Integer currentValue, String parameter) {
+		
+		int pctValue = validateNumeric(text,currentValue);
+		
+		if(pctValue > 100 || pctValue < 0) {
+			LOG.error("{} must contain only values between 0 and 100. Found {}",parameter,text);
+			return currentValue;
+		}
+		return pctValue;
+	}
 	
+	/**
+	 * Check the listener configuration parameter is numeric
+	 */
 	private Integer validateNumeric(String text, Integer currentValue) {
+		
 		try {
 			return Integer.parseInt(text);
 		} catch (NumberFormatException e) {
@@ -219,6 +240,9 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	    }
 	}
 	
+	/**
+	 * Check the listener configuration parameter is greater than 0
+	 */
 	private Integer validatePositiveNumeric(String text, Integer currentValue, String parameter) {
 		int inputNumber = validateNumeric(text,currentValue);
 		if(!(inputNumber>=1)) {
@@ -228,6 +252,9 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		return inputNumber;
 	}
 	
+	/**
+	 * Check if the listener configuration routes are in the correct format
+	 */
 	private String validateRoute(String text, String currentValue) {
 		if(!text.startsWith("/")) {
 			LOG.error("Route must start with '/'");
@@ -265,9 +292,9 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			sampler.setJettyPort(validateNumeric(jettyPort.getText(), sampler.getJettyPort()));
 			sampler.setThreadSize(validatePositiveNumeric(threadSize.getText(), sampler.getThreadSize(),"thread size"));
 			sampler.setBufferCapacity(validatePositiveNumeric(bufferCapacity.getText(), sampler.getBufferCapacity(),"buffer capacity"));
-			sampler.setPct1(validateNumeric(pct1.getText(), sampler.getPct1()));
-			sampler.setPct2(validateNumeric(pct2.getText(), sampler.getPct2()));
-			sampler.setPct3(validateNumeric(pct3.getText(), sampler.getPct3()));
+			sampler.setPct1(validatePercentile(pct1.getText(), sampler.getPct1(),"percentile 1"));
+			sampler.setPct2(validatePercentile(pct2.getText(), sampler.getPct2(),"percentile 2"));
+			sampler.setPct3(validatePercentile(pct3.getText(), sampler.getPct3(),"percentile 3"));
 			sampler.setPctPrecision(validatePositiveNumeric(pctPrecision.getText(), sampler.getPctPrecision(),"percentiles precision"));
 			sampler.setLogFreq(validatePositiveNumeric(logFrequency.getText(), sampler.getLogFreq(),"log frequency"));
 			
