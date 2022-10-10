@@ -217,6 +217,4 @@ public class MicrometerRegistry {
 				.collect(Collectors.toList());
 	}
 	
-	
-
 }

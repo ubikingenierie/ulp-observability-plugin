@@ -151,8 +151,6 @@ public class SampleLog {
 		return this.threads;
 	}
 	
-	
-	
 	/**
 	 * Generate sample record metrics in OpenMetrics format
 	 * 

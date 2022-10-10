@@ -118,12 +118,9 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
               this.columnsToDisplay.push(key)
             }
           }
-     
           this.array.push(stats)
         }
-      }
-      
+      }     
     }
-
   }
 }
