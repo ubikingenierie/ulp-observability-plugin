@@ -114,24 +114,28 @@ public class MicrometerRegistry {
 		}
 
 		String sampleTag = Util.makeMicrometerName(result.getSampleLabel());
+		String samplerTag = Util.makeMicrometerName(result.getSamplerLabel());
 		
 		this.registry.summary("summary.response", "sample", sampleTag).record(result.getResponseTime());
 		this.registry.summary("summary.response", "sample", this.totalLabel).record(result.getResponseTime());
-		
+		this.registry.summary("summary.response", "sample", samplerTag).record(result.getResponseTime());
 	
 		this.registry.counter("count.threads", "sample", sampleTag).increment(
 				result.getGroupThreads() - (int) this.registry.counter("count.threads", "sample", sampleTag).count());
 		this.registry.counter("count.threads", "sample", this.totalLabel).increment(
 				result.getAllThreads() - (int) this.registry.counter("count.threads", "sample", this.totalLabel).count());
-		
+		this.registry.counter("count.threads", "sample", samplerTag).increment(
+				result.getGroupThreads() - (int) this.registry.counter("count.threads", "sample", sampleTag).count());
+	
 		if(result.hasError()) {
 			this.registry.counter("count.error", "sample", sampleTag).increment();
 			this.registry.counter("count.error", "sample", this.totalLabel).increment();
+			this.registry.counter("count.error", "sample", samplerTag).increment();
 		}
 		
 		this.totalReg.counter("count.total", "sample", sampleTag).increment();
 		this.totalReg.counter("count.total", "sample", this.totalLabel).increment();
-		
+		this.totalReg.counter("count.total", "sample", samplerTag).increment();
 	}
 	
 	
@@ -212,5 +216,7 @@ public class MicrometerRegistry {
 				.stream().map(summary -> summary.getId().getTag("sample"))
 				.collect(Collectors.toList());
 	}
+	
+	
 
 }

@@ -27,6 +27,13 @@
                 ></app-ulp-observability-chart>
             </div>
 
+            <app-ulp-observability-statistics
+            [datasets]="datasets"
+            [totalLabel]="totalLabel"
+            [threads]="threads"
+            >
+            </app-ulp-observability-statistics>
+            
             <app-ulp-observability-metrics
             [datasets]="datasets"
             [totalLabel]="totalLabel"

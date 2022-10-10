@@ -102,7 +102,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
   private updateChart(): void{
 
     Object.entries({...this.datasets, ...this.threads}).forEach(entry => {
-      if(entry[0] !== this.totalLabel && entry[0] !== this.totalLabel+'_threads'){
+      if(entry[0] !== this.totalLabel && entry[0] !== this.totalLabel+'_threads' && (!entry[0].startsWith('spl_'))){
         if(this.names.indexOf(entry[0]) < 0){
           this.names.push(entry[0]);
           this.data.datasets.push({

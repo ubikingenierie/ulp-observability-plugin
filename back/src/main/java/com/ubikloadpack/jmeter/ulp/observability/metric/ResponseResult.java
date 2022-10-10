@@ -31,13 +31,19 @@ public class ResponseResult {
 	 */
 	private final Integer allThreads;
 	
+	/**
+	 * Name of the sampler the sample belongs to
+	 */
+	private final String samplerLabel;
 	
-	public ResponseResult(String sampleLabel, Long responseTime, Boolean hasError, Integer groupThreads, Integer allThreads) {
+	
+	public ResponseResult(String sampleLabel, Long responseTime, Boolean hasError, Integer groupThreads, Integer allThreads, String samplerLabel) {
 		this.sampleLabel = sampleLabel;
 		this.responseTime = responseTime;
 		this.hasError = hasError;
 		this.groupThreads = groupThreads;
 		this.allThreads = allThreads;
+		this.samplerLabel = samplerLabel;
 	}
 	
 	public String getSampleLabel() {
@@ -62,5 +68,8 @@ public class ResponseResult {
 		return allThreads;
 	}
 	
+	public String getSamplerLabel() {
+		return samplerLabel;
+	}
 
 }
