@@ -75,7 +75,21 @@ public class SampleLog {
 	 */
 	private final Long threads;
 	
-	
+    /**
+     * Creates new Sample log
+     * 
+     * @param sampleName Sampler name
+     * @param timeStamp Time stamp when record was created
+     * @param total The total count of responses starting from the beginning of test
+     * @param current The total count of current period responses during the given period
+     * @param error The total count of errors during the given period
+     * @param pct Response time percentiles for given period
+     * @param sum Response time sum for given period
+     * @param avg Average response time for given period
+     * @param max Max response time for given period
+     * @param throughput Response throughput per minute for given period
+     * @param threads Virtual users count
+     */
 	public SampleLog(
 			String sampleName, 
 			Date timeStamp, 

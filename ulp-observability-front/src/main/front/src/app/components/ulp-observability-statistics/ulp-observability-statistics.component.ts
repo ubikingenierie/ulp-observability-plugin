@@ -2,7 +2,6 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { MatTableDataSource } from '@angular/material/table';
 import { DatasetGroup, Datasets } from 'src/app/model/chart-data';
 
-
 interface StatInfo{
   label: string,
   data: {
@@ -15,43 +14,45 @@ interface StatList {
   [name:string]: StatInfo
 }
 
-
 @Component({
   selector: 'app-ulp-observability-statistics',
   templateUrl: './ulp-observability-statistics.component.html',
   styleUrls: ['./ulp-observability-statistics.component.css']
 })
+
 export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
+
   @Input() datasets : Datasets = {};
   @Input() threads : DatasetGroup = {};
-  @Input() totalLabel = 'total_info';
   
   dataSource!: MatTableDataSource<StatList>;
-  tableList!: String[];
-  array !: Array<StatList>;
-
+  statLine !: Array<StatList>;
   columnsToDisplay !: Array<string>;
   
   constructor() { }
 
   ngOnInit(): void {
-    this.dataSource = new MatTableDataSource(this.array)
-
+    this.dataSource = new MatTableDataSource(this.statLine)
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     this.refreshStats();
   }
   
+  /**
+ * Refresh mat-table content on changes
+ *
+ * Only take the samplers metrics that start with 'spl_' and iterate through them to fill the table
+ */
   refreshStats(){
-    this.array = [];
+    this.statLine = [];
     this.columnsToDisplay = [];
-    if(this.threads !== undefined && this.datasets !== {}){
+    if(this.threads !== undefined){
       for (const [key, value] of Object.entries({...this.threads})){
         
         if (key.startsWith('spl_')){
           const lastIndex = value.length - 1;
-          var samplerName = key.slice(0, key.lastIndexOf('_'));
+          var samplerName = key.slice(0, key.lastIndexOf('_'))
 
           var stats : StatList = {
             'sampler':{
@@ -101,7 +102,7 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
           ['avg','max','total','throughput'].forEach(type =>{
             stats[type].data.value = this.datasets[type][samplerName][lastIndex].y;
           });
-          stats['sampler'].data.value = samplerName;
+          stats['sampler'].data.value = samplerName.slice(key.indexOf('_')+1,key.length);
           stats['error'].data.value = (this.datasets['error'][samplerName][lastIndex].y / this.datasets['period'][samplerName][lastIndex].y * 100).toFixed(3);
     
           Object.keys(this.datasets).filter(type => type.startsWith('pc')).forEach(pct => {
@@ -118,7 +119,7 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
               this.columnsToDisplay.push(key)
             }
           }
-          this.array.push(stats)
+          this.statLine.push(stats)
         }
       }     
     }

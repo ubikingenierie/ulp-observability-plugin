@@ -80,7 +80,6 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
         },
         y1: {
           type: 'linear',
-          stacked: true,
           display: true,
           min: 0,
           suggestedMax: 1,
@@ -98,22 +97,28 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
     };
   }
 
-
+  
   private updateChart(): void{
 
     Object.entries({...this.datasets, ...this.threads}).forEach(entry => {
-      if(entry[0] !== this.totalLabel && entry[0] !== this.totalLabel+'_threads' && (!entry[0].startsWith('spl_'))){
-        if(this.names.indexOf(entry[0]) < 0){
-          this.names.push(entry[0]);
+      let curveLabel = entry[0]
+      if(curveLabel !== this.totalLabel && curveLabel !== this.totalLabel+'_threads' && !(curveLabel.startsWith('spl_') && curveLabel.endsWith('_threads'))   ){
+
+        if(curveLabel.startsWith('spl_')){
+          curveLabel = curveLabel.slice(curveLabel.indexOf('_')+1,curveLabel.length);
+        }
+        
+        if(this.names.indexOf(curveLabel) < 0){
+          this.names.push(curveLabel);
           this.data.datasets.push({
-            label: entry[0],
+            label: curveLabel,
             data: [],
-            yAxisID: entry[0].endsWith('_threads') ? 'y1' : 'y'
+            yAxisID: curveLabel.endsWith('_threads') ? 'y1' : 'y'
           });
         }
   
         this.data.datasets.forEach(dataset => {
-          if(dataset.label === entry[0]){
+          if(dataset.label === curveLabel){
             entry[1].forEach(metric =>{
               dataset.data.push(metric);
             })

@@ -273,7 +273,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 								 sample.getErrorCount() > 0,
 								 sample.getGroupThreads(),
 								 sample.getAllThreads(),
-								 "spl_"+sample.getSampleLabel()
+								 sample.getSampleLabel()
 								 ),
 						1000,
 						TimeUnit.MILLISECONDS

@@ -90,7 +90,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
   }
 
   refreshCards(){
-    if(this.threads !== undefined && this.datasets !== {}){
+    if(this.threads !== undefined){
       const lastIndex = this.threads.length - 1;
       ['avg','max','total','throughput'].forEach(type =>{
         this.cards[type].data.value = this.datasets[type][this.totalLabel][lastIndex].y;

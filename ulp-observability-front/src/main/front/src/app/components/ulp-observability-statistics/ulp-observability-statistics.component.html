@@ -1,9 +1,8 @@
-  <table mat-table matSort [dataSource]= "dataSource" class="mat-elevation-z8" >
-    
-    <!--- Note that these columns can be defined in any order.
-          The actual rendered columns are set as a property on the row definition" -->
   
-    <!-- Position Column -->
+  <div class="content">
+    <h1>Sampler Info</h1>
+  
+    <table mat-table matSort [dataSource]= "dataSource" class="mat-elevation-z8" >
 
     <ng-container  matColumnDef={{columnsToDisplay[0]}}>
       <th mat-header-cell mat-sort-header *matHeaderCellDef > {{columnsToDisplay[0]}} </th>
@@ -53,3 +52,5 @@
     <tr mat-header-row *matHeaderRowDef= "columnsToDisplay"></tr>
     <tr mat-row *matRowDef= "let row; columns: columnsToDisplay;"></tr>
   </table>
+
+  </div>
