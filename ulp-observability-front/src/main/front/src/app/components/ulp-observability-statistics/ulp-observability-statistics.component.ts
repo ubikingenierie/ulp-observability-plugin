@@ -123,7 +123,7 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
           
         }
       }
-      this.dataSource.data = this.statLine     
+      this.dataSource = new MatTableDataSource(this.statLine) 
     }
   }
 }
