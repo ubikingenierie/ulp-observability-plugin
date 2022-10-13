@@ -120,8 +120,10 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
             }
           }
           this.statLine.push(stats)
+          
         }
-      }     
+      }
+      this.dataSource.data = this.statLine     
     }
   }
 }
