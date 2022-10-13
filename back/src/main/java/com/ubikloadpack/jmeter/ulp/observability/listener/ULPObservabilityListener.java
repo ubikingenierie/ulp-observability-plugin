@@ -369,9 +369,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 			instanceCount ++;
 			
 			if (!listenerClientData.myName.equals(getName())) {
-				for(int count = instanceCount; count >=1;count--) {
-					testEnded(host);
-				}		
+				testEnded(host);	
 				LOG.error("You have at least 2 ULP Observability Listerners in your Test plan : " + listenerClientData.myName + " and " + getName());		
 			}
 			
