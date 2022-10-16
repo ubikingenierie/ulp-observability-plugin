@@ -16,6 +16,7 @@ import { MatTableModule } from '@angular/material/table';
 
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { UlpObservabilityMetricsComponent } from './components/ulp-observability-metrics/ulp-observability-metrics.component';
+import { UlpObservabilityStatisticsComponent } from './components/ulp-observability-statistics/ulp-observability-statistics.component';
 
 const materialModules = [
   MatSelectModule,
@@ -36,7 +37,8 @@ export class MaterialModule {};
     AppComponent,
     UlpObservabilityChartComponent,
     UlpObservabilityDashboardComponent,
-    UlpObservabilityMetricsComponent
+    UlpObservabilityMetricsComponent,
+    UlpObservabilityStatisticsComponent
   ],
   imports: [
     BrowserModule,

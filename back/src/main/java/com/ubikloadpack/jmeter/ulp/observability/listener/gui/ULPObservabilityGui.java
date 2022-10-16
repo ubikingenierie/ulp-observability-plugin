@@ -87,6 +87,9 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	private final JTextField bufferCapacity = new JTextField();
 
 	
+    /**
+     * Creates new ULP Observability GUI
+     */
 	public ULPObservabilityGui() {
 	    this.init();
 	}

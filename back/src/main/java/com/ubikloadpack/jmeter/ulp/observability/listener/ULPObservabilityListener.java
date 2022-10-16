@@ -267,12 +267,13 @@ public class ULPObservabilityListener extends AbstractTestElement
 			try {
 				SampleResult sample = sampleEvent.getResult();
 				if(!listenerClientData.sampleQueue.offer(
-						new ResponseResult(
+						new ResponseResult(								 
 								 sampleEvent.getThreadGroup(),
 								 Util.getResponseTime(sample.getEndTime(),sample.getStartTime()),
 								 sample.getErrorCount() > 0,
 								 sample.getGroupThreads(),
-								 sample.getAllThreads()
+								 sample.getAllThreads(),
+								 sample.getSampleLabel()
 								 ),
 						1000,
 						TimeUnit.MILLISECONDS

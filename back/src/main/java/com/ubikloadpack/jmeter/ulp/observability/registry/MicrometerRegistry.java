@@ -49,6 +49,17 @@ public class MicrometerRegistry {
 	 */
 	private SampleLogger logger;
 	
+    /**
+     * Creates new Micrometer registery
+     * 
+     * @param totalLabel Label assigned for total metrics
+     * @param pct1 First percentile
+     * @param pct2 Second percentile
+     * @param pct3 Third percentile
+     * @param pctPrecision Percentile precision
+     * @param logFrequency Log frequency 
+     * @param logger Metrics logger
+     */
 	public MicrometerRegistry(
 			String totalLabel,
 			Integer pct1,
@@ -113,25 +124,29 @@ public class MicrometerRegistry {
 			return;
 		}
 
-		String sampleTag = Util.makeMicrometerName(result.getSampleLabel());
+		String threadTag = Util.makeMicrometerName(result.getThreadGroupLabel());
+		String samplerTag = "spl_"+Util.makeMicrometerName(result.getSamplerLabel());
 		
-		this.registry.summary("summary.response", "sample", sampleTag).record(result.getResponseTime());
+		this.registry.summary("summary.response", "sample", threadTag).record(result.getResponseTime());
 		this.registry.summary("summary.response", "sample", this.totalLabel).record(result.getResponseTime());
-		
+		this.registry.summary("summary.response", "sample", samplerTag).record(result.getResponseTime());
 	
-		this.registry.counter("count.threads", "sample", sampleTag).increment(
-				result.getGroupThreads() - (int) this.registry.counter("count.threads", "sample", sampleTag).count());
+		this.registry.counter("count.threads", "sample", threadTag).increment(
+				result.getGroupThreads() - (int) this.registry.counter("count.threads", "sample", threadTag).count());
 		this.registry.counter("count.threads", "sample", this.totalLabel).increment(
 				result.getAllThreads() - (int) this.registry.counter("count.threads", "sample", this.totalLabel).count());
-		
+		this.registry.counter("count.threads", "sample", samplerTag).increment(
+				result.getGroupThreads() - (int) this.registry.counter("count.threads", "sample", threadTag).count());
+	
 		if(result.hasError()) {
-			this.registry.counter("count.error", "sample", sampleTag).increment();
+			this.registry.counter("count.error", "sample", threadTag).increment();
 			this.registry.counter("count.error", "sample", this.totalLabel).increment();
+			this.registry.counter("count.error", "sample", samplerTag).increment();
 		}
 		
-		this.totalReg.counter("count.total", "sample", sampleTag).increment();
+		this.totalReg.counter("count.total", "sample", threadTag).increment();
 		this.totalReg.counter("count.total", "sample", this.totalLabel).increment();
-		
+		this.totalReg.counter("count.total", "sample", samplerTag).increment();
 	}
 	
 	
@@ -208,9 +223,9 @@ public class MicrometerRegistry {
 	 * @return List of recorded thread group names + total
 	 */
 	public List<String> getSampleNames() {
-		return this.registry.find("summary.response").summaries()
+		return this.registry.find("summary.response").summaries()                  
 				.stream().map(summary -> summary.getId().getTag("sample"))
 				.collect(Collectors.toList());
 	}
-
+	
 }
