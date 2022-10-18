@@ -5,7 +5,8 @@ import parsePrometheusTextFormat from 'src/app/utility/parser/prometheus-parser'
 import 'chartjs-adapter-moment';
 import { Sample } from 'src/app/model/sample';
 import { ChartData, DatasetGroup, Datasets } from 'src/app/model/chart-data';
-import { Observable } from 'rxjs';
+import { map, Observable, startWith } from 'rxjs';
+import { FormControl } from '@angular/forms';
 
 
 interface NamePostfix {
@@ -37,11 +38,19 @@ export class UlpObservabilityDashboardComponent implements OnInit{
   status = MetricsStatus.INFO;
   reqSuccessful = true;
 
-
+  visibleChart !: Array<string>
+  control = new FormControl('');
+  filteredCharts!: Observable<string[]>;
+  
   constructor(private metricService: MetricsService) { }
 
   ngOnInit(): void {
     this.requestInfo();
+
+    this.filteredCharts = this.control.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '')),
+    );
   }
 
   private requestInfo() : void {
@@ -196,6 +205,17 @@ export class UlpObservabilityDashboardComponent implements OnInit{
       } 
     });
   }
+
+private _filter(value: string): string[] {
+  const filterValue = this._normalizeValue(value);
+  this.visibleChart = Object.values(this.chartData).filter(chart => this._normalizeValue(chart).includes(filterValue));
+  return this.visibleChart;
+}
+
+private _normalizeValue(value: string): string {
+  return value.toLowerCase().replace(/\s/g, '');
+}
+
 }
 
 

@@ -13,6 +13,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {ReactiveFormsModule} from '@angular/forms';
+import {MatInputModule} from '@angular/material/input'
+
 
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { UlpObservabilityMetricsComponent } from './components/ulp-observability-metrics/ulp-observability-metrics.component';
@@ -23,7 +27,10 @@ const materialModules = [
   MatIconModule,
   MatToolbarModule,
   MatCardModule,
-  MatTableModule
+  MatTableModule,
+  MatAutocompleteModule,
+  ReactiveFormsModule,
+  MatInputModule,
 ];
 
 @NgModule({
