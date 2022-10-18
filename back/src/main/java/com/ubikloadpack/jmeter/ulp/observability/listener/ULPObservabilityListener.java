@@ -372,6 +372,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 			
 			if (!listenerClientData.myName.equals(getName())) {	
 				throw new JMeterStopTestException("You have at least 2 ULP Observability Listerners in your Test plan : " + listenerClientData.myName + " and " + getName());		
+
 			}
 			
 						
