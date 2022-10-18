@@ -32,7 +32,7 @@
         </form>
 
         <ng-container *ngFor="let chart of chartData | keyvalue">
-            <div  *ngIf=" visibleChart.includes(chart.value)" >
+            <div [hidden]="!visibleChart.includes(chart.value)" >
                 <app-ulp-observability-chart
                 [datasets]="datasets[chart.key]"
                 [threads]="threads"
