@@ -15,6 +15,7 @@ import org.apache.jmeter.samplers.SampleListener;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.TestStateListener;
+import org.apache.jorphan.util.JMeterStopTestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -369,9 +370,8 @@ public class ULPObservabilityListener extends AbstractTestElement
 			
 			instanceCount ++;
 			
-			if (!listenerClientData.myName.equals(getName())) {
-				testEnded(host);	
-				LOG.error("You have at least 2 ULP Observability Listerners in your Test plan : " + listenerClientData.myName + " and " + getName());		
+			if (!listenerClientData.myName.equals(getName())) {	
+				throw new JMeterStopTestException("You have at least 2 ULP Observability Listerners in your Test plan : " + listenerClientData.myName + " and " + getName());		
 			}
 			
 						
