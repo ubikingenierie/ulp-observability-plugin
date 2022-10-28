@@ -85,9 +85,11 @@ public class ULPObservabilityListener extends AbstractTestElement
          * Name of the listener in the test plan
          */
         private String myName;
+        
     }
     
 
+    private static volatile Boolean running = false;
     private static volatile ListenerClientData listenerClientData;
     
     
@@ -100,6 +102,16 @@ public class ULPObservabilityListener extends AbstractTestElement
      * Number of JMeter Servers running for distributed testing 
      */
     private static volatile int instanceCount;
+    
+    public void setJettyCheckbox(Boolean bool) {
+	    setProperty(ULPODefaultConfig.JETTY_CHECKBOX_PROP, bool);
+    }
+    public Boolean getJettyCheckbox() {
+    	return getPropertyAsBoolean(
+    			ULPODefaultConfig.JETTY_CHECKBOX_PROP, 
+    			ULPODefaultConfig.checkbox()
+    			);
+    }
     
     public void setBufferCapacity(Integer bufferCapacity) {
     	setProperty(ULPODefaultConfig.BUFFER_CAPACITY_PROP, bufferCapacity);
@@ -141,7 +153,7 @@ public class ULPObservabilityListener extends AbstractTestElement
     
     public String getWebAppRoute() {
     	return getPropertyAsString(
-    			ULPODefaultConfig.JETTY_WEBAPP_ROUTE_PROP, 
+    			ULPODefaultConfig.JETTY_WEBAPP_ROUTE_PROP,
     			ULPODefaultConfig.jettyWebAppRoute()
     			);
     }
@@ -152,7 +164,7 @@ public class ULPObservabilityListener extends AbstractTestElement
     
     public Integer getThreadSize() {
     	return getPropertyAsInt(
-    			ULPODefaultConfig.THREAD_SIZE_PROP, 
+    			ULPODefaultConfig.THREAD_SIZE_PROP,
     			ULPODefaultConfig.threadSize()
     			);
     }
@@ -321,7 +333,11 @@ public class ULPObservabilityListener extends AbstractTestElement
 		
 		synchronized (LOCK) {
 			if (instanceCount == 0){
+				if(running == true) {
+					StopJetty();
+				}
 				listenerClientData = new ListenerClientData();
+				running = true;
 				listenerClientData.myName = getName();
 				init(listenerClientData);		
 				try {
@@ -393,52 +409,60 @@ public class ULPObservabilityListener extends AbstractTestElement
 	 */
 	public void testEnded(String host) {
 		LOG.info("Test stopped : {}", host);
+		
 		synchronized (LOCK) {
 			instanceCount--;
-				
-			if(instanceCount == 0) {
-				
-				LOG.info("No more test running, shutting down");
-				try {
-					if(listenerClientData.ulpObservabilityServer != null) {
-						listenerClientData.ulpObservabilityServer.stop();
-					}
-					LOG.info("Jetty Endpoint stopped");
-					
-				} catch (Exception e) {
-					LOG.error(
-							"Jetty server shutdown error: {}", e);
-				}
-				 
-				
-				try {
-					if(listenerClientData.logCron.isThreadRunning()) {
-						listenerClientData.logCron.shutdownNow();
-						listenerClientData.logCron.purge();
-					}
-				}
-				catch (Exception e) {
-					LOG.error(
-							"Logcron shutdown error: {}", e);
-				}
-
-				try {
-					listenerClientData.micrometerTaskList.forEach((task) -> {
-						task.stop();
-					});
-				} catch(Exception e){
-					LOG.error(
-							"Micrometer shutdown error: {}", e);
-				}
-				
-				listenerClientData.sampleQueue.clear();
-				listenerClientData.logger.clear();
-				listenerClientData.registry.close();	
-				
-				LOG.info("All JMeter servers have stopped their tests");			
+			if(instanceCount == 0 && getJettyCheckbox() == false) {
+				running = false;				
+				StopJetty();			
 			}
 		} 
      
+	}
+	
+	public void StopJetty() {
+		synchronized (LOCK) {
+			
+			LOG.info("No more test running, shutting down");
+			try {
+				if(listenerClientData.ulpObservabilityServer != null) {
+					listenerClientData.ulpObservabilityServer.stop();
+				}
+				LOG.info("Jetty Endpoint stopped");
+				
+			} catch (Exception e) {
+				LOG.error(
+						"Jetty server shutdown error: {}", e);
+			}
+			 
+			
+			try {
+				if(listenerClientData.logCron.isThreadRunning()) {
+					listenerClientData.logCron.shutdownNow();
+					listenerClientData.logCron.purge();
+				}
+			}
+			catch (Exception e) {
+				LOG.error(
+						"Logcron shutdown error: {}", e);
+			}
+
+			try {
+				listenerClientData.micrometerTaskList.forEach((task) -> {
+					task.stop();
+				});
+			} catch(Exception e){
+				LOG.error(
+						"Micrometer shutdown error: {}", e);
+			}
+			
+			listenerClientData.sampleQueue.clear();
+			listenerClientData.logger.clear();
+			listenerClientData.registry.close();	
+			
+			LOG.info("All JMeter servers have stopped their tests");
+			
+		}
 	}
 	
 }
