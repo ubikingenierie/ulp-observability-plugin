@@ -91,7 +91,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	/**
 	 * Keep server running after test
 	 */
-	private final JCheckBox jettyCheckbox = new JCheckBox();
+	private final JCheckBox keepJettyServerUpAfterTestEnd = new JCheckBox();
 	
     /**
      * Creates new ULP Observability GUI
@@ -161,7 +161,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     			new ArrayList<>(Arrays.asList(new JLabel("Total metrics label"), this.totalLabel))
     			);
     	componentGroups.add(
-    			new ArrayList<>(Arrays.asList(new JLabel("Keep server running after test ended"), this.jettyCheckbox))
+    			new ArrayList<>(Arrays.asList(new JLabel("Keep server up after test ended"), this.keepJettyServerUpAfterTestEnd))
     			);
     	
 
@@ -302,10 +302,10 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 				sampler.setTotalLabel(this.totalLabel.getText());
 			}
 			
-			jettyCheckbox.addActionListener(new ActionListener() {
+			keepJettyServerUpAfterTestEnd.addActionListener(new ActionListener() {
 	            @Override
 	            public void actionPerformed(ActionEvent ae) {
-	            	sampler.setJettyCheckbox(jettyCheckbox.isSelected());
+	            	sampler.setKeepJettyServerUpAfterTestEnd(keepJettyServerUpAfterTestEnd.isSelected());
 	            }
 	        });
 			

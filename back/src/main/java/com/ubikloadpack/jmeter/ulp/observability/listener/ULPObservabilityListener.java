@@ -89,7 +89,7 @@ public class ULPObservabilityListener extends AbstractTestElement
     }
     
 
-    private static volatile Boolean running = false;
+    private static volatile Boolean isServerRunning = false;
     private static volatile ListenerClientData listenerClientData;
     
     
@@ -103,13 +103,13 @@ public class ULPObservabilityListener extends AbstractTestElement
      */
     private static volatile int instanceCount;
     
-    public void setJettyCheckbox(Boolean bool) {
-	    setProperty(ULPODefaultConfig.JETTY_CHECKBOX_PROP, bool);
+    public void setKeepJettyServerUpAfterTestEnd(Boolean bool) {
+	    setProperty(ULPODefaultConfig.KEEP_JETTY_SERVER_UP_AFTER_TEST_END_PROP, bool);
     }
-    public Boolean getJettyCheckbox() {
+    public Boolean getKeepJettyServerUpAfterTestEnd() {
     	return getPropertyAsBoolean(
-    			ULPODefaultConfig.JETTY_CHECKBOX_PROP, 
-    			ULPODefaultConfig.checkbox()
+    			ULPODefaultConfig.KEEP_JETTY_SERVER_UP_AFTER_TEST_END_PROP, 
+    			ULPODefaultConfig.keepJettyServerUpAfterTestEnd()
     			);
     }
     
@@ -333,11 +333,11 @@ public class ULPObservabilityListener extends AbstractTestElement
 		
 		synchronized (LOCK) {
 			if (instanceCount == 0){
-				if(running == true) {
-					StopJetty();
+				if(isServerRunning == true) {
+					stopServer();
 				}
 				listenerClientData = new ListenerClientData();
-				running = true;
+				isServerRunning = true;
 				listenerClientData.myName = getName();
 				init(listenerClientData);		
 				try {
@@ -412,18 +412,55 @@ public class ULPObservabilityListener extends AbstractTestElement
 		
 		synchronized (LOCK) {
 			instanceCount--;
-			if(instanceCount == 0 && getJettyCheckbox() == false) {
-				running = false;				
-				StopJetty();			
+			if(instanceCount == 0) {
+				
+				LOG.info("No more test running, shutting down");
+				
+				try {
+					if(listenerClientData.logCron.isThreadRunning()) {
+						listenerClientData.logCron.shutdownNow();
+						listenerClientData.logCron.purge();
+					}
+				}
+				catch (Exception e) {
+					LOG.error(
+							"Logcron shutdown error: {}", e);
+				}
+
+
+				try {
+					listenerClientData.micrometerTaskList.forEach((task) -> {
+						task.stop();
+					});
+				} catch(Exception e){
+					LOG.error(
+							"Micrometer shutdown error: {}", e);
+				}			
+
+				
+				listenerClientData.sampleQueue.clear();
+				listenerClientData.registry.close();
+				
+				
+				if (getKeepJettyServerUpAfterTestEnd() == false) {
+					stopServer();
+				}
+				
+				LOG.info("All JMeter servers have stopped their tests");
+
 			}
 		} 
      
 	}
 	
-	public void StopJetty() {
+	public void stopServer() {
 		synchronized (LOCK) {
 			
-			LOG.info("No more test running, shutting down");
+			isServerRunning = false;
+			
+			listenerClientData.logger.clear();
+				
+			
 			try {
 				if(listenerClientData.ulpObservabilityServer != null) {
 					listenerClientData.ulpObservabilityServer.stop();
@@ -435,32 +472,6 @@ public class ULPObservabilityListener extends AbstractTestElement
 						"Jetty server shutdown error: {}", e);
 			}
 			 
-			
-			try {
-				if(listenerClientData.logCron.isThreadRunning()) {
-					listenerClientData.logCron.shutdownNow();
-					listenerClientData.logCron.purge();
-				}
-			}
-			catch (Exception e) {
-				LOG.error(
-						"Logcron shutdown error: {}", e);
-			}
-
-			try {
-				listenerClientData.micrometerTaskList.forEach((task) -> {
-					task.stop();
-				});
-			} catch(Exception e){
-				LOG.error(
-						"Micrometer shutdown error: {}", e);
-			}
-			
-			listenerClientData.sampleQueue.clear();
-			listenerClientData.logger.clear();
-			listenerClientData.registry.close();	
-			
-			LOG.info("All JMeter servers have stopped their tests");
 			
 		}
 	}
