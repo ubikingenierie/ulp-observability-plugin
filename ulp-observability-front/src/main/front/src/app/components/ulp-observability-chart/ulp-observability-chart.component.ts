@@ -17,6 +17,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
   @Input() threads : DatasetGroup = {};
   @Input() title : string = '';
   @Input() totalLabel = 'total_info';
+  @Input() visibleSamplers !: Array<string>;
 
   private names : Array<string> = [];
   
@@ -99,7 +100,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
 
   
   private updateChart(): void{
-
+    
     Object.entries({...this.datasets, ...this.threads}).forEach(entry => {
       let curveLabel = entry[0]
       if(curveLabel !== this.totalLabel && curveLabel !== this.totalLabel+'_threads' && !(curveLabel.startsWith('spl_') && curveLabel.endsWith('_threads'))   ){
@@ -113,7 +114,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
           this.data.datasets.push({
             label: curveLabel,
             data: [],
-            yAxisID: curveLabel.endsWith('_threads') ? 'y1' : 'y'
+            yAxisID: curveLabel.endsWith('_threads') ? 'y1' : 'y',
           });
         }
   
@@ -121,6 +122,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
           if(dataset.label === curveLabel){
             entry[1].forEach(metric =>{
               dataset.data.push(metric);
+              dataset.hidden=this.visibleSamplers.includes(curveLabel) || curveLabel.endsWith('_threads')?false:true
             })
             
           }

@@ -18,12 +18,26 @@
         </div>
 
         <div class="content" *ngSwitchCase="2">
+
+            <form class="chart-form">
+                <mat-form-field class="form-full-width" appearance="fill">                   
+                    <mat-label><mat-icon >search</mat-icon></mat-label>
+                    <input type="text" matInput [formControl]="control" [matAutocomplete]="auto">
+                    <mat-autocomplete #auto="matAutocomplete">
+                        <mat-option *ngFor="let chart of filteredCharts | async | keyvalue" [value]="chart.value">
+                            {{chart.value}}
+                        </mat-option>
+                    </mat-autocomplete>
+                </mat-form-field>
+            </form>
+
             <div *ngFor="let chart of chartData | keyvalue">
                 <app-ulp-observability-chart
                 [datasets]="datasets[chart.key]"
                 [threads]="threads"
                 [title]="chart.value"
                 [totalLabel]="totalLabel"
+                [visibleSamplers]="visibleSamplers"
                 ></app-ulp-observability-chart>
             </div>
 

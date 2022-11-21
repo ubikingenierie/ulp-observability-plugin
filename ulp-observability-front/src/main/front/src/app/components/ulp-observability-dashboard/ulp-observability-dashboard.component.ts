@@ -5,7 +5,8 @@ import parsePrometheusTextFormat from 'src/app/utility/parser/prometheus-parser'
 import 'chartjs-adapter-moment';
 import { Sample } from 'src/app/model/sample';
 import { ChartData, DatasetGroup, Datasets } from 'src/app/model/chart-data';
-import { Observable } from 'rxjs';
+import { map, Observable, startWith } from 'rxjs';
+import { FormControl } from '@angular/forms';
 
 
 interface NamePostfix {
@@ -37,11 +38,20 @@ export class UlpObservabilityDashboardComponent implements OnInit{
   status = MetricsStatus.INFO;
   reqSuccessful = true;
 
-
+  listSamplers !: Array<string>
+  visibleSamplers !: Array<string>
+  control = new FormControl('');
+  filteredCharts!: Observable<string[]>;
+  
   constructor(private metricService: MetricsService) { }
 
   ngOnInit(): void {
     this.requestInfo();
+
+    this.filteredCharts = this.control.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '')),
+    );
   }
 
   private requestInfo() : void {
@@ -125,10 +135,28 @@ export class UlpObservabilityDashboardComponent implements OnInit{
     this.threads = {};
   }
 
+  private fillSamplerList(sampleName: string) : void{
+
+    if(this.listSamplers==null){
+      this.listSamplers = [];
+    }
+    if (sampleName.startsWith('spl_')){
+      sampleName = sampleName.slice(sampleName.indexOf('_')+1,sampleName.length)
+    }
+    if (!this.listSamplers.includes(sampleName) && sampleName!==this.totalLabel){
+        this.listSamplers.push(sampleName)
+    }
+  }
+
   private pushData(samples: Array<Sample>) : void {
     this.clearData();
 
     samples.forEach(sample => {
+      //for this sample sample.name has the correct name of the controllers in jMeter
+      if (sample.help === "Response percentiles"){
+        this.fillSamplerList(sample.name);
+      }
+
       if(sample.metrics[0] !== undefined){
         const namePostfix : NamePostfix = this.getNamePostfix(sample.name);
         const timestamp = new Date(+(sample.metrics[0].timestamp_ms ?? sample.metrics[0].created ?? 0));
@@ -196,6 +224,17 @@ export class UlpObservabilityDashboardComponent implements OnInit{
       } 
     });
   }
+
+private _filter(value: string): string[] {
+  const filterValue = this._normalizeValue(value);
+  this.visibleSamplers = Object.values(this.listSamplers).filter(sample => this._normalizeValue(sample).includes(filterValue));
+  return this.visibleSamplers;
+}
+
+private _normalizeValue(value: string): string {
+  return value.toLowerCase().replace(/\s/g, '');
+}
+
 }
 
 
