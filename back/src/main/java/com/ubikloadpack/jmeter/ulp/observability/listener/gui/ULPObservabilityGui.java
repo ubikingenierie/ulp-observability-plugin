@@ -3,6 +3,8 @@ package com.ubikloadpack.jmeter.ulp.observability.listener.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +14,7 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -85,7 +88,10 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	 * Sample result queue capacity
 	 */
 	private final JTextField bufferCapacity = new JTextField();
-
+	/**
+	 * Keep server running after test
+	 */
+	private final JCheckBox keepJettyServerUpAfterTestEnd = new JCheckBox();
 	
     /**
      * Creates new ULP Observability GUI
@@ -154,6 +160,10 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	componentGroups.add(
     			new ArrayList<>(Arrays.asList(new JLabel("Total metrics label"), this.totalLabel))
     			);
+    	componentGroups.add(
+    			new ArrayList<>(Arrays.asList(new JLabel("Keep server up after test ended"), this.keepJettyServerUpAfterTestEnd))
+    			);
+    	
 
     	ParallelGroup parallelGroup = layout.createParallelGroup(Alignment.LEADING);
     	SequentialGroup sequentialGroup = layout.createSequentialGroup();
@@ -291,6 +301,13 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			} else {
 				sampler.setTotalLabel(this.totalLabel.getText());
 			}
+			
+			keepJettyServerUpAfterTestEnd.addActionListener(new ActionListener() {
+	            @Override
+	            public void actionPerformed(ActionEvent ae) {
+	            	sampler.setKeepJettyServerUpAfterTestEnd(keepJettyServerUpAfterTestEnd.isSelected());
+	            }
+	        });
 			
 			sampler.setJettyPort(validateNumeric(jettyPort.getText(), sampler.getJettyPort()));
 			sampler.setThreadSize(validatePositiveNumeric(threadSize.getText(), sampler.getThreadSize(),"thread size"));

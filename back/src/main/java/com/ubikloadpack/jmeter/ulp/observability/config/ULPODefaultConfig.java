@@ -65,6 +65,8 @@ public class ULPODefaultConfig {
 	public static final String TOTAL_LABEL_PROP =
 			"ULPObservability.TotalLabel";
 
+	public static final String KEEP_JETTY_SERVER_UP_AFTER_TEST_END_PROP =
+			"ULPObservability.KeepJettyServerUpAfterTestEnd";
 	/**
 	 * Default plugin name.
 	 */
@@ -126,6 +128,10 @@ public class ULPODefaultConfig {
 	 */
 	private static final String TOTAL_LABEL = "total_info";
 
+	/**
+	 * Default Checkbox value for the jetty server
+	 */
+	public static final Boolean KEEP_JETTY_SERVER_UP_AFTER_TEST_END = false;
 	/**
 	 * Get default ULP Observability plugin name.
 	 * @return Default plugin name
@@ -241,4 +247,8 @@ public class ULPODefaultConfig {
 				.getPropDefault(LOG_FREQUENCY_PROP, LOG_FREQUENCY);
 	}
 
+	public static Boolean keepJettyServerUpAfterTestEnd() {
+		return JMeterUtils
+				.getPropDefault(KEEP_JETTY_SERVER_UP_AFTER_TEST_END_PROP, KEEP_JETTY_SERVER_UP_AFTER_TEST_END);
+	}
 }
