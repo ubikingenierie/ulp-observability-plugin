@@ -183,7 +183,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	}
 
 	public Integer getLogFreq() {
-		return getPropertyAsInt(ULPODefaultConfig.LOG_FREQUENCY_PROP, ULPODefaultConfig.logFrequecny());
+		return getPropertyAsInt(ULPODefaultConfig.LOG_FREQUENCY_PROP, ULPODefaultConfig.logFrequency());
 	}
 
 	public void setTotalLabel(String totalLbel) {

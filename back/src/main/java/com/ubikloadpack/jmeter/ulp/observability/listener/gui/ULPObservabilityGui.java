@@ -364,7 +364,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		this.pct2.setText(Integer.toString(ULPODefaultConfig.pct2()));
 		this.pct3.setText(Integer.toString(ULPODefaultConfig.pct3()));
 		this.pctPrecision.setText(Integer.toString(ULPODefaultConfig.pctPrecision()));
-		this.logFrequency.setText(Integer.toString(ULPODefaultConfig.logFrequecny()));
+		this.logFrequency.setText(Integer.toString(ULPODefaultConfig.logFrequency()));
 		this.totalLabel.setText(ULPODefaultConfig.totalLabel());
 	}
 

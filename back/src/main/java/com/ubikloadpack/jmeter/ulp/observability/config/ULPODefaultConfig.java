@@ -242,7 +242,7 @@ public class ULPODefaultConfig {
 	 *  if it not exists, retrieve hardcoded default value instead.
 	 * @return Default log frequency
 	 */
-	public static Integer logFrequecny() {
+	public static Integer logFrequency() {
 		return JMeterUtils
 				.getPropDefault(LOG_FREQUENCY_PROP, LOG_FREQUENCY);
 	}
