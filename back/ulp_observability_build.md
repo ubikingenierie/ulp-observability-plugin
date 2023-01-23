@@ -11,6 +11,6 @@ Copy the front build from "ulp-observability-front/src/main/front/dist/webapp" t
 
 
 
-3) maven-assembly-plugin :
+3) maven-assembly-plugin (not used anymore):
 
-With its prefabricated descriptor "jar-with-dependencies" create a single jar containing the back, the front and the dependencie in the target directory of the back module.
+With its prefabricated descriptor "jar-with-dependencies" create a single jar containing the back, the front and the dependencies in the target directory of the back module.
