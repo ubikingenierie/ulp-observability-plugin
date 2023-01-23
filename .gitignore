@@ -110,3 +110,5 @@ buildNumber.properties
 
 # Ignore code-workspaces
 *.code-workspace
+
+.DS_Store

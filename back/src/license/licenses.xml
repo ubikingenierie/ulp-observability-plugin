@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+
+<licenseSummary xmlns="http://mojo.codehaus.org/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://mojo.codehaus.org/ licenses.xsd">
+  <dependencies>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <licenses>
+        <license>
+          <name>Apache 2.0 License</name>
+          <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+      </licenses>
+    </dependency>
+    <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+      <licenses>
+        <license>
+          <name>Apache 2.0 License</name>
+          <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+      </licenses>
+    </dependency>
+    <dependency>
+      <groupId>org.jodd</groupId>
+      <artifactId>jodd-core</artifactId>
+      <licenses>
+        <license>
+          <name>BSD 2-Clause "Simplified" License</name>
+          <url>https://github.com/oblac/jodd/blob/master/LICENSE</url>
+        </license>
+      </licenses>
+    </dependency>
+    <dependency>
+      <groupId>org.jodd</groupId>
+      <artifactId>jodd-props</artifactId>
+      <licenses>
+        <license>
+          <name>BSD 2-Clause "Simplified" License</name>
+          <url>https://github.com/oblac/jodd/blob/master/LICENSE</url>
+        </license>
+      </licenses>
+    </dependency>
+  </dependencies>
+</licenseSummary>
