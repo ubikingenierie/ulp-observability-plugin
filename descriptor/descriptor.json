@@ -4,7 +4,7 @@
         "name" : "UbikLoadPack Observability Plugin",
         "description" : "This plugin allows you to monitor your JMeter CLI performance test from your favorite browser without having to start JMeter in GUI mode",
         "screenshotUrl" : "https://raw.githubusercontent.com/ubikingenierie/ulp-observability-plugin/main/screenshot/ulp_observability3.png",
-        "helpUrl": "https://www.ubik-ingenierie.com/blog/ubikloadpack-observability-plugin-help/",
+        "helpUrl": "https://www.ubik-ingenierie.com/blog/ubik-load-pack-observability-plugin/",
         "vendor": "https://ubikloadpack.com",
         "markerClass": "com.ubikloadpack.jmeter.ulp.observability.listener.ULPObservabilityListener",
         "versions" : {
