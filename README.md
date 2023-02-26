@@ -2,6 +2,11 @@
 
 [UbikLoadPack](https://UbikLoadPack.com) observability plugin is an extension for Apache JMeter which allows you to monitor a performance test (Standalone or distributed) from your browser.
 
+It also exposes an Open Metrics endpoint so that Promtheus or similar tools can scrape it and make metrics of your performance test available
+in it.
+
+It is easily installable through [JMeter-Plugins manager](<https://jmeter-plugins.org/?search=observability>)
+
 ## Metrics to display:
 
 - Name of the Sampler used for the load test
