@@ -21,8 +21,9 @@ Sample Queue Buffer Capacity  -> Je vois pas bien ce que c'est. Mais la c'est pe
 # Des erreurs
 J'ai essayé de le faire tourner en mode GUI pour commencer et voir ce que ça donne. J'ai rapidement fait un test plan très simple ou je le fais tourner 500 secondes, 5 threads. A chaque tour les threads faisaient un unique appel GET sur un localhost:3000 très basique quej 'ai fait rapidement. Ce endpoint renvoie une erreur 400 20% du temps, et met en moyenne 40 ms à répondre.
 
-Je suppose que e que j'ai fait ressemble au cas le plus basique possible, mais j'ai quand même des alertes d'erreurs sur la page avec les graphiques. En bas de l'image on peut voir le messagge d'erreur. Dans tous les graphiques J'ai des courbes rouges et jaunes, mais jamais de courbe bleu (http_request)
+Je suppose que ce que j'ai fait ressemble au cas le plus basique possible, mais j'ai quand même des alertes d'erreurs sur la page avec les graphiques. En bas de l'image on peut voir le messagge d'erreur.
 ![Legende](images/errors-1.png)
+-> Je viens de me rendre compte que j'avais bien les courbes bleues, elles étaient juste exactement superposées aux courbes rouges à chaques fois.
 
 # Usage
 Est-ce que les gens ne l'utilisent pas simplement car ils n'ont pas le besoin d'avoir les informations du test en direct ?
