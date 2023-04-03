@@ -1,4 +1,6 @@
 # UBIK LOAD PACK OBSERVABILITY PLUGIN : Connect the plugin to Prometheus
+![Legende](images/Prometheus.png)
+
 ## Install Prometheus
 If you haven't installed prometheus on your device yet, 
 [Download the latest release of Prometheus](https://prometheus.io/download/) for your platform, then extract it.
@@ -25,6 +27,7 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 ```
+Change 'localhost:9090' to match the port you are using to host the plugin.
 
 ## Prometheus launch
 Cd to the test plan directory, then enter this command to start using prometheus (on port 9095, change it with the one you prefer) :
@@ -32,5 +35,5 @@ Cd to the test plan directory, then enter this command to start using prometheus
 prometheus  --web.enable-admin-api   --web.listen-address=:9095 --config.file=prometheus.yml
 ```
 
-You can then access prometheus from this url :
+You can then access Prometheus from this url :
 http://localhost:9095/graph
