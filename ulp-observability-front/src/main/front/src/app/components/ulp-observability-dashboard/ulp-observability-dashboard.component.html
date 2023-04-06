@@ -68,10 +68,13 @@
     </div> 
 
 
-    <mat-card *ngIf="!reqSuccessful">
+    <mat-card *ngIf="showErrorMessage">
         <mat-card-content>
             <mat-icon aria-hidden="false">error</mat-icon>
-            <span class="icon-align">Error on retrieving metrics data</span>
+            <span class="icon-align error-message">Error on retrieving metrics data</span>
+            <mat-icon class="close-icon" aria-hidden="false" (click)="closeError()">close</mat-icon>
+
+            
         </mat-card-content>    
     </mat-card>
     

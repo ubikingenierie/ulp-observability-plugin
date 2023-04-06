@@ -36,7 +36,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
   datasets: Datasets = {};
   threads: DatasetGroup = {};
   status = MetricsStatus.INFO;
-  reqSuccessful = true;
+  showErrorMessage = false;
 
   listSamplers !: Array<string>
   visibleSamplers !: Array<string>
@@ -52,6 +52,10 @@ export class UlpObservabilityDashboardComponent implements OnInit{
       startWith(''),
       map(value => this._filter(value || '')),
     );
+  }
+
+  closeError() : void {
+    this.showErrorMessage = false;
   }
 
   private requestInfo() : void {
@@ -80,14 +84,14 @@ export class UlpObservabilityDashboardComponent implements OnInit{
     observable.subscribe({
       next: (metricsText) => {
         const samples : Array<Sample> = parsePrometheusTextFormat(metricsText);
-        this.reqSuccessful = true;
+        this.showErrorMessage = false;
         if(samples.length > 0){
           this.status = MetricsStatus.SUCCESS;
           this.pushData(samples);
         }
       },
       error: () => {
-        this.reqSuccessful = false;
+        this.showErrorMessage = true;
       }
     })
   }
