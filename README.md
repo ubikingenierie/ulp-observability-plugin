@@ -37,16 +37,16 @@
 
 #### Default configuration
 The default properties we get when we create an ULP observability sampler are in the file ULPODefaultConfig.java.
-This class provides the defaults, and specify the keys to use if we want to override them in a jmeter property file.
+This class provides the defaults, and specify the keys to use if we want to override them in a JMeter property file.
 
 #### How it works
 - When a test is started, the method 'testStarted(String host)' from the ULPObservabilityListener class is triggered.
-- This method starts a jetty server using the configuration metionned earlier. This server exposes through 2 Servlets (ULPObservabilityConfigServlet, ULPObservabilityMetricsServlet) which are called by the frontend in order to get the data to render.
+- This method starts a jetty server using the configuration metioned earlier. This server exposes through 2 Servlets (ULPObservabilityConfigServlet, ULPObservabilityMetricsServlet) which are called by the frontend in order to get the data to render.
 - Then it creates X threads (X being equal to the Number of Processing Threads in the sampler GUI). These threads are instances of the class MicrometerTask.java.
 As long as the test plan is running, the threads are retrieving the samples results from a queue, and add them to a MicrometerRegistry.
 - Micrometer is a library used to store the data that are exposed through the servlets. The MicrometerRegistry class is fed with the samplers data from the current time interval defined by Y seconds, (Y being the Log Frequency in seconds).
-It calculates the metrics of the current interval as long as it receives datas. Each Y seconds a cron job (LogTask.java) will reset the data which were used to calculates the metrics for the interval. It keeps the interval metrics results in a logger, but cleans everything else.
-- The queue on which the threads are retrieving datas is fed by Jmeter each time an http sampler complete its requests, thanks to the sampleOccurred(SampleEvent e) method overrided in ULPObservabilityListener.
+It calculate the metrics of the current interval as long as it receives datas. Each Y seconds a cron job (LogTask.java) will reset the data which were used to calculates the metrics for the interval. It keeps the interval metrics results in a logger, but cleans everything else.
+- The queue on which the threads are retrieving datas is fed by JMeter each time an http sampler complete its requests, thanks to the sampleOccurred(SampleEvent e) method overridden in ULPObservabilityListener.
 - The first servlet, ULPObservabilityConfigServlet, is used to tell the frontend on which url it can get the intervals datas it needs to render + the log frequency -> time in seconds between each calls to the seconds servlets to get more datas to display. It is equal to Y.
 - The second servlet, ULPObservabilityMetricsServlet, can gives 2 things :
     - the last interval metrics which has to be dynamically added to the already displayed graphs with Angular
