@@ -121,7 +121,7 @@ public class ULPODefaultConfig {
 	/**
 	 * Default logging frequency in seconds.
 	 */
-	private static final Integer LOG_FREQUENCY = 60;
+	private static final Integer LOG_FREQUENCY = 10;
 
 	/**
 	 * Default OpenMetrics name to denote total metrics.
