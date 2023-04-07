@@ -64,6 +64,9 @@ public class ULPODefaultConfig {
 	 */
 	public static final String TOTAL_LABEL_PROP =
 			"ULPObservability.TotalLabel";
+	
+	public static final String REGEX_PROP =
+			"ULPObservability.RegexProp";
 
 	public static final String KEEP_JETTY_SERVER_UP_AFTER_TEST_END_PROP =
 			"ULPObservability.KeepJettyServerUpAfterTestEnd";
@@ -127,6 +130,11 @@ public class ULPODefaultConfig {
 	 * Default OpenMetrics name to denote total metrics.
 	 */
 	private static final String TOTAL_LABEL = "total_info";
+	
+	/**
+	 * Default regex to filter samplers by their names.
+	 */
+	private static final String REGEX = null;
 
 	/**
 	 * Default Checkbox value for the jetty server
@@ -148,6 +156,16 @@ public class ULPODefaultConfig {
 	public static String totalLabel() {
 		return JMeterUtils
 				.getPropDefault(TOTAL_LABEL_PROP, TOTAL_LABEL);
+	}
+	
+	/**
+	 * Get default regex value from JMeter properties file;
+	 *  if it not exists, retrieve hardcoded default value instead.
+	 * @return Default null
+	 */
+	public static String regex() {
+		return JMeterUtils
+				.getPropDefault(REGEX_PROP, REGEX);
 	}
 
 	/**

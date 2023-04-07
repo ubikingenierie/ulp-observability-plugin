@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -80,6 +81,10 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	 * Label field to denote total metrics
 	 */
 	private final JTextField totalLabel = new JTextField();
+	/**
+	 * Regex field to filter processed samplers
+	 */
+	private final JTextField regex = new JTextField();
 	/**
 	 * Number of registry task threads
 	 */
@@ -159,6 +164,9 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     			);
     	componentGroups.add(
     			new ArrayList<>(Arrays.asList(new JLabel("Total metrics label"), this.totalLabel))
+    			);
+    	componentGroups.add(
+    			new ArrayList<>(Arrays.asList(new JLabel("Regex (filter samplers by their name)"), this.regex))
     			);
     	componentGroups.add(
     			new ArrayList<>(Arrays.asList(new JLabel("Keep server up after test ended"), this.keepJettyServerUpAfterTestEnd))
@@ -302,6 +310,16 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 				sampler.setTotalLabel(this.totalLabel.getText());
 			}
 			
+			String regexText = this.regex.getText(); 
+			if(!regexText.isBlank()) {
+				try {
+					Pattern.compile(regexText);
+					sampler.setRegex(regexText);
+				} catch (Exception e) {
+					LOG.error("Invalid regex");
+				}
+			}
+			
 			keepJettyServerUpAfterTestEnd.addActionListener(new ActionListener() {
 	            @Override
 	            public void actionPerformed(ActionEvent ae) {
@@ -317,7 +335,6 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			sampler.setPct3(validatePercentile(pct3.getText(), sampler.getPct3(),"percentile 3"));
 			sampler.setPctPrecision(validatePositiveNumeric(pctPrecision.getText(), sampler.getPctPrecision(),"percentiles precision"));
 			sampler.setLogFreq(validatePositiveNumeric(logFrequency.getText(), sampler.getLogFreq(),"log frequency"));
-			
 		}
 	}
     
@@ -343,6 +360,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			this.pctPrecision.setText(Integer.toString(ulpObservabilityListener.getPctPrecision()));
 			this.logFrequency.setText(Integer.toString(ulpObservabilityListener.getLogFreq()));
 			this.totalLabel.setText(ulpObservabilityListener.getTotalLabel());
+			this.regex.setText(ulpObservabilityListener.getRegex());
 		}
 
 	}
@@ -366,6 +384,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		this.pctPrecision.setText(Integer.toString(ULPODefaultConfig.pctPrecision()));
 		this.logFrequency.setText(Integer.toString(ULPODefaultConfig.logFrequency()));
 		this.totalLabel.setText(ULPODefaultConfig.totalLabel());
+		this.regex.setText(ULPODefaultConfig.regex());
 	}
 
 	
