@@ -72,13 +72,6 @@ http://localhost:9095/graph
 ## Technologies and dependencies:
 
 ### Back
-- [Java](https://www.java.com/) : Language used by JMeter
-- [Embedded Jetty](https://www.baeldung.com/jetty-embedded) : to expose the metrics collected by SamplerListener (specific to JMeter) and calculated by HDRHistogram offers a very light server implementation
-- [Micrometer](https://micrometer.io/) : to save samples and calculate more metrics
-- [CronScheduler](https://github.com/TimeAndSpaceIO/CronScheduler/) : for a clock drift insensitive task scheduler
-- [openapi-generator-maven-plugin](https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-maven-plugin) : to generate APIs and models
-- [Jackson](https://github.com/FasterXML/jackson) : for API response serialization
-- [Junit](https://www.jmdoudoux.fr/java/dej/chap-junit.htm) : Unit tests
 
 #### Completed tasks
 
@@ -108,14 +101,6 @@ http://localhost:9095/graph
 
 ### Front
 
-- [TypeScript](https://www.typescriptlang.org/) : to take advantage of a strongly typed language for more rigor and data consistency 
-- [AngularJs](https://angularjs.org/): for the front and graphing part :
-         - States and hooks to facilitate data manipulation (Metrics)
-         - npm repo for various dependencies
-         - ChartJs available
-         - Material UI for elegant rendering
-- [ChartJs](https://www.npmjs.com/package/chart.js?activeTab=readme) : Library used a lot, maintained (last update on 02/16/2022) and free
-
 #### Completed tasks
 
 - Synchronization with plugin configuration
@@ -140,4 +125,11 @@ http://localhost:9095/graph
 </p>
 
 
-#### [Roadmap](https://github.com/ubikingenierie/ulp-observability-plugin/issues?q=is%3Aopen+is%3Aissue+milestone%3A1.0.0)
+### Roadmap
+
+See [our repository issues](https://github.com/ubikingenierie/ulp-observability-plugin/issues?q=is%3Aopen+is%3Aissue+milestone%3A1.0.0)
+
+
+### Want to contribute
+
+Read our [Contributor documentation](contributer-jumpstart.md)
