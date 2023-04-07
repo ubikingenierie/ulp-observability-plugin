@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -310,14 +309,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 				sampler.setTotalLabel(this.totalLabel.getText());
 			}
 			
-			String regexText = this.regex.getText(); 
-			try {
-				Pattern.compile(regexText);
-				sampler.setRegex(regexText);
-			} catch (Exception e) {
-				LOG.error("Following regex is not valid : {}", regexText);
-				sampler.setRegex("");
-			}
+			sampler.setRegex(this.regex.getText());
 			
 			keepJettyServerUpAfterTestEnd.addActionListener(new ActionListener() {
 	            @Override

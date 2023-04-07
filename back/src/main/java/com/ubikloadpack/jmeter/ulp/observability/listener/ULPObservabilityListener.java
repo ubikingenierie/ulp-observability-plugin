@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -84,7 +85,6 @@ public class ULPObservabilityListener extends AbstractTestElement
 		 * Name of the listener in the test plan
 		 */
 		private String myName;
-
 	}
 
 	private static volatile Boolean isServerRunning = false;
@@ -100,6 +100,11 @@ public class ULPObservabilityListener extends AbstractTestElement
 	 */
 	private static volatile int instanceCount;
 
+	/**
+	 * Optional regex. If empty, every samplers are processed.
+	 */
+	private Optional<Pattern> regex = Optional.empty();
+	
 	public void setKeepJettyServerUpAfterTestEnd(Boolean bool) {
 		setProperty(ULPODefaultConfig.KEEP_JETTY_SERVER_UP_AFTER_TEST_END_PROP, bool);
 	}
@@ -194,7 +199,21 @@ public class ULPObservabilityListener extends AbstractTestElement
 	}
 	
 	public void setRegex(String regex) {
-		setProperty(ULPODefaultConfig.REGEX_PROP, regex);
+		if(regex == null) {
+			setProperty(ULPODefaultConfig.REGEX_PROP, "");
+			this.regex = Optional.empty();
+		} else {
+			try {
+				this.regex = Optional.of(Pattern.compile(regex));
+				setProperty(ULPODefaultConfig.REGEX_PROP, regex);
+			} catch (Exception e) {
+				LOG.error("Following regex is not valid : {}", regex);
+				setProperty(ULPODefaultConfig.REGEX_PROP, "");
+				this.regex = Optional.empty();
+			}
+		}
+		
+		
 	}
 
 	public String getTotalLabel() {
@@ -238,9 +257,8 @@ public class ULPObservabilityListener extends AbstractTestElement
 			try {
 				SampleResult sample = sampleEvent.getResult();
 				String sampleLabel = sample.getSampleLabel();
-				String regex = this.getRegex();
 				
-				if(regex == null || regex.equals("") || isStringMatchingRegex(sampleLabel)) {
+				if(isStringMatchingRegex(sampleLabel)) {
 					if (!listenerClientData.sampleQueue.offer(new ResponseResult(sampleEvent.getThreadGroup(),
 							Util.getResponseTime(sample.getEndTime(), sample.getStartTime()), sample.getErrorCount() > 0,
 							sample.getGroupThreads(), sample.getAllThreads(), sample.getSampleLabel()), 1000,
@@ -258,9 +276,13 @@ public class ULPObservabilityListener extends AbstractTestElement
 	
 	private boolean isStringMatchingRegex(String str) {
 		try {
-			Pattern pattern = Pattern.compile(this.getRegex());
-			Matcher matcher = pattern.matcher(str);
-			return matcher.find();
+			Optional<Pattern> optionalPattern = this.regex;
+			if(optionalPattern.isPresent()) {
+				Matcher matcher = optionalPattern.get().matcher(str);
+				return matcher.find();
+			} else {
+				return true; // if there is no regex, everything is considered a match
+			}
 		} catch(Exception e) {
 			return false;
 		}
@@ -293,6 +315,9 @@ public class ULPObservabilityListener extends AbstractTestElement
 		LOG.info("Test started from host {}", host);
 
 		synchronized (LOCK) {
+			// Init the Pattern regex object of the listener based on its saved String value.
+			this.setRegex(getRegex());
+			
 			if (instanceCount == 0) {
 				if (isServerRunning) {
 					LOG.info("Jetty server was running from host {}, stopping it", host);
