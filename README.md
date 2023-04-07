@@ -80,4 +80,11 @@
 </p>
 
 
-### [Roadmap](https://github.com/ubikingenierie/ulp-observability-plugin/issues?q=is%3Aopen+is%3Aissue+milestone%3A1.0.0)
+### Roadmap
+
+See [our repository issues](https://github.com/ubikingenierie/ulp-observability-plugin/issues?q=is%3Aopen+is%3Aissue+milestone%3A1.0.0)
+
+
+### Want to contribute
+
+Read our [Contributor documentation](contributer-jumpstart.md)
