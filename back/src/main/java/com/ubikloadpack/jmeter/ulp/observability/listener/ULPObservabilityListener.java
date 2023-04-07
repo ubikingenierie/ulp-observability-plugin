@@ -316,7 +316,11 @@ public class ULPObservabilityListener extends AbstractTestElement
 
 		synchronized (LOCK) {
 			// Init the Pattern regex object of the listener based on its saved String value.
-			this.setRegex(getRegex());
+			String regexString = getRegex();
+			this.setRegex(regexString);
+			if(regexString != null && regexString != "") {
+				LOG.info("Observability plugin uses this regex : {} to filter rendered samplers based on their names.", regexString);
+			}
 			
 			if (instanceCount == 0) {
 				if (isServerRunning) {
