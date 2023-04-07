@@ -294,38 +294,38 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	public void modifyTestElement(TestElement element) {
 		super.configureTestElement(element);
 		if(element instanceof ULPObservabilityListener) {
-			ULPObservabilityListener sampler = (ULPObservabilityListener) element;
+			ULPObservabilityListener observabilityListener = (ULPObservabilityListener) element;
 			
 			if(this.metricsRoute.getText().equals(this.webAppRoute.getText())) {
 				LOG.error("Jetty Metrics and Web App routes must not be equal");
 			} else {
-				sampler.setMetricsRoute(validateRoute(metricsRoute.getText(),sampler.getMetricsRoute()));
-				sampler.setWebAppRoute(validateRoute(webAppRoute.getText(),sampler.getWebAppRoute()));	
+				observabilityListener.setMetricsRoute(validateRoute(metricsRoute.getText(),observabilityListener.getMetricsRoute()));
+				observabilityListener.setWebAppRoute(validateRoute(webAppRoute.getText(),observabilityListener.getWebAppRoute()));	
 			}
 			
 			if(this.totalLabel.getText().isBlank()) {
 				LOG.error("Invalid label");
 			} else {
-				sampler.setTotalLabel(this.totalLabel.getText());
+				observabilityListener.setTotalLabel(this.totalLabel.getText());
 			}
 			
-			sampler.setRegex(this.regex.getText());
+			observabilityListener.setRegex(this.regex.getText());
 			
 			keepJettyServerUpAfterTestEnd.addActionListener(new ActionListener() {
 	            @Override
 	            public void actionPerformed(ActionEvent ae) {
-	            	sampler.setKeepJettyServerUpAfterTestEnd(keepJettyServerUpAfterTestEnd.isSelected());
+	            	observabilityListener.setKeepJettyServerUpAfterTestEnd(keepJettyServerUpAfterTestEnd.isSelected());
 	            }
 	        });
 			
-			sampler.setJettyPort(validateNumeric(jettyPort.getText(), sampler.getJettyPort()));
-			sampler.setThreadSize(validatePositiveNumeric(threadSize.getText(), sampler.getThreadSize(),"thread size"));
-			sampler.setBufferCapacity(validatePositiveNumeric(bufferCapacity.getText(), sampler.getBufferCapacity(),"buffer capacity"));
-			sampler.setPct1(validatePercentile(pct1.getText(), sampler.getPct1(),"percentile 1"));
-			sampler.setPct2(validatePercentile(pct2.getText(), sampler.getPct2(),"percentile 2"));
-			sampler.setPct3(validatePercentile(pct3.getText(), sampler.getPct3(),"percentile 3"));
-			sampler.setPctPrecision(validatePositiveNumeric(pctPrecision.getText(), sampler.getPctPrecision(),"percentiles precision"));
-			sampler.setLogFreq(validatePositiveNumeric(logFrequency.getText(), sampler.getLogFreq(),"log frequency"));
+			observabilityListener.setJettyPort(validateNumeric(jettyPort.getText(), observabilityListener.getJettyPort()));
+			observabilityListener.setThreadSize(validatePositiveNumeric(threadSize.getText(), observabilityListener.getThreadSize(),"thread size"));
+			observabilityListener.setBufferCapacity(validatePositiveNumeric(bufferCapacity.getText(), observabilityListener.getBufferCapacity(),"buffer capacity"));
+			observabilityListener.setPct1(validatePercentile(pct1.getText(), observabilityListener.getPct1(),"percentile 1"));
+			observabilityListener.setPct2(validatePercentile(pct2.getText(), observabilityListener.getPct2(),"percentile 2"));
+			observabilityListener.setPct3(validatePercentile(pct3.getText(), observabilityListener.getPct3(),"percentile 3"));
+			observabilityListener.setPctPrecision(validatePositiveNumeric(pctPrecision.getText(), observabilityListener.getPctPrecision(),"percentiles precision"));
+			observabilityListener.setLogFreq(validatePositiveNumeric(logFrequency.getText(), observabilityListener.getLogFreq(),"log frequency"));
 		}
 	}
     
