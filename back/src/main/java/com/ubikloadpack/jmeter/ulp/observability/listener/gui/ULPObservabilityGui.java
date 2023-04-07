@@ -311,13 +311,12 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			}
 			
 			String regexText = this.regex.getText(); 
-			if(!regexText.isBlank()) {
-				try {
-					Pattern.compile(regexText);
-					sampler.setRegex(regexText);
-				} catch (Exception e) {
-					LOG.error("Invalid regex");
-				}
+			try {
+				Pattern.compile(regexText);
+				sampler.setRegex(regexText);
+			} catch (Exception e) {
+				LOG.error("Following regex is not valid : {}", regexText);
+				sampler.setRegex("");
 			}
 			
 			keepJettyServerUpAfterTestEnd.addActionListener(new ActionListener() {
