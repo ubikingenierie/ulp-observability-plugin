@@ -320,6 +320,8 @@ public class ULPObservabilityListener extends AbstractTestElement
 			this.setRegex(regexString);
 			if(regexString != null && regexString != "") {
 				LOG.info("Observability plugin uses this regex : {} to filter rendered samplers based on their names.", regexString);
+			} else {
+				LOG.info("Observability plugin does not uses any regex to filter samplers based on their names.");
 			}
 			
 			if (instanceCount == 0) {
