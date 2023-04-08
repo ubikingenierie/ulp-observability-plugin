@@ -4,9 +4,12 @@ import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.jmeter.engine.util.NoThreadClone;
 import org.apache.jmeter.samplers.Remoteable;
@@ -18,7 +21,6 @@ import org.apache.jmeter.testelement.TestStateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.timeandspace.cronscheduler.CronScheduler;
 import com.ubikloadpack.jmeter.ulp.observability.config.ULPODefaultConfig;
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
@@ -27,6 +29,8 @@ import com.ubikloadpack.jmeter.ulp.observability.server.ULPObservabilityServer;
 import com.ubikloadpack.jmeter.ulp.observability.task.LogTask;
 import com.ubikloadpack.jmeter.ulp.observability.task.MicrometerTask;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
+
+import io.timeandspace.cronscheduler.CronScheduler;
 
 /**
  * A class for listening and exposing extended JMeter metrics this class extends
@@ -81,7 +85,6 @@ public class ULPObservabilityListener extends AbstractTestElement
 		 * Name of the listener in the test plan
 		 */
 		private String myName;
-
 	}
 
 	private static volatile Boolean isServerRunning = false;
@@ -97,6 +100,11 @@ public class ULPObservabilityListener extends AbstractTestElement
 	 */
 	private static volatile int instanceCount;
 
+	/**
+	 * Optional regex. If empty, every samplers are processed.
+	 */
+	private Optional<Pattern> regex = Optional.empty();
+	
 	public void setKeepJettyServerUpAfterTestEnd(Boolean bool) {
 		setProperty(ULPODefaultConfig.KEEP_JETTY_SERVER_UP_AFTER_TEST_END_PROP, bool);
 	}
@@ -186,12 +194,34 @@ public class ULPObservabilityListener extends AbstractTestElement
 		return getPropertyAsInt(ULPODefaultConfig.LOG_FREQUENCY_PROP, ULPODefaultConfig.logFrequency());
 	}
 
-	public void setTotalLabel(String totalLbel) {
-		setProperty(ULPODefaultConfig.TOTAL_LABEL_PROP, totalLbel);
+	public void setTotalLabel(String totalLabel) {
+		setProperty(ULPODefaultConfig.TOTAL_LABEL_PROP, totalLabel);
+	}
+	
+	public void setRegex(String regex) {
+		if(regex == null) {
+			setProperty(ULPODefaultConfig.REGEX_PROP, "");
+			this.regex = Optional.empty();
+		} else {
+			try {
+				this.regex = Optional.of(Pattern.compile(regex));
+				setProperty(ULPODefaultConfig.REGEX_PROP, regex);
+			} catch (Exception e) {
+				LOG.error("Following regex is not valid : {}", regex);
+				setProperty(ULPODefaultConfig.REGEX_PROP, "");
+				this.regex = Optional.empty();
+			}
+		}
+		
+		
 	}
 
 	public String getTotalLabel() {
 		return getPropertyAsString(ULPODefaultConfig.TOTAL_LABEL_PROP, ULPODefaultConfig.totalLabel());
+	}
+	
+	public String getRegex() {
+		return getPropertyAsString(ULPODefaultConfig.REGEX_PROP, ULPODefaultConfig.regex());
 	}
 
 	public BlockingQueue<ResponseResult> getSampleQueue() {
@@ -226,16 +256,35 @@ public class ULPObservabilityListener extends AbstractTestElement
 		if (sampleEvent != null) {
 			try {
 				SampleResult sample = sampleEvent.getResult();
-				if (!listenerClientData.sampleQueue.offer(new ResponseResult(sampleEvent.getThreadGroup(),
-						Util.getResponseTime(sample.getEndTime(), sample.getStartTime()), sample.getErrorCount() > 0,
-						sample.getGroupThreads(), sample.getAllThreads(), sample.getSampleLabel()), 1000,
-						TimeUnit.MILLISECONDS)) {
-					LOG.error("Sample queue overflow. Sample dropped: {}", sampleEvent.getThreadGroup());
+				String sampleLabel = sample.getSampleLabel();
+				
+				if(isStringMatchingRegex(sampleLabel)) {
+					if (!listenerClientData.sampleQueue.offer(new ResponseResult(sampleEvent.getThreadGroup(),
+							Util.getResponseTime(sample.getEndTime(), sample.getStartTime()), sample.getErrorCount() > 0,
+							sample.getGroupThreads(), sample.getAllThreads(), sample.getSampleLabel()), 1000,
+							TimeUnit.MILLISECONDS)) {
+						LOG.error("Sample queue overflow. Sample dropped: {}", sampleEvent.getThreadGroup());
+					}
 				}
+				
 			} catch (InterruptedException e) {
 				LOG.warn(sampleEvent.getResult().getThreadName() + ": Interrupting sample queue");
 			}
 			;
+		}
+	}
+	
+	private boolean isStringMatchingRegex(String str) {
+		try {
+			Optional<Pattern> optionalPattern = this.regex;
+			if(optionalPattern.isPresent()) {
+				Matcher matcher = optionalPattern.get().matcher(str);
+				return matcher.find();
+			} else {
+				return true; // if there is no regex, everything is considered a match
+			}
+		} catch(Exception e) {
+			return false;
 		}
 	}
 
@@ -266,6 +315,15 @@ public class ULPObservabilityListener extends AbstractTestElement
 		LOG.info("Test started from host {}", host);
 
 		synchronized (LOCK) {
+			// Init the Pattern regex object of the listener based on its saved String value.
+			String regexString = getRegex();
+			this.setRegex(regexString);
+			if(regexString != null && regexString != "") {
+				LOG.info("Observability plugin uses this regex : {} to filter rendered samplers based on their names.", regexString);
+			} else {
+				LOG.info("Observability plugin does not uses any regex to filter samplers based on their names.");
+			}
+			
 			if (instanceCount == 0) {
 				if (isServerRunning) {
 					LOG.info("Jetty server was running from host {}, stopping it", host);
