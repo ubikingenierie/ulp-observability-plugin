@@ -2,24 +2,18 @@ package com.ubikloadpack.jmeter.ulp.observability.listener.gui;
 
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.GroupLayout.ParallelGroup;
-import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.LayoutStyle.ComponentPlacement;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.visualizers.gui.AbstractListenerGui;
 import org.slf4j.Logger;
@@ -28,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.ubikloadpack.jmeter.ulp.observability.config.ULPODefaultConfig;
 import com.ubikloadpack.jmeter.ulp.observability.listener.ULPObservabilityListener;
 
+import net.miginfocom.swing.MigLayout;
 
 /**
  * ULP Observability GUI class
@@ -95,7 +90,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	/**
 	 * Keep server running after test
 	 */
-	private final JCheckBox keepJettyServerUpAfterTestEnd = new JCheckBox();
+	private final JCheckBox keepJettyServerUpAfterTestEnd = new JCheckBox("Keep server up after test ended");
 	
     /**
      * Creates new ULP Observability GUI
@@ -122,95 +117,35 @@ public class ULPObservabilityGui extends AbstractListenerGui{
      * @return 
      */
     private JPanel createSamplerConfigPanel() {
-    	JPanel ulpObservabilityConfigPanel = new JPanel();
-    	
+    	JPanel ulpObservabilityConfigPanel = new JPanel(new MigLayout("wrap 2", "[][fill,grow]0px"));
     	ulpObservabilityConfigPanel.setBorder(BorderFactory.createTitledBorder("Config"));
-    	GroupLayout layout = new GroupLayout(ulpObservabilityConfigPanel);
-    	ulpObservabilityConfigPanel.setLayout(layout);
     	
-    	List<List<Component>> componentGroups = new ArrayList<>();
+    	List<Pair<JLabel, JTextField>> labelsAndFields = new ArrayList<>();
     	
+    	labelsAndFields.add(Pair.of(new JLabel("Web server Port"), this.jettyPort));
+    	labelsAndFields.add(Pair.of(new JLabel("Web application route"), this.webAppRoute));
+    	labelsAndFields.add(Pair.of(new JLabel("Percentiles 1"), this.pct1));
+    	labelsAndFields.add(Pair.of(new JLabel("Percentiles 2"), this.pct2));
+    	labelsAndFields.add(Pair.of(new JLabel("Percentiles 3"), this.pct3));
+    	labelsAndFields.add(Pair.of(new JLabel("Regex (filter samplers by their name)"), this.regex));
+    	labelsAndFields.add(Pair.of(new JLabel("OpenMetrics route"), this.metricsRoute));
+    	labelsAndFields.add(Pair.of(new JLabel("Number of Processing Threads"), this.threadSize));
+    	labelsAndFields.add(Pair.of(new JLabel("Sample Queue Buffer Capacity"), this.bufferCapacity));
+    	labelsAndFields.add(Pair.of(new JLabel("Percentiles precision"), this.pctPrecision));
+    	labelsAndFields.add(Pair.of(new JLabel("Log Frequency in seconds"), this.logFrequency));
+    	labelsAndFields.add(Pair.of(new JLabel("Total metrics label"), this.totalLabel));
     	
-    	componentGroups.add(
-    			new ArrayList<>(Arrays.asList(new JLabel("Jetty Server port"), this.jettyPort))
-    			);
-    	componentGroups.add(
-    			new ArrayList<>(Arrays.asList(new JLabel("Jetty Metrics route"), this.metricsRoute))
-    			);
-    	componentGroups.add(
-    			new ArrayList<>(Arrays.asList(new JLabel("Jetty Wep Application route"), this.webAppRoute))
-    			);
-    	componentGroups.add(
-    			new ArrayList<>(Arrays.asList(new JLabel("Number of Processing Threads"), this.threadSize))
-    			);
-    	componentGroups.add(
-    			new ArrayList<>(Arrays.asList(new JLabel("Sample Queue Buffer Capacity"), this.bufferCapacity))
-    			);
-    	componentGroups.add(
-    			new ArrayList<>(Arrays.asList(new JLabel("Percentiles 1"), this.pct1))
-    			);
-    	componentGroups.add(
-    			new ArrayList<>(Arrays.asList(new JLabel("Percentiles 2"), this.pct2))
-    			);
-    	componentGroups.add(
-    			new ArrayList<>(Arrays.asList(new JLabel("Percentiles 3"), this.pct3))
-    			);
-    	componentGroups.add(
-    			new ArrayList<>(Arrays.asList(new JLabel("Percentiles precision"), this.pctPrecision))
-    			);
-    	componentGroups.add(
-    			new ArrayList<>(Arrays.asList(new JLabel("Log Frequency in seconds"), this.logFrequency))
-    			);
-    	componentGroups.add(
-    			new ArrayList<>(Arrays.asList(new JLabel("Total metrics label"), this.totalLabel))
-    			);
-    	componentGroups.add(
-    			new ArrayList<>(Arrays.asList(new JLabel("Regex (filter samplers by their name)"), this.regex))
-    			);
-    	componentGroups.add(
-    			new ArrayList<>(Arrays.asList(new JLabel("Keep server up after test ended"), this.keepJettyServerUpAfterTestEnd))
-    			);
-    	
-
-    	ParallelGroup parallelGroup = layout.createParallelGroup(Alignment.LEADING);
-    	SequentialGroup sequentialGroup = layout.createSequentialGroup();
-    	
-    	for(List<Component> componentGroup : componentGroups) {
-    		addSequentialgroup(layout, parallelGroup, componentGroup);
-    		addParallelGroup(layout, sequentialGroup, componentGroup);
+    	for(Pair<JLabel, JTextField> labelAndField : labelsAndFields) {
+    		JLabel label = labelAndField.getLeft();
+    		JTextField textField = labelAndField.getRight();
+    		label.setLabelFor(textField);
+    		ulpObservabilityConfigPanel.add(label);
+    		ulpObservabilityConfigPanel.add(textField);
     	}
-    
-    	
-    	layout.setHorizontalGroup(parallelGroup);
-    	layout.setVerticalGroup(sequentialGroup);;
-    	
+    	ulpObservabilityConfigPanel.add(this.keepJettyServerUpAfterTestEnd);
     	
     	return ulpObservabilityConfigPanel;
     }
-    
-	/**
-	 * Add a new element to the GUI horizontally 
-	 */
-    private void addSequentialgroup(GroupLayout layout, ParallelGroup parallelGroup, List<Component> components) {
-    	SequentialGroup newGroup = layout.createSequentialGroup();
-    	for(Component c : components) {
-    		newGroup = newGroup.addComponent(c).addPreferredGap(ComponentPlacement.RELATED);
-    	
-    	}
-    	parallelGroup.addGroup(newGroup);
-    }
-    
-	/**
-	 * add a new element to the GUI vertically
-	 */
-    private void addParallelGroup(GroupLayout layout, SequentialGroup sequentialGroup, List<Component> components) {
-    	ParallelGroup newGroup = layout.createParallelGroup(Alignment.LEADING);
-    	for(Component c : components) {
-    		newGroup = newGroup.addComponent(c, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,GroupLayout.PREFERRED_SIZE);
-    	}
-    	sequentialGroup.addGroup(newGroup);
-    }
-
     
     @Override
  	public String getLabelResource() {
