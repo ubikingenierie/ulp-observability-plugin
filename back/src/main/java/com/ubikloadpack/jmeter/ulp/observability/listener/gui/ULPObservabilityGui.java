@@ -106,7 +106,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	super.setLayout(new BorderLayout());
 	    super.setBorder(makeBorder());
 	    super.add(makeTitlePanel(), BorderLayout.NORTH);
-	    add(createSamplerConfigPanel(),BorderLayout.CENTER);
+	    super.add(createSamplerConfigPanel(),BorderLayout.CENTER);
     }
    
     
