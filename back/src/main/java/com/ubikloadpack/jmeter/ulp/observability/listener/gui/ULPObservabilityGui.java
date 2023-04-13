@@ -117,7 +117,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
      * @return 
      */
     private JPanel createSamplerConfigPanel() {
-    	JPanel ulpObservabilityConfigPanel = new JPanel(new MigLayout("fillx, wrap 2", "[][fill,grow]"));
+    	JPanel ulpObservabilityConfigPanel = new JPanel(new MigLayout("wrap 2", "[][fill,grow]0px"));
     	ulpObservabilityConfigPanel.setBorder(BorderFactory.createTitledBorder("Config"));
     	
     	List<Pair<JLabel, JTextField>> labelsAndFields = new ArrayList<>();
