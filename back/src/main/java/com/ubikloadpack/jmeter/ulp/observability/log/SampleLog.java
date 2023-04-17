@@ -58,13 +58,23 @@ public class SampleLog {
 	/**
 	 * Average response time for given period
 	 */
-	private final Long avg;
+	private final Double avg;
+	
+	/**
+	 * Average response time for every period
+	 */
+	private final Double avgTotal;
 	
 	/**
 	 * Max response time for given period
 	 */
 	private final Long max;
 	
+	/**
+	 * Max response time for every period
+	 */
+	private final Long maxTotal;
+
 	/**
 	 * Response throughput per minute for given period
 	 */
@@ -98,10 +108,12 @@ public class SampleLog {
 			Long error, 
 			ValueAtPercentile[] pct,
 			Long sum,
-			Long avg, 
+			Double avg, 
 			Long max, 
 			Long throughput,
-			Long threads
+			Long threads,
+			Long maxTotal,
+			Double avgTotal
 			) {
 		this.sampleName = sampleName;
 		this.timeStamp = timeStamp;
@@ -114,6 +126,8 @@ public class SampleLog {
 		this.max = max;
 		this.throughput = throughput;
 		this.threads = threads;
+		this.maxTotal = maxTotal;
+		this.avgTotal = avgTotal;
 	}
 	
 	
@@ -148,7 +162,7 @@ public class SampleLog {
 		return this.sum;
 	}
 
-	public Long getAvg() {
+	public Double getAvg() {
 		return this.avg;
 	}
 
@@ -189,10 +203,20 @@ public class SampleLog {
 		.append("# HELP "+this.sampleName+"_max Max response\n")
 		.append(this.sampleName+"_max "+ this.max + " " + this.timeStamp.getTime() +"\n")	
 		
+		.append("# TYPE "+this.sampleName+"_total_max gauge\n")
+		.append("# UNIT "+this.sampleName+" milliseconds\n")
+		.append("# HELP "+this.sampleName+"_total_max Total Max response\n")
+		.append(this.sampleName+"_total_max "+ this.maxTotal + " " + this.timeStamp.getTime() +"\n")	
+		
 		.append("# TYPE "+this.sampleName+"_avg gauge\n")
 		.append("# UNIT "+this.sampleName+" milliseconds\n")
 		.append("# HELP "+this.sampleName+"_avg Average response\n")
 		.append(this.sampleName+"_avg "+ this.avg + " " + this.timeStamp.getTime() +"\n")	
+		
+		.append("# TYPE "+this.sampleName+"_total_avg gauge\n")
+		.append("# UNIT "+this.sampleName+" milliseconds\n")
+		.append("# HELP "+this.sampleName+"_total_avg Total Average response\n")
+		.append(this.sampleName+"_total_avg "+ this.avgTotal + " " + this.timeStamp.getTime() +"\n")	
 
 		.append("# TYPE "+this.sampleName+"_total gauge\n")
 		.append("# HELP "+this.sampleName+"_total Response count\n")

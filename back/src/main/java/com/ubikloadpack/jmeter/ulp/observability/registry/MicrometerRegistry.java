@@ -148,6 +148,10 @@ public class MicrometerRegistry {
 			this.registry.counter("count.error", "sample", this.totalLabel).increment();
 			this.registry.counter("count.error", "sample", samplerTag).increment();
 		}
+
+		this.totalReg.counter("accumulate.response", "sample", threadTag).increment(result.getResponseTime());
+		this.totalReg.counter("accumulate.response", "sample", this.totalLabel).increment(result.getResponseTime());
+		this.totalReg.counter("accumulate.response", "sample", samplerTag).increment(result.getResponseTime());
 		
 		this.totalReg.counter("count.total", "sample", threadTag).increment();
 		this.totalReg.counter("count.total", "sample", this.totalLabel).increment();
@@ -167,17 +171,15 @@ public class MicrometerRegistry {
 		DistributionSummary summary = this.registry.find("summary.response").tag("sample", name).summary();
 		// Cumulated periods summaries
 		DistributionSummary maxTotalSummary = totalReg.find("summary.response.max").tag("sample", name).summary();
-		DistributionSummary meanTotalSummary = totalReg.find("summary.response.mean").tag("sample", name).summary();
 		
 		long maxTotalResponseTime = (long) maxTotalSummary.max();
-		// TODO le mean tombera proche de celui du resultat final, mais ce sera pas le bon parcequ'il est pas
-		// pondéré selon le nombre d'appels de samplers, mais sur le nombre d'intervalles (ce qui est incorrecte)
-		long meanTotalResponseTime = (long) meanTotalSummary.mean();
 		long totalErrorCounter = (long) totalReg.counter("count.error","sample",name).count();
+		Double averageTotalResponseTime = totalReg.counter("accumulate.response", "sample", name).count() /
+				totalReg.counter("count.total", "sample", name).count();
 		
 		System.out.println("#######################################");
 		System.out.println("max total response time for '" + name + "' " + maxTotalResponseTime);
-		System.out.println("mean total response time for '" + name + "' " + meanTotalResponseTime);
+		System.out.println("mean total response time for '" + name + "' " + averageTotalResponseTime);
 		System.out.println("error total for '" + name + "' " + totalErrorCounter);
 		System.out.println("total samples count : " + totalReg.counter("count.total", "sample", name).count());
 		
@@ -189,11 +191,13 @@ public class MicrometerRegistry {
 				(long) this.registry.counter("count.error","sample",name).count(),
 				summary.takeSnapshot().percentileValues(),
 				(long) summary.totalAmount(),
-				(long) summary.mean(),
+				summary.mean(),
 				(long) summary.max(),
 				(long) summary.count() / this.logFrequency,
-				(long) registry.counter("count.threads","sample",name).count()
-				);
+				(long) registry.counter("count.threads","sample",name).count(),
+				maxTotalResponseTime,
+				averageTotalResponseTime
+		);
 	}
 	
 	private synchronized void refreshTotalMetrics(String samplerName) {
@@ -208,8 +212,7 @@ public class MicrometerRegistry {
 			totalReg.summary("summary.response.mean", "sample", samplerName).record((long) currentIntervalSummary.mean());
 			Long currentPeriodErrors = (long) registry.counter("count.error","sample", samplerName).count();
 			totalReg.counter("count.error", "sample", samplerName).increment(currentPeriodErrors);
-			// TODO le count perdiod, faut le faire autrement
-			// totalReg.counter("count.period", "sample", samplerName).increment();
+			
 		}
 //		totalReg.summary("summary.throughput", );
 //		(long) summary.count() / this.logFrequency,
