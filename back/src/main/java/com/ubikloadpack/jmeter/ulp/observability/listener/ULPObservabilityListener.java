@@ -212,8 +212,6 @@ public class ULPObservabilityListener extends AbstractTestElement
 				this.regex = Optional.empty();
 			}
 		}
-		
-		
 	}
 
 	public String getTotalLabel() {
@@ -270,7 +268,6 @@ public class ULPObservabilityListener extends AbstractTestElement
 			} catch (InterruptedException e) {
 				LOG.warn(sampleEvent.getResult().getThreadName() + ": Interrupting sample queue");
 			}
-			;
 		}
 	}
 	
@@ -389,6 +386,9 @@ public class ULPObservabilityListener extends AbstractTestElement
 	 */
 	public void testEnded(String host) {
 		LOG.info("Test stopped : {}", host);
+		System.out.println("##########################################################");
+		System.out.println("list size : " + listenerClientData.sampleQueue.size());
+		System.out.println("processedSampler : " + MicrometerTask.processedSamplers.get());
 
 		synchronized (LOCK) {
 			instanceCount--;
@@ -397,6 +397,10 @@ public class ULPObservabilityListener extends AbstractTestElement
 
 				try {
 					if (listenerClientData.logCron.isThreadRunning()) {
+						// make last logs
+						listenerClientData.registry.logAndReset();
+						System.out.println(listenerClientData.registry.guiLog());
+						
 						listenerClientData.logCron.shutdownNow();
 						listenerClientData.logCron.purge();
 					}
