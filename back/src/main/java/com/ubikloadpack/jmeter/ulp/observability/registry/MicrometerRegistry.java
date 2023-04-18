@@ -1,10 +1,16 @@
 package com.ubikloadpack.jmeter.ulp.observability.registry;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +35,12 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 public class MicrometerRegistry {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(MicrometerRegistry.class);
+	
+	/**
+	 * Current period count
+	 */
+	private int periodCount = 0;
+	
 	/**
 	 * Main sample registry containing
 	 *  sample records of each thread group + total.
@@ -56,6 +68,13 @@ public class MicrometerRegistry {
 	 */
 	private SampleLogger logger;
 	
+	/**
+	 * Start of the test plan instant
+	 */
+	private Instant startInstant;
+	
+	private volatile Map<String, Pair<Long,Long>> startAndEndDatesOfSamplers = new ConcurrentHashMap<>();
+	
     /**
      * Creates new Micrometer registery
      * 
@@ -74,7 +93,8 @@ public class MicrometerRegistry {
 			Integer pct3,
 			Integer pctPrecision,
 			Integer logFrequency,
-			SampleLogger logger
+			SampleLogger logger,
+			Instant startInstant
 			) {
 		this.registry = new SimpleMeterRegistry();
 		this.totalReg = new SimpleMeterRegistry();
@@ -83,6 +103,7 @@ public class MicrometerRegistry {
 		this.logger = logger;
 		this.registry.config().meterFilter(createMeterFilter(pctPrecision, pct1, pct2, pct3));
 		this.totalReg.config().meterFilter(createMeterFilter(pctPrecision, pct1, pct2, pct3));
+		this.startInstant = startInstant;
 	}
 	
 	private MeterFilter createMeterFilter(Integer pctPrecision, Integer pct1, Integer pct2, Integer pct3) {
@@ -123,7 +144,7 @@ public class MicrometerRegistry {
 		this.totalReg.clear();
 		this.totalReg.close();
 	}
-
+	
 	/**
 	 * Adds new sample record to registry
 	 * 
@@ -144,10 +165,38 @@ public class MicrometerRegistry {
 			this.registry.summary("summary.response", "sample", microMeterTag).record(result.getResponseTime());
 
 			// Save max response time of every period
-			DistributionSummary threadMaxTotalResponseTimeSummary = totalReg.find("summary.response.max").tag("sample", microMeterTag).summary();
-			if(threadMaxTotalResponseTimeSummary == null || result.getResponseTime() > threadMaxTotalResponseTimeSummary.max()) {
+			DistributionSummary maxTotalResponseTimeSummary = totalReg.find("summary.response.max").tag("sample", microMeterTag).summary();
+			
+			if(maxTotalResponseTimeSummary == null || result.getResponseTime() > maxTotalResponseTimeSummary.max()) {
 				this.totalReg.summary("summary.response.max", "sample", microMeterTag).record(result.getResponseTime());
 			}
+			
+			// Save the first sampler that occured in time, and the last. We have to get them this way or we lack
+			// precision when we calculate the Throughput. We can't use micrometer for this because we can't retrieve minimal value from
+			// a registry. Because of this we handle it manually with a custom Map.
+			result.getStartTime();
+			result.getEndTime();
+			Pair<Long, Long> startAndEndDate = startAndEndDatesOfSamplers.get(microMeterTag);
+			if(startAndEndDate == null || startAndEndDate.getLeft() == null || startAndEndDate.getLeft() > result.getStartTime()) {
+				Pair<Long, Long> newStartAndEndDate = Pair.of(
+					result.getStartTime(), 
+					(startAndEndDate == null) ? null : startAndEndDate.getRight()
+				);
+				startAndEndDatesOfSamplers.put(microMeterTag, newStartAndEndDate);
+			}
+			if(startAndEndDate == null || startAndEndDate.getRight() == null || startAndEndDate.getRight() > result.getEndTime()) {
+				Pair<Long, Long> newStartAndEndDate = Pair.of(
+					(startAndEndDate == null) ? null : startAndEndDate.getLeft(),
+					result.getEndTime() 
+				);
+				startAndEndDatesOfSamplers.put(microMeterTag, newStartAndEndDate);
+			}
+			
+//			DistributionSummary startTimeSummary = totalReg.find("summary.time.start").tag("sample", microMeterTag).summary();
+//			totalReg.find("summary.time.start").tag("sample", microMeterTag).summary()
+//			if(startTimeSummary == null || result.getStartTime() < startTimeSummary.min()) {
+//				this.totalReg.summary("summary.time.start", "sample", microMeterTag).record(result.getStartTime()); 
+//			}
 			
 			// Increment error counters if there is one
 			if(result.hasError()) {
@@ -188,7 +237,14 @@ public class MicrometerRegistry {
 		Double averageTotalResponseTime = totalReg.counter("accumulate.response", "sample", name).count() /
 				totalReg.counter("count.total", "sample", name).count();
 		
+		// We use .toMillis() / 1000 instead of a simple .toSeconds to get more precision on the seconds
+		Instant now = Instant.now();
+		double timeSinceFirstSampleCallInSeconds = (startAndEndDatesOfSamplers.get(name).getRight() - startAndEndDatesOfSamplers.get(name).getLeft()) / 1000d; 
+		Double totalThroughput = this.totalReg.counter("count.total","sample",name).count() / (timeSinceFirstSampleCallInSeconds);
+		
 		System.out.println("#######################################");
+		System.out.println("Start : " + startAndEndDatesOfSamplers.get(name).getLeft() + ", now : " + now);
+		System.out.println("total Throughput for '" + name + "' " + totalThroughput + " time since begin : " + timeSinceFirstSampleCallInSeconds);
 		System.out.println("max total response time for '" + name + "' " + maxTotalResponseTime);
 		System.out.println("mean total response time for '" + name + "' " + averageTotalResponseTime);
 		System.out.println("error total for '" + name + "' " + totalErrorCounter);
@@ -209,18 +265,6 @@ public class MicrometerRegistry {
 				maxTotalResponseTime,
 				averageTotalResponseTime
 		);
-	}
-	
-	private synchronized void refreshTotalMetrics(String samplerName) {
-		if(registry.isClosed() || totalReg.isClosed()) {
-			return;
-		}
-		
-		DistributionSummary currentIntervalSummary = registry.find("summary.response").tag("sample", samplerName).summary();
-		
-		if(currentIntervalSummary != null) {
-			
-		}
 	}
 
 	/**
@@ -250,7 +294,6 @@ public class MicrometerRegistry {
 	public void log(List<String> names) {
 		Date timestamp = new Date();
 		names.forEach(name ->{
-			refreshTotalMetrics(name);
 			this.logger.add(makeLog(name, timestamp));
 		});
 	}
@@ -261,6 +304,7 @@ public class MicrometerRegistry {
 	 * @return Updated logger
 	 */
 	public void logAndReset(List<String> names) {
+		this.periodCount++;
 		this.log(names);
 		this.registry.clear();
 	}

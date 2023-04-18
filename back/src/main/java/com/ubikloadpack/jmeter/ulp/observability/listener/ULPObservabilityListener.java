@@ -2,6 +2,7 @@ package com.ubikloadpack.jmeter.ulp.observability.listener;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -235,7 +236,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	public void init(ListenerClientData listenerClientData) {
 		listenerClientData.logger = new SampleLogger(getTotalLabel());
 		listenerClientData.registry = new MicrometerRegistry(getTotalLabel(), getPct1(), getPct2(), getPct3(),
-				getPctPrecision(), getLogFreq(), listenerClientData.logger);
+				getPctPrecision(), getLogFreq(), listenerClientData.logger, Instant.now());
 
 		listenerClientData.sampleQueue = new ArrayBlockingQueue<>(getBufferCapacity());
 
@@ -251,6 +252,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	 * log buffer overflow exception otherwise
 	 */
 	public void sampleOccurred(SampleEvent sampleEvent) {
+		
 		if (sampleEvent != null) {
 			try {
 				SampleResult sample = sampleEvent.getResult();
@@ -260,8 +262,8 @@ public class ULPObservabilityListener extends AbstractTestElement
 				if(isStringMatchingRegex(sampleLabel)) {
 					if (!listenerClientData.sampleQueue.offer(new ResponseResult(sampleEvent.getThreadGroup(),
 							Util.getResponseTime(sample.getEndTime(), sample.getStartTime()), hasError,
-							sample.getGroupThreads(), sample.getAllThreads(), sample.getSampleLabel()), 1000,
-							TimeUnit.MILLISECONDS)) {
+							sample.getGroupThreads(), sample.getAllThreads(), sample.getSampleLabel(), sample.getStartTime(),
+							sample.getEndTime()), 1000, TimeUnit.MILLISECONDS)) {
 						LOG.error("Sample queue overflow. Sample dropped: {}", sampleEvent.getThreadGroup());
 					}
 				}
