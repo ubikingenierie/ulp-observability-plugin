@@ -20,7 +20,7 @@ public class ResponseResult {
 	/**
 	 * True if sample response is KO
 	 */
-	private final Boolean hasError;
+	private final boolean hasError;
 	/**
 	 * Group thread count
 	 */
@@ -47,7 +47,7 @@ public class ResponseResult {
      * @param allThreads Total thread count
      * @param samplerLabel Name of the sampler the sample belongs to
      */
-	public ResponseResult(String threadGroupLabel, Long responseTime, Boolean hasError, Integer groupThreads, Integer allThreads, String samplerLabel) {
+	public ResponseResult(String threadGroupLabel, Long responseTime, boolean hasError, Integer groupThreads, Integer allThreads, String samplerLabel) {
 		this.threadGroupLabel = threadGroupLabel;
 		this.responseTime = responseTime;
 		this.hasError = hasError;

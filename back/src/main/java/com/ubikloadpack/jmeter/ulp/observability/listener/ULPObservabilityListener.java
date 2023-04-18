@@ -254,11 +254,12 @@ public class ULPObservabilityListener extends AbstractTestElement
 		if (sampleEvent != null) {
 			try {
 				SampleResult sample = sampleEvent.getResult();
+				boolean hasError = !sample.isSuccessful();
 				String sampleLabel = sample.getSampleLabel();
 				
 				if(isStringMatchingRegex(sampleLabel)) {
 					if (!listenerClientData.sampleQueue.offer(new ResponseResult(sampleEvent.getThreadGroup(),
-							Util.getResponseTime(sample.getEndTime(), sample.getStartTime()), sample.getErrorCount() > 0,
+							Util.getResponseTime(sample.getEndTime(), sample.getStartTime()), hasError,
 							sample.getGroupThreads(), sample.getAllThreads(), sample.getSampleLabel()), 1000,
 							TimeUnit.MILLISECONDS)) {
 						LOG.error("Sample queue overflow. Sample dropped: {}", sampleEvent.getThreadGroup());

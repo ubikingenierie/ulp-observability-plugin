@@ -1,8 +1,12 @@
 package com.ubikloadpack.jmeter.ulp.observability.registry;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
@@ -23,6 +27,8 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
  *
  */
 public class MicrometerRegistry {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(MicrometerRegistry.class);
 	/**
 	 * Main sample registry containing
 	 *  sample records of each thread group + total.
@@ -125,16 +131,36 @@ public class MicrometerRegistry {
 	 */
 	public synchronized void addResponse(ResponseResult result) {
 		if(this.registry.isClosed() || this.totalReg.isClosed()) {
-			System.out.println("CLOOOOOOOOOOOOOOOOOOOOOOOOOOOOSED !");
 			return;
 		}
 
+		// Create micrometer tags to feed with data
 		String threadTag = Util.makeMicrometerName(result.getThreadGroupLabel());
 		String samplerTag = "spl_"+Util.makeMicrometerName(result.getSamplerLabel());
+		List<String> micrometerTags = Arrays.asList(new String[]{threadTag, samplerTag, this.totalLabel});
 		
-		this.registry.summary("summary.response", "sample", threadTag).record(result.getResponseTime());
-		this.registry.summary("summary.response", "sample", this.totalLabel).record(result.getResponseTime());
-		this.registry.summary("summary.response", "sample", samplerTag).record(result.getResponseTime());
+		for(String microMeterTag : micrometerTags) {
+			// Save current period responses time
+			this.registry.summary("summary.response", "sample", microMeterTag).record(result.getResponseTime());
+
+			// Save max response time of every period
+			DistributionSummary threadMaxTotalResponseTimeSummary = totalReg.find("summary.response.max").tag("sample", microMeterTag).summary();
+			if(threadMaxTotalResponseTimeSummary == null || result.getResponseTime() > threadMaxTotalResponseTimeSummary.max()) {
+				this.totalReg.summary("summary.response.max", "sample", microMeterTag).record(result.getResponseTime());
+			}
+			
+			// Increment error counters if there is one
+			if(result.hasError()) {
+				this.registry.counter("count.error", "sample", microMeterTag).increment();
+				this.totalReg.counter("count.error", "sample", microMeterTag).increment();
+			}
+			
+			// Accumulate responses time to calculate average responses time with a good precision without being heavy for the memory
+			this.totalReg.counter("accumulate.response", "sample", microMeterTag).increment(result.getResponseTime());
+			
+			// Increment tag count
+			this.totalReg.counter("count.total", "sample", microMeterTag).increment();
+		}
 	
 		this.registry.counter("count.threads", "sample", threadTag).increment(
 				result.getGroupThreads() - (int) this.registry.counter("count.threads", "sample", threadTag).count());
@@ -142,22 +168,7 @@ public class MicrometerRegistry {
 				result.getAllThreads() - (int) this.registry.counter("count.threads", "sample", this.totalLabel).count());
 		this.registry.counter("count.threads", "sample", samplerTag).increment(
 				result.getGroupThreads() - (int) this.registry.counter("count.threads", "sample", threadTag).count());
-	
-		if(result.hasError()) {
-			this.registry.counter("count.error", "sample", threadTag).increment();
-			this.registry.counter("count.error", "sample", this.totalLabel).increment();
-			this.registry.counter("count.error", "sample", samplerTag).increment();
-		}
-
-		this.totalReg.counter("accumulate.response", "sample", threadTag).increment(result.getResponseTime());
-		this.totalReg.counter("accumulate.response", "sample", this.totalLabel).increment(result.getResponseTime());
-		this.totalReg.counter("accumulate.response", "sample", samplerTag).increment(result.getResponseTime());
-		
-		this.totalReg.counter("count.total", "sample", threadTag).increment();
-		this.totalReg.counter("count.total", "sample", this.totalLabel).increment();
-		this.totalReg.counter("count.total", "sample", samplerTag).increment();
 	}
-	
 	
 	/**
 	 * Creates new period log from currently registered records
@@ -208,16 +219,8 @@ public class MicrometerRegistry {
 		DistributionSummary currentIntervalSummary = registry.find("summary.response").tag("sample", samplerName).summary();
 		
 		if(currentIntervalSummary != null) {
-			totalReg.summary("summary.response.max", "sample", samplerName).record(currentIntervalSummary.max());
-			totalReg.summary("summary.response.mean", "sample", samplerName).record((long) currentIntervalSummary.mean());
-			Long currentPeriodErrors = (long) registry.counter("count.error","sample", samplerName).count();
-			totalReg.counter("count.error", "sample", samplerName).increment(currentPeriodErrors);
 			
 		}
-//		totalReg.summary("summary.throughput", );
-//		(long) summary.count() / this.logFrequency,
-		
-		
 	}
 
 	/**
