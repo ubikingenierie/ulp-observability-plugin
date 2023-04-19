@@ -174,19 +174,18 @@ public class MicrometerRegistry {
 			// Save the first sampler that occured in time, and the last. We have to get them this way or we lack
 			// precision when we calculate the Throughput. We can't use micrometer for this because we can't retrieve minimal value from
 			// a registry. Because of this we handle it manually with a custom Map.
-			result.getStartTime();
-			result.getEndTime();
 			Pair<Long, Long> startAndEndDate = startAndEndDatesOfSamplers.get(microMeterTag);
 			if(startAndEndDate == null || startAndEndDate.getLeft() == null || startAndEndDate.getLeft() > result.getStartTime()) {
 				Pair<Long, Long> newStartAndEndDate = Pair.of(
 					result.getStartTime(), 
-					(startAndEndDate == null) ? null : startAndEndDate.getRight()
+					(startAndEndDate == null || startAndEndDate.getRight() == null) ? null : startAndEndDate.getRight()
 				);
+				startAndEndDate = newStartAndEndDate;
 				startAndEndDatesOfSamplers.put(microMeterTag, newStartAndEndDate);
 			}
-			if(startAndEndDate == null || startAndEndDate.getRight() == null || startAndEndDate.getRight() > result.getEndTime()) {
+			if(startAndEndDate == null || startAndEndDate.getRight() == null || result.getEndTime() > startAndEndDate.getRight()) {
 				Pair<Long, Long> newStartAndEndDate = Pair.of(
-					(startAndEndDate == null) ? null : startAndEndDate.getLeft(),
+					(startAndEndDate == null || startAndEndDate.getLeft() == null) ? null : startAndEndDate.getLeft(),
 					result.getEndTime() 
 				);
 				startAndEndDatesOfSamplers.put(microMeterTag, newStartAndEndDate);
