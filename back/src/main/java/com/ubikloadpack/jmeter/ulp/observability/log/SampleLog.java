@@ -256,7 +256,7 @@ public class SampleLog {
 		.append("/")
 		.append(this.current)
 		.append(")")
-		.append("\n     Avearage: ")
+		.append("\n     Average: ")
 		.append(this.avg)
 		.append("ms\n     Percentiles:");
 		

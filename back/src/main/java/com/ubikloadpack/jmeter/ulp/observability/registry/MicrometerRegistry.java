@@ -25,6 +25,7 @@ import io.micrometer.core.instrument.Meter.Type;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.config.MeterFilter;
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
+import io.micrometer.core.instrument.distribution.ValueAtPercentile;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 /**
@@ -163,14 +164,8 @@ public class MicrometerRegistry {
 		for(String microMeterTag : micrometerTags) {
 			// Save current period responses time
 			this.registry.summary("summary.response", "sample", microMeterTag).record(result.getResponseTime());
+			this.totalReg.summary("summary.response", "sample", microMeterTag).record(result.getResponseTime());
 
-			// Save max response time of every period
-			DistributionSummary maxTotalResponseTimeSummary = totalReg.find("summary.response.max").tag("sample", microMeterTag).summary();
-			
-			if(maxTotalResponseTimeSummary == null || result.getResponseTime() > maxTotalResponseTimeSummary.max()) {
-				this.totalReg.summary("summary.response.max", "sample", microMeterTag).record(result.getResponseTime());
-			}
-			
 			// Save the first sampler that occured in time, and the last. We have to get them this way or we lack
 			// precision when we calculate the Throughput. We can't use micrometer for this because we can't retrieve minimal value from
 			// a registry. Because of this we handle it manually with a custom Map.
@@ -190,12 +185,6 @@ public class MicrometerRegistry {
 				);
 				startAndEndDatesOfSamplers.put(microMeterTag, newStartAndEndDate);
 			}
-			
-//			DistributionSummary startTimeSummary = totalReg.find("summary.time.start").tag("sample", microMeterTag).summary();
-//			totalReg.find("summary.time.start").tag("sample", microMeterTag).summary()
-//			if(startTimeSummary == null || result.getStartTime() < startTimeSummary.min()) {
-//				this.totalReg.summary("summary.time.start", "sample", microMeterTag).record(result.getStartTime()); 
-//			}
 			
 			// Increment error counters if there is one
 			if(result.hasError()) {
@@ -229,20 +218,21 @@ public class MicrometerRegistry {
 		// Current period summary
 		DistributionSummary summary = this.registry.find("summary.response").tag("sample", name).summary();
 		// Cumulated periods summaries
-		DistributionSummary maxTotalSummary = totalReg.find("summary.response.max").tag("sample", name).summary();
+		DistributionSummary totalSummary = totalReg.find("summary.response").tag("sample", name).summary();
 		
-		long maxTotalResponseTime = (long) maxTotalSummary.max();
+		long maxTotalResponseTime = (long) totalSummary.max();
 		long totalErrorCounter = (long) totalReg.counter("count.error","sample",name).count();
 		Double averageTotalResponseTime = totalReg.counter("accumulate.response", "sample", name).count() /
 				totalReg.counter("count.total", "sample", name).count();
 		
-		// We use .toMillis() / 1000 instead of a simple .toSeconds to get more precision on the seconds
-		Instant now = Instant.now();
 		double timeSinceFirstSampleCallInSeconds = (startAndEndDatesOfSamplers.get(name).getRight() - startAndEndDatesOfSamplers.get(name).getLeft()) / 1000d; 
 		Double totalThroughput = this.totalReg.counter("count.total","sample",name).count() / (timeSinceFirstSampleCallInSeconds);
+		ValueAtPercentile[] totalPercentiles = summary.takeSnapshot().percentileValues();
 		
 		System.out.println("#######################################");
-		System.out.println("Start : " + startAndEndDatesOfSamplers.get(name).getLeft() + ", now : " + now);
+		for(ValueAtPercentile pc : totalPercentiles) {
+			System.out.println(name+" {quantile=\""+(long)(pc.percentile()*100)+"\"} "+ pc.value());
+		}	
 		System.out.println("total Throughput for '" + name + "' " + totalThroughput + " time since begin : " + timeSinceFirstSampleCallInSeconds);
 		System.out.println("max total response time for '" + name + "' " + maxTotalResponseTime);
 		System.out.println("mean total response time for '" + name + "' " + averageTotalResponseTime);
