@@ -99,14 +99,17 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
             },
           };
 
-          ['avg','max','total','throughput'].forEach(type =>{
-            stats[type].data.value = this.datasets[type][samplerName][lastIndex].y;
+          // Ajouter total qui utilise pas le every_periods
+          ['avg','max','throughput'].forEach(type =>{
+            stats[type].data.value = this.datasets[type + '_every_periods'][samplerName][lastIndex].y;
           });
+          stats['total'].data.value = this.datasets['total'][samplerName][lastIndex].y;
           stats['sampler'].data.value = samplerName.slice(key.indexOf('_')+1,key.length);
-          stats['error'].data.value = (this.datasets['error'][samplerName][lastIndex].y / this.datasets['period'][samplerName][lastIndex].y * 100).toFixed(3);
+          stats['error'].data.value = (this.datasets['errorEveryPeriods'][samplerName][lastIndex].y / this.datasets['total'][samplerName][lastIndex].y * 100).toFixed(3);
     
-          Object.keys(this.datasets).filter(type => type.startsWith('pc')).forEach(pct => {
-            stats['Percentile '+pct.substring(2) + 'th'] = {
+          Object.keys(this.datasets).filter(type => type.startsWith('pctEveryPeriods')).forEach(pct => {
+            let percentileNumber = (pct.match(/\d/g) ?? ["0"]).join(""); // regex that get every numbers of a string
+            stats['Percentile '+ percentileNumber + 'th'] = {
               label: 'Percentile '+pct.substring(2) + 'th',
                   data: {
                     unit: 'ms',

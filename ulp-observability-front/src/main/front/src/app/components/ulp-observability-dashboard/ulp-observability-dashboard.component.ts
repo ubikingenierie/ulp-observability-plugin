@@ -28,7 +28,7 @@ const MetricsStatus = Object.freeze({
 })
 export class UlpObservabilityDashboardComponent implements OnInit{
 
-  private postfix = ['total', 'avg', 'max', 'throughput', 'threads'];
+  private acceptedPostfixs = ['total', 'avg', 'avg_every_periods', 'max', 'max_every_periods', 'throughput', 'throughput_every_periods', 'threads', 'pct'];
   private updateFrequencyS = 60;  
   
   totalLabel = 'total_info';
@@ -60,7 +60,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
 
   private requestInfo() : void {
     this.metricService.getMetricsServerInfo().subscribe({
-      next: (info) =>{
+      next: (info) => {
         this.updateFrequencyS = info.logFrequency;
         this.totalLabel = info.totalLabel;
         this.metricService.setMetricsURL(info.metricsRoute);
@@ -96,18 +96,26 @@ export class UlpObservabilityDashboardComponent implements OnInit{
     })
   }
 
-  private getNamePostfix(namePostfix: string): NamePostfix {
-    const split = namePostfix.split("_");
-    return this.postfix.indexOf(split[split.length - 1]) < 0 ?
+  private getNamePostfix(name: string) {
+    const split = name.split("_");
+  
+    let postfix = this.acceptedPostfixs.find(acceptedPostfix => {
+      let acceptedPostfixSize = acceptedPostfix.length;
+      let namePostfixSize = name.length;
+  
+      return namePostfixSize > acceptedPostfixSize && name.substring(namePostfixSize - acceptedPostfixSize, namePostfixSize) === acceptedPostfix;
+    });
+  
+    return postfix ? 
     {
-        name: namePostfix,
-        postfix: 'pc'
+      name: name.substring(0, name.length - postfix.length - 1),
+      postfix: postfix
     } :
     {
-        name: split.slice(0,split.length-1).join("_"),
-        postfix: split[split.length - 1]
-    }
-  }
+      name: name,
+      postfix: ''
+    };
+  };
 
   private pushMetric(type: string, name: string, timestamp: Date, value: any): void {
 
@@ -161,34 +169,45 @@ export class UlpObservabilityDashboardComponent implements OnInit{
         this.fillSamplerList(sample.name);
       }
 
-      if(sample.metrics[0] !== undefined){
-        const namePostfix : NamePostfix = this.getNamePostfix(sample.name);
+      if(sample.metrics[0] !== undefined) {
+        const nameAndPostfix : NamePostfix = this.getNamePostfix(sample.name);
         const timestamp = new Date(+(sample.metrics[0].timestamp_ms ?? sample.metrics[0].created ?? 0));
 
-        switch(namePostfix.postfix){
+        switch(nameAndPostfix.postfix){
           case('avg'):
           case('throughput'):
           case('max'):
-            this.addChart(namePostfix.postfix,sample.help);
-            this.pushMetric(namePostfix.postfix, namePostfix.name, timestamp, sample.metrics[0].value);
+            this.addChart(nameAndPostfix.postfix,sample.help);
+            this.pushMetric(nameAndPostfix.postfix, nameAndPostfix.name, timestamp, sample.metrics[0].value);
+            break;
+
+          case('avg_every_periods'):
+          case('throughput_every_periods'):
+          case('max_every_periods'):
+            this.pushMetric(nameAndPostfix.postfix, nameAndPostfix.name, timestamp, sample.metrics[0].value);
             break;
 
           case('total'):
             let error = 0;
             let count = 0;
+            let errorEveryPeriods = 0;
             sample.metrics.forEach(metric =>{
               if(metric.labels !== undefined){
                 switch(metric.labels['count']){
                   case('all'):
-                    this.pushMetric('total', namePostfix.name, timestamp, sample.metrics[0].value);
+                    this.pushMetric('total', nameAndPostfix.name, timestamp, sample.metrics[0].value);
                     break;
                   case('error'):
                     error = metric.value ?? 0;
-                    this.pushMetric('error', namePostfix.name, new Date(timestamp), error);
+                    this.pushMetric('error', nameAndPostfix.name, new Date(timestamp), error);
+                    break;
+                  case('error_every_periods'):
+                    errorEveryPeriods = metric.value ?? 0;
+                    this.pushMetric('errorEveryPeriods', nameAndPostfix.name, new Date(timestamp), errorEveryPeriods);
                     break;
                   case('period'):
                     count = metric.value ?? 0;
-                    this.pushMetric('period', namePostfix.name, new Date(timestamp), count);
+                    this.pushMetric('period', nameAndPostfix.name, new Date(timestamp), count);
                     break;
                   default:
                 }
@@ -198,26 +217,31 @@ export class UlpObservabilityDashboardComponent implements OnInit{
             this.addChart('errorP','Error %');
             this.pushMetric(
               'errorP', 
-              namePostfix.name, 
+              nameAndPostfix.name, 
               new Date(timestamp), 
               error == 0 ? 0 : error / count * 100
             );
             break;
 
-          case('pc'):
+          case('pct'):
             if(sample.metrics[0].quantiles !== undefined){
               Object.entries(sample.metrics[0].quantiles).forEach(quantile => {
-                this.addChart('pc'+quantile[0], sample.help+' ('+quantile[0]+'th)');
-                this.pushMetric('pc'+quantile[0], namePostfix.name, timestamp, quantile[1]);
+                this.addChart('pct'+quantile[0], sample.help+' ('+quantile[0]+'th)');
+                this.pushMetric('pct'+quantile[0], nameAndPostfix.name, timestamp, quantile[1]);
+              });
+            }
+            if(sample.metrics[0].quantilesEveryPeriods !== undefined){
+              Object.entries(sample.metrics[0].quantilesEveryPeriods).forEach(quantile => {
+                this.pushMetric('pctEveryPeriods'+quantile[0], nameAndPostfix.name, timestamp, quantile[1]);
               });
             }
             break;
 
           case('threads'):
-            if(this.threads[namePostfix.name + '_threads'] === undefined){
-              this.threads[namePostfix.name + '_threads'] = [];
+            if(this.threads[nameAndPostfix.name + '_threads'] === undefined){
+              this.threads[nameAndPostfix.name + '_threads'] = [];
             }
-            this.threads[namePostfix.name + '_threads'].push({
+            this.threads[nameAndPostfix.name + '_threads'].push({
               x: timestamp,
               y: sample.metrics[0].value
             });
@@ -227,6 +251,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
         }
       } 
     });
+    console.log("a");
   }
 
 private _filter(value: string): string[] {

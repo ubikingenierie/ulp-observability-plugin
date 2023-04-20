@@ -2,7 +2,6 @@ package com.ubikloadpack.jmeter.ulp.observability.listener;
 
 import java.io.Serializable;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -236,7 +235,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	public void init(ListenerClientData listenerClientData) {
 		listenerClientData.logger = new SampleLogger(getTotalLabel());
 		listenerClientData.registry = new MicrometerRegistry(getTotalLabel(), getPct1(), getPct2(), getPct3(),
-				getPctPrecision(), getLogFreq(), listenerClientData.logger, Instant.now());
+				getPctPrecision(), getLogFreq(), listenerClientData.logger);
 
 		listenerClientData.sampleQueue = new ArrayBlockingQueue<>(getBufferCapacity());
 
@@ -389,10 +388,6 @@ public class ULPObservabilityListener extends AbstractTestElement
 	 */
 	public void testEnded(String host) {
 		LOG.info("Test stopped : {}", host);
-		System.out.println("##########################################################");
-		System.out.println("list size : " + listenerClientData.sampleQueue.size());
-		System.out.println("processedSampler : " + MicrometerTask.processedSamplers.get());
-
 		synchronized (LOCK) {
 			instanceCount--;
 			if (instanceCount == 0) {

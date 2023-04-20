@@ -1,8 +1,5 @@
 package com.ubikloadpack.jmeter.ulp.observability.registry;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -11,8 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
@@ -25,7 +20,6 @@ import io.micrometer.core.instrument.Meter.Type;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.config.MeterFilter;
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
-import io.micrometer.core.instrument.distribution.ValueAtPercentile;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 /**
@@ -34,13 +28,6 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
  *
  */
 public class MicrometerRegistry {
-	
-	private static final Logger LOG = LoggerFactory.getLogger(MicrometerRegistry.class);
-	
-	/**
-	 * Current period count
-	 */
-	private int periodCount = 0;
 	
 	/**
 	 * Main sample registry containing
@@ -69,11 +56,6 @@ public class MicrometerRegistry {
 	 */
 	private SampleLogger logger;
 	
-	/**
-	 * Start of the test plan instant
-	 */
-	private Instant startInstant;
-	
 	private volatile Map<String, Pair<Long,Long>> startAndEndDatesOfSamplers = new ConcurrentHashMap<>();
 	
     /**
@@ -94,8 +76,7 @@ public class MicrometerRegistry {
 			Integer pct3,
 			Integer pctPrecision,
 			Integer logFrequency,
-			SampleLogger logger,
-			Instant startInstant
+			SampleLogger logger
 			) {
 		this.registry = new SimpleMeterRegistry();
 		this.totalReg = new SimpleMeterRegistry();
@@ -104,7 +85,6 @@ public class MicrometerRegistry {
 		this.logger = logger;
 		this.registry.config().meterFilter(createMeterFilter(pctPrecision, pct1, pct2, pct3));
 		this.totalReg.config().meterFilter(createMeterFilter(pctPrecision, pct1, pct2, pct3));
-		this.startInstant = startInstant;
 	}
 	
 	private MeterFilter createMeterFilter(Integer pctPrecision, Integer pct1, Integer pct2, Integer pct3) {
@@ -215,44 +195,33 @@ public class MicrometerRegistry {
 	 * @return New log with recorded period metrics
 	 */
 	public SampleLog makeLog(String name, Date timestamp) {
-		// Current period summary
-		DistributionSummary summary = this.registry.find("summary.response").tag("sample", name).summary();
-		// Cumulated periods summaries
-		DistributionSummary totalSummary = totalReg.find("summary.response").tag("sample", name).summary();
+		DistributionSummary currentPeriodSummary = registry.find("summary.response").tag("sample", name).summary();
+		DistributionSummary everyPeriodsSummary = totalReg.find("summary.response").tag("sample", name).summary();
 		
-		long maxTotalResponseTime = (long) totalSummary.max();
-		long totalErrorCounter = (long) totalReg.counter("count.error","sample",name).count();
 		Double averageTotalResponseTime = totalReg.counter("accumulate.response", "sample", name).count() /
 				totalReg.counter("count.total", "sample", name).count();
-		
 		double timeSinceFirstSampleCallInSeconds = (startAndEndDatesOfSamplers.get(name).getRight() - startAndEndDatesOfSamplers.get(name).getLeft()) / 1000d; 
 		Double totalThroughput = this.totalReg.counter("count.total","sample",name).count() / (timeSinceFirstSampleCallInSeconds);
-		ValueAtPercentile[] totalPercentiles = summary.takeSnapshot().percentileValues();
 		
-		System.out.println("#######################################");
-		for(ValueAtPercentile pc : totalPercentiles) {
-			System.out.println(name+" {quantile=\""+(long)(pc.percentile()*100)+"\"} "+ pc.value());
-		}	
-		System.out.println("total Throughput for '" + name + "' " + totalThroughput + " time since begin : " + timeSinceFirstSampleCallInSeconds);
-		System.out.println("max total response time for '" + name + "' " + maxTotalResponseTime);
-		System.out.println("mean total response time for '" + name + "' " + averageTotalResponseTime);
-		System.out.println("error total for '" + name + "' " + totalErrorCounter);
-		System.out.println("total samples count : " + totalReg.counter("count.total", "sample", name).count());
-		
-		return summary == null ? null : new SampleLog(
+		return currentPeriodSummary == null ? null : new SampleLog(
 				Util.micrometerToOpenMetrics(name),
 				timestamp,
-				(long) this.totalReg.counter("count.total","sample",name).count(),
-				(long) summary.count(),
-				(long) this.registry.counter("count.error","sample",name).count(),
-				summary.takeSnapshot().percentileValues(),
-				(long) summary.totalAmount(),
-				summary.mean(),
-				(long) summary.max(),
-				(long) summary.count() / this.logFrequency,
+				// Current period data
+				(long) currentPeriodSummary.count(),
+				(long) registry.counter("count.error","sample",name).count(),
+				currentPeriodSummary.takeSnapshot().percentileValues(),
+				(long) currentPeriodSummary.totalAmount(),
+				currentPeriodSummary.mean(),
+				(long) currentPeriodSummary.max(),
+				(double) currentPeriodSummary.count() / this.logFrequency,
 				(long) registry.counter("count.threads","sample",name).count(),
-				maxTotalResponseTime,
-				averageTotalResponseTime
+				// Every periods data
+				(long) totalReg.counter("count.total","sample",name).count(),
+				(long) everyPeriodsSummary.max(),
+				averageTotalResponseTime,
+				(long) totalReg.counter("count.error","sample",name).count(), // total error count,
+				totalThroughput,
+				everyPeriodsSummary.takeSnapshot().percentileValues() // total percentiles
 		);
 	}
 
@@ -273,7 +242,6 @@ public class MicrometerRegistry {
 		return this.logger.guiLog();
 	}
 	
-	
 	/**
 	 * Logs selected thread groups without resetting
 	 * 
@@ -293,7 +261,6 @@ public class MicrometerRegistry {
 	 * @return Updated logger
 	 */
 	public void logAndReset(List<String> names) {
-		this.periodCount++;
 		this.log(names);
 		this.registry.clear();
 	}
