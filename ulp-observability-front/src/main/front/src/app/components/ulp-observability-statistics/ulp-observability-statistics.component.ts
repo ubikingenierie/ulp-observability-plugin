@@ -99,7 +99,6 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
             },
           };
 
-          // Ajouter total qui utilise pas le every_periods
           ['avg','max','throughput'].forEach(type =>{
             stats[type].data.value = this.datasets[type + '_every_periods'][samplerName][lastIndex].y;
           });
