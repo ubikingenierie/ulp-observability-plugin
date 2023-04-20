@@ -1,5 +1,7 @@
 package com.ubikloadpack.jmeter.ulp.observability.log;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Date;
 
@@ -231,9 +233,11 @@ public class SampleLog {
 		
 		// Averages
 		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_avg", "gauge", "milliseconds", "Current period average response");
-		str.append(this.sampleName+"_avg "+ this.avg + " " + this.timeStamp.getTime() +"\n");
+		str.append(this.sampleName+"_avg "+ roundDoubleValueTo2DigitsAfterDecimalPoint(this.avg)
+			+ " " + this.timeStamp.getTime() +"\n");
 		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_avg_every_periods", "gauge", "milliseconds", "Total average response");
-		str.append(this.sampleName+"_avg_every_periods "+ this.avgTotal + " " + this.timeStamp.getTime() +"\n");
+		str.append(this.sampleName+"_avg_every_periods "+ roundDoubleValueTo2DigitsAfterDecimalPoint(this.avgTotal)
+			+ " " + this.timeStamp.getTime() +"\n");
 		
 		// Sampler calls count + errors count
 		addOpenMetricTypeHelpToStr(str, this.sampleName + "_total", "gauge", "Response count");
@@ -244,9 +248,11 @@ public class SampleLog {
 		
 		// Throughput
 		addOpenMetricTypeHelpToStr(str, this.sampleName + "_throughput", "gauge", "Current period responses per second");
-		str.append(this.sampleName+"_throughput "+ this.throughput + " " + this.timeStamp.getTime() +"\n");
+		str.append(this.sampleName+"_throughput "+ roundDoubleValueTo2DigitsAfterDecimalPoint(this.throughput)
+			+ " " + this.timeStamp.getTime() +"\n");
 		addOpenMetricTypeHelpToStr(str, this.sampleName + "_throughput_every_periods", "gauge", "Total responses per second");
-		str.append(this.sampleName+"_throughput_every_periods "+ this.throughputTotal + " " + this.timeStamp.getTime() +"\n");
+		str.append(this.sampleName+"_throughput_every_periods "+ roundDoubleValueTo2DigitsAfterDecimalPoint(this.throughputTotal)
+			+ " " + this.timeStamp.getTime() +"\n");
 		
 		// Threads number
 		addOpenMetricTypeHelpToStr(str, this.sampleName + "_threads", "counter", "Virtual user count");
@@ -358,6 +364,12 @@ public class SampleLog {
 				", maxTotal=" + this.maxTotal + 
 				", throughputTotal=" + this.throughputTotal + "]");
 		return s.toString();
+	}
+	
+	private double roundDoubleValueTo2DigitsAfterDecimalPoint(double value) {
+	    BigDecimal bd = new BigDecimal(Double.toString(value));
+	    bd = bd.setScale(2, RoundingMode.HALF_UP);
+	    return bd.doubleValue();
 	}
 	
 	
