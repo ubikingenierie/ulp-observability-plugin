@@ -233,10 +233,10 @@ public class SampleLog {
 		
 		// Averages
 		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_avg", "gauge", "milliseconds", "Current period average response");
-		str.append(this.sampleName+"_avg "+ roundDoubleValueTo2DigitsAfterDecimalPoint(this.avg)
+		str.append(this.sampleName+"_avg "+ roundValueTo2DigitsAfterDecimalPoint(this.avg)
 			+ " " + this.timeStamp.getTime() +"\n");
 		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_avg_every_periods", "gauge", "milliseconds", "Total average response");
-		str.append(this.sampleName+"_avg_every_periods "+ roundDoubleValueTo2DigitsAfterDecimalPoint(this.avgTotal)
+		str.append(this.sampleName+"_avg_every_periods "+ roundValueTo2DigitsAfterDecimalPoint(this.avgTotal)
 			+ " " + this.timeStamp.getTime() +"\n");
 		
 		// Sampler calls count + errors count
@@ -248,10 +248,10 @@ public class SampleLog {
 		
 		// Throughput
 		addOpenMetricTypeHelpToStr(str, this.sampleName + "_throughput", "gauge", "Current period responses per second");
-		str.append(this.sampleName+"_throughput "+ roundDoubleValueTo2DigitsAfterDecimalPoint(this.throughput)
+		str.append(this.sampleName+"_throughput "+ roundValueTo2DigitsAfterDecimalPoint(this.throughput)
 			+ " " + this.timeStamp.getTime() +"\n");
 		addOpenMetricTypeHelpToStr(str, this.sampleName + "_throughput_every_periods", "gauge", "Total responses per second");
-		str.append(this.sampleName+"_throughput_every_periods "+ roundDoubleValueTo2DigitsAfterDecimalPoint(this.throughputTotal)
+		str.append(this.sampleName+"_throughput_every_periods "+ roundValueTo2DigitsAfterDecimalPoint(this.throughputTotal)
 			+ " " + this.timeStamp.getTime() +"\n");
 		
 		// Threads number
@@ -366,7 +366,7 @@ public class SampleLog {
 		return s.toString();
 	}
 	
-	private double roundDoubleValueTo2DigitsAfterDecimalPoint(double value) {
+	private double roundValueTo2DigitsAfterDecimalPoint(double value) {
 	    BigDecimal bd = new BigDecimal(Double.toString(value));
 	    bd = bd.setScale(2, RoundingMode.HALF_UP);
 	    return bd.doubleValue();

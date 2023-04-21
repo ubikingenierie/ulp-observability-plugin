@@ -89,7 +89,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
     this.refreshCards();
   }
 
-  refreshCards(){
+  refreshCards() {
     if(this.threads !== undefined){
       const lastIndex = this.threads.length - 1;
       ['avg','max','throughput'].forEach(type =>{
@@ -97,14 +97,15 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
       });
       this.cards['total'].data.value = this.datasets['total'][this.totalLabel][lastIndex].y;
 
-      this.cards['error'].data.value = (this.datasets['error'][this.totalLabel][lastIndex].y / this.datasets['period'][this.totalLabel][lastIndex].y * 100).toFixed(3);
-      this.cards['error'].data.comment = '('+ this.datasets['error'][this.totalLabel][lastIndex].y + '/'+ this.datasets['period'][this.totalLabel][lastIndex].y+')';
+      this.cards['error'].data.value = (this.datasets['errorEveryPeriods'][this.totalLabel][lastIndex].y / this.datasets['total'][this.totalLabel][lastIndex].y * 100).toFixed(3);
+      this.cards['error'].data.comment = '('+ this.datasets['errorEveryPeriods'][this.totalLabel][lastIndex].y + '/'+ this.datasets['total'][this.totalLabel][lastIndex].y+')';
 
       this.cards['threads'].data.value = this.threads[lastIndex].y;
 
-      Object.keys(this.datasets).filter(type => type.startsWith('pc')).forEach(pct => {
+      Object.keys(this.datasets).filter(type => type.startsWith('pctEveryPeriods')).forEach(pct => {
+        let percentileNumber = (pct.match(/\d/g) ?? ["0"]).join(""); // regex that get every numbers of a string
         this.cards[pct] = {
-          label: 'Percentile '+pct.substring(2) + 'th',
+          label: 'Percentile '+ percentileNumber + 'th',
           icon: 'percent',
               data: {
                 unit: 'ms',
