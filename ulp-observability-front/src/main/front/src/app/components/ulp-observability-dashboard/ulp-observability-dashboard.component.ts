@@ -166,7 +166,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
     samples.forEach(sample => {
       //for this sample sample.name has the correct name of the controllers in jMeter
       if (sample.help === "Response percentiles"){
-        this.fillSamplerList(sample.name);
+        this.fillSamplerList(sample.name.substring(0, sample.name.length - 4));
       }
 
       if(sample.metrics[0] !== undefined) {
