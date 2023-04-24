@@ -103,6 +103,11 @@ public class SampleLog {
 	private final ValueAtPercentile[] pctTotal;
 	
 	/**
+	 * Virtual users count for every periods
+	 */
+	private final Long threadsTotal;
+	
+	/**
      * Creates new Sample log
      * 
      * @param sampleName Sampler name
@@ -121,6 +126,7 @@ public class SampleLog {
 	 * @param errorTotal The total count of errors during every periods 
 	 * @param throughputTotal Response throughput per seconds for every periods 
 	 * @param pctTotal Response time percentiles for every periods
+	 * @param threadsTotal Virtual users count for every periods
 	 */
 	public SampleLog(
 		String sampleName, 
@@ -138,7 +144,8 @@ public class SampleLog {
 		Double avgTotal,
 		Long errorTotal,
 		Double throughputTotal,
-		ValueAtPercentile[] pctTotal
+		ValueAtPercentile[] pctTotal,
+		Long threadsTotal
 	) {
 		this.sampleName = sampleName;
 		this.timeStamp = timeStamp;
@@ -156,6 +163,7 @@ public class SampleLog {
 		this.errorTotal = errorTotal;
 		this.throughputTotal = throughputTotal;
 		this.pctTotal = pctTotal;
+		this.threadsTotal = threadsTotal;
 	}
 	
 	
@@ -255,8 +263,10 @@ public class SampleLog {
 			+ " " + this.timeStamp.getTime() +"\n");
 		
 		// Threads number
-		addOpenMetricTypeHelpToStr(str, this.sampleName + "_threads", "counter", "Virtual user count");
-		str.append(this.sampleName+"_threads "+ this.threads + " " + this.timeStamp.getTime() + "\n");	
+		addOpenMetricTypeHelpToStr(str, this.sampleName + "_threads", "counter", "Current period Virtual user count");
+		str.append(this.sampleName+"_threads "+ this.threads + " " + this.timeStamp.getTime() + "\n");
+		addOpenMetricTypeHelpToStr(str, this.sampleName + "_threads_every_periods", "counter", "Max number of virtual user count");
+		str.append(this.sampleName+"_threads_every_periods "+ this.threadsTotal + " " + this.timeStamp.getTime() + "\n");
 		
 		return str.toString();
 	}
@@ -334,7 +344,8 @@ public class SampleLog {
 		.append(this.maxTotal)
 		.append("ms\n         Throughput: ")
 		.append(this.throughputTotal)
-		.append(" req/s\n");
+		.append(" req/s\n         Threads: ")
+		.append(this.threadsTotal);
 		
 		return str.toString();
 	}

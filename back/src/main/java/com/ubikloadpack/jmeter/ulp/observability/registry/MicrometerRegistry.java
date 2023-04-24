@@ -179,12 +179,20 @@ public class MicrometerRegistry {
 			this.totalReg.counter("count.total", "sample", microMeterTag).increment();
 		}
 	
-		this.registry.counter("count.threads", "sample", threadTag).increment(
-				result.getGroupThreads() - (int) this.registry.counter("count.threads", "sample", threadTag).count());
-		this.registry.counter("count.threads", "sample", this.totalLabel).increment(
-				result.getAllThreads() - (int) this.registry.counter("count.threads", "sample", this.totalLabel).count());
-		this.registry.counter("count.threads", "sample", samplerTag).increment(
-				result.getGroupThreads() - (int) this.registry.counter("count.threads", "sample", threadTag).count());
+		// Count thread number. The registries keep the max thread number values respectively for the period, and every periods.
+		int threadGroupIncrement = result.getGroupThreads() - (int) this.registry.counter("count.threads", "sample", threadTag).count();
+		this.registry.counter("count.threads", "sample", threadTag).increment(threadGroupIncrement < 0 ? 0 : threadGroupIncrement);
+		int totalIncrement = result.getAllThreads() - (int) this.registry.counter("count.threads", "sample", this.totalLabel).count();
+		this.registry.counter("count.threads", "sample", this.totalLabel).increment(totalIncrement < 0 ? 0 : totalIncrement);
+		int samplerIncrement = result.getGroupThreads() - (int) this.registry.counter("count.threads", "sample", samplerTag).count();
+		this.registry.counter("count.threads", "sample", samplerTag).increment(samplerIncrement < 0 ? 0 : samplerIncrement);
+		
+		int threadGroupIncrementTotal = result.getGroupThreads() - (int) this.totalReg.counter("count.threads", "sample", threadTag).count();
+		this.totalReg.counter("count.threads", "sample", threadTag).increment(threadGroupIncrementTotal < 0 ? 0 : threadGroupIncrementTotal);
+		int totalIncrementTotal = result.getAllThreads() - (int) this.totalReg.counter("count.threads", "sample", this.totalLabel).count();
+		this.totalReg.counter("count.threads", "sample", this.totalLabel).increment(totalIncrementTotal < 0 ? 0 : totalIncrementTotal);
+		int samplerIncrementTotal = result.getGroupThreads() - (int) this.totalReg.counter("count.threads", "sample", samplerTag).count();
+		this.totalReg.counter("count.threads", "sample", samplerTag).increment(samplerIncrementTotal < 0 ? 0 : samplerIncrementTotal);
 	}
 	
 	/**
@@ -221,7 +229,8 @@ public class MicrometerRegistry {
 				averageTotalResponseTime,
 				(long) totalReg.counter("count.error","sample",name).count(), // total error count,
 				totalThroughput,
-				everyPeriodsSummary.takeSnapshot().percentileValues() // total percentiles
+				everyPeriodsSummary.takeSnapshot().percentileValues(), // total percentiles
+				(long) totalReg.counter("count.threads","sample",name).count()
 		);
 	}
 

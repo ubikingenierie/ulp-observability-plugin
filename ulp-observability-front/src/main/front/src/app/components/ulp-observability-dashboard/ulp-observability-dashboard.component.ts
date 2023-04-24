@@ -28,13 +28,14 @@ const MetricsStatus = Object.freeze({
 })
 export class UlpObservabilityDashboardComponent implements OnInit{
 
-  private acceptedPostfixs = ['total', 'avg', 'avg_every_periods', 'max', 'max_every_periods', 'throughput', 'throughput_every_periods', 'threads', 'pct'];
+  private acceptedPostfixs = ['total', 'avg', 'avg_every_periods', 'max', 'max_every_periods', 'throughput', 'throughput_every_periods', 'threads', 'threads_every_periods', 'pct'];
   private updateFrequencyS = 60;  
   
   totalLabel = 'total_info';
   chartData : ChartData = {};
   datasets: Datasets = {};
   threads: DatasetGroup = {};
+  threadsEveryPeriods: DatasetGroup = {};
   status = MetricsStatus.INFO;
   showErrorMessage = false;
 
@@ -145,6 +146,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
       this.datasets[key] = {};
     });
     this.threads = {};
+    this.threadsEveryPeriods = {};
   }
 
   private fillSamplerList(sampleName: string) : void{
@@ -242,6 +244,15 @@ export class UlpObservabilityDashboardComponent implements OnInit{
               this.threads[nameAndPostfix.name + '_threads'] = [];
             }
             this.threads[nameAndPostfix.name + '_threads'].push({
+              x: timestamp,
+              y: sample.metrics[0].value
+            });
+            break;
+          case('threads_every_periods'):
+            if(this.threadsEveryPeriods[nameAndPostfix.name + '_threads_every_periods'] === undefined){
+              this.threadsEveryPeriods[nameAndPostfix.name + '_threads_every_periods'] = [];
+            }
+            this.threadsEveryPeriods[nameAndPostfix.name +'_threads_every_periods'].push({
               x: timestamp,
               y: sample.metrics[0].value
             });
