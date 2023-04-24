@@ -2,7 +2,6 @@ package com.ubikloadpack.jmeter.ulp.observability.task;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,9 +97,6 @@ public class MicrometerTask implements Runnable {
         return terminated.get();
     }
 
-    
-    public static AtomicInteger processedSamplers = new AtomicInteger(0);
-    
 	/**
 	 * Retrieves sample results from queue
 	 *  and records them to registry while task is run,
@@ -114,7 +110,6 @@ public class MicrometerTask implements Runnable {
 			try {
 				ResponseResult sampleResult = this.sampleQueue.take();
 				if(sampleResult != null) {
-					processedSamplers.addAndGet(1);
 					this.registry.addResponse(sampleResult);
 				}
 			} catch (InterruptedException e) {

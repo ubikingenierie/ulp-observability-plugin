@@ -98,8 +98,8 @@ export default function parsePrometheusTextFormat(metrics: any) {
                 if (type === SUMMARY_TYPE) {
                     samples = flattenMetrics(
                         samples,
-                        ['quantiles', 'quantilesEveryPeriods'],
-                        ['quantile', 'quantile_every_periods'],
+                        ['quantiles', 'quantilesEveryPeriods'], // new keys for the parsed metrics
+                        ['quantile', 'quantile_every_periods'], // open metrics keys
                         'value'
                     );
                 } 

@@ -251,7 +251,6 @@ export class UlpObservabilityDashboardComponent implements OnInit{
         }
       } 
     });
-    console.log("a");
   }
 
 private _filter(value: string): string[] {
