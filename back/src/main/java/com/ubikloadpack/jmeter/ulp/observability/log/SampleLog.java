@@ -234,13 +234,13 @@ public class SampleLog {
 		.append(this.sampleName+"_pct_created " + this.timeStamp.getTime() +"\n");
 
 		// Max
-		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_max", "gauge", "milliseconds", "Current period max response");
+		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_max", "gauge", "milliseconds", "Max response");
 		str.append(this.sampleName+"_max "+ this.max + " " + this.timeStamp.getTime() +"\n");
 		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_max_every_periods", "gauge", "milliseconds", "Total max response");
 		str.append(this.sampleName+"_max_every_periods "+ this.maxTotal + " " + this.timeStamp.getTime() +"\n");
 		
 		// Averages
-		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_avg", "gauge", "milliseconds", "Current period average response");
+		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_avg", "gauge", "milliseconds", "Average response");
 		str.append(this.sampleName+"_avg "+ roundValueTo2DigitsAfterDecimalPoint(this.avg)
 			+ " " + this.timeStamp.getTime() +"\n");
 		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_avg_every_periods", "gauge", "milliseconds", "Total average response");
@@ -255,7 +255,7 @@ public class SampleLog {
 		.append(this.sampleName+"_total{count=\"error_every_periods\"} "+ this.errorTotal + " " + this.timeStamp.getTime() +"\n");
 		
 		// Throughput
-		addOpenMetricTypeHelpToStr(str, this.sampleName + "_throughput", "gauge", "Current period responses per second");
+		addOpenMetricTypeHelpToStr(str, this.sampleName + "_throughput", "gauge", "Responses per second");
 		str.append(this.sampleName+"_throughput "+ roundValueTo2DigitsAfterDecimalPoint(this.throughput)
 			+ " " + this.timeStamp.getTime() +"\n");
 		addOpenMetricTypeHelpToStr(str, this.sampleName + "_throughput_every_periods", "gauge", "Total responses per second");
