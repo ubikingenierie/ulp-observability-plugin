@@ -35,7 +35,8 @@
                 <app-ulp-observability-chart
                 [datasets]="datasets[chart.key]"
                 [threads]="threads"
-                [title]="chart.value"
+                [title]="chart.value.description"
+                [unit]="chart.value.unit"
                 [totalLabel]="totalLabel"
                 [visibleSamplers]="visibleSamplers"
                 ></app-ulp-observability-chart>

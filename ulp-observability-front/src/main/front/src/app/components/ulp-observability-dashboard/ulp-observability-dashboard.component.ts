@@ -135,9 +135,12 @@ export class UlpObservabilityDashboardComponent implements OnInit{
 
   }
 
-  private addChart(label: string, description: string | undefined) : void {
-    if(this.chartData[label] === undefined){
-      this.chartData[label] = description ?? '';
+  private addChart(label: string, description: string | undefined, unit: string) : void {
+    if(this.chartData[label] === undefined) {
+      this.chartData[label] = {
+        description: description ?? '',
+        unit: unit
+      };
     }
   }
 
@@ -177,9 +180,12 @@ export class UlpObservabilityDashboardComponent implements OnInit{
 
         switch(nameAndPostfix.postfix){
           case('avg'):
-          case('throughput'):
           case('max'):
-            this.addChart(nameAndPostfix.postfix,sample.help);
+            this.addChart(nameAndPostfix.postfix,sample.help, 'ms');
+            this.pushMetric(nameAndPostfix.postfix, nameAndPostfix.name, timestamp, sample.metrics[0].value);
+            break;
+          case('throughput'):
+            this.addChart(nameAndPostfix.postfix,sample.help, 'req/s');
             this.pushMetric(nameAndPostfix.postfix, nameAndPostfix.name, timestamp, sample.metrics[0].value);
             break;
 
@@ -216,19 +222,19 @@ export class UlpObservabilityDashboardComponent implements OnInit{
               }
             });
 
-            this.addChart('errorP','Error %');
+            this.addChart('errorP','Error %', '%');
             this.pushMetric(
               'errorP', 
               nameAndPostfix.name, 
               new Date(timestamp), 
-              error == 0 ? 0 : error / count * 100
+              error == 0 ? 0 : (error / count * 100).toFixed(3)
             );
             break;
 
           case('pct'):
             if(sample.metrics[0].quantiles !== undefined){
               Object.entries(sample.metrics[0].quantiles).forEach(quantile => {
-                this.addChart('pct'+quantile[0], sample.help+' ('+quantile[0]+'th)');
+                this.addChart('pct'+quantile[0], sample.help+' ('+quantile[0]+'th)', 'ms');
                 this.pushMetric('pct'+quantile[0], nameAndPostfix.name, timestamp, quantile[1]);
               });
             }

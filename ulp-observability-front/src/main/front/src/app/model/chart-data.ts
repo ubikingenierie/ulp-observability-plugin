@@ -1,5 +1,5 @@
 export interface ChartData {
-    [id:string] : string;
+    [id:string] : { description: string; unit: string; };
 }
 
 export interface DatasetGroup {

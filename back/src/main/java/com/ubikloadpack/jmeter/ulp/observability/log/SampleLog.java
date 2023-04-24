@@ -234,16 +234,16 @@ public class SampleLog {
 		.append(this.sampleName+"_pct_created " + this.timeStamp.getTime() +"\n");
 
 		// Max
-		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_max", "gauge", "milliseconds", "Max response");
+		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_max", "gauge", "milliseconds", "Max response times");
 		str.append(this.sampleName+"_max "+ this.max + " " + this.timeStamp.getTime() +"\n");
-		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_max_every_periods", "gauge", "milliseconds", "Total max response");
+		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_max_every_periods", "gauge", "milliseconds", "Total max response times");
 		str.append(this.sampleName+"_max_every_periods "+ this.maxTotal + " " + this.timeStamp.getTime() +"\n");
 		
 		// Averages
-		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_avg", "gauge", "milliseconds", "Average response");
+		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_avg", "gauge", "milliseconds", "Average response times");
 		str.append(this.sampleName+"_avg "+ roundValueTo2DigitsAfterDecimalPoint(this.avg)
 			+ " " + this.timeStamp.getTime() +"\n");
-		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_avg_every_periods", "gauge", "milliseconds", "Total average response");
+		addOpenMetricTypeUnitHelpToStr(str, this.sampleName + "_avg_every_periods", "gauge", "milliseconds", "Total average response times");
 		str.append(this.sampleName+"_avg_every_periods "+ roundValueTo2DigitsAfterDecimalPoint(this.avgTotal)
 			+ " " + this.timeStamp.getTime() +"\n");
 		
