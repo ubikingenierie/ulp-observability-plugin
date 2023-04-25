@@ -31,7 +31,7 @@ Each Y seconds a cron job (LogTask.java) will reset the data which were used to 
     - Every intervals metrics since the start of the test. It is used one time when the front calls for the first time the backend in order to get everything it needs to display. After that, the front only asks for the last interval datas.
     -  As mentionned earlier, these metrics come from the Logger contained in the MicrometerRegistry.
 
-### Front
+# Frontend
 
 ## Technologies
 - [TypeScript](https://www.typescriptlang.org/) : to take advantage of a strongly typed language for more rigor and data consistency 
@@ -42,6 +42,80 @@ Each Y seconds a cron job (LogTask.java) will reset the data which were used to 
          - Material UI for elegant rendering
 - [ChartJs](https://www.npmjs.com/package/chart.js?activeTab=readme) : Library used a lot, maintained (last update on 02/16/2022) and free
 
-#### How it works
+## How it works
 Angular application. It starts by asking the backend informations about the refresh rate of the graphs and the url to retrieve graphs datas on the first servlet.
 After that, it asks the backend everything it needs to display on the graphs. Then, every Y seconds (see backend section), it asks the backend the newest intervall datas and update its graphs with it.
+
+# Start developing
+## Prior setup
+- First of all, you must have installed JMeter. We will need to have access to its /lib folder, where the jar of the plugins are installed.
+- Install the production plugin by following the instruction at https://www.ubik-ingenierie.com/blog/ubik-load-pack-observability-plugin/ in the Installation section.
+- Once you installed it the normal way, check its name inside the lib folder :
+![pluginJarLocation](screenshot/jmeterJarLocation.png)
+We can see here that the full name of the jar is 'ulp-observability-listener-1.0.2.jar'. We will need this name later.
+
+## Back
+### Make JMeter use your develop plugin
+The backend is a little bit trickier to setup than the frontend. Each time you do a modification to the backend code, you must run the following command to re-build the jar.
+```bash
+mvn clean install
+```
+Once it is done, the jar of the under developpement observability plugin will be located in /back/target :
+![pluginJarLocation](screenshot/jarLocation.png)
+The next step is to replace the jar inside the jmeter libs with this new one. You also need to rename it to match the previous jar name. You can do it either manually or using this command, replacing the args with your own paths and jar names :
+```bash
+mv /home/ubik/Bureau/work/eclipseWorkspace/ulp-observability-plugin/back/target/ulp-observability-listener-1.0.3-SNAPSHOT.jar /home/ubik/Bureau/apache-jmeter-5.5/lib/ulp-observability-listener-1.0.2.jar
+```
+
+After that, your backend change should be used by JMeter.
+### Bash script 
+If you are like me, you will be annoyed extremely fast to do everything listed above everytime you change something in the back. We will see here a way to make it faster + how to plug the eclipse debuguer to your JMeter plugin code :
+- Add your jmeter/bin folder to your bashrc file so you can access the scripts inside it every time you open a command prompt.
+- In the bin folder of jmeter, duplicate the 'jmeter' file, and rename the copy 'jmeterDebug'
+- Inside jmeterDebug, add the following line right after '#! /bin/sh', as line 2 :
+```bash
+JVM_ARGS="-Xms3g -Xmx3g -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=127.0.0.1:7999"
+```
+You should change the '-Xms3g -Xmx3g' parameters to something you want. Here it means we allocate 3g of memory to Jmeter, but feel free to lower or upper it by the value you want. I just needed to increase it to run a test that's why it is here.
+The 'address=127.0.0.1:7999' part is here to give a port on which we can listen to debug JMeter. You can change the port freely to what you prefer.
+- In the same bin folder, create a file named 'observabilityPluginSetup'. Fill it with :
+```bash
+#! /bin/sh
+
+# Make the clean install from the plugin project root folder
+cd /home/ubik/Bureau/work/eclipseWorkspace/ulp-observability-plugin
+mvn clean install
+
+# Move the generated jar in the JMeter libs, with the name of the previous jar
+mv /home/ubik/Bureau/work/eclipseWorkspace/ulp-observability-plugin/back/target/ulp-observability-listener-1.0.3-SNAPSHOT.jar /home/ubik/Bureau/apache-jmeter-5.5/lib/ulp-observability-listener-1.0.2.jar
+
+# Start JMeter in debug mode
+# jmeterDebug
+```
+You must change the paths to yours. You can uncomment the last line if you also want to start JMeter in GUI mode each time you make a change.
+
+Once you have done all of this, you can simply open a command prompt, and type 
+```bash
+observabilityPluginSetup
+```
+This way it will make the clean install, and move your jar to the correct location with the right name.
+
+### Eclipse debug
+If you start JMeter with the above defined scripts (uncomment the last line of observabilityPluginSetup), then you can connect the eclipse debuguer to the running JMeter :
+Go to 'debug configurations', then create a new Remote Java Application like this
+![eclipseDebugConfiguration](screenshot/eclipseDebug.png).
+Once it is done, start JMeter with one of the 3 following way :
+- By generating the jar with your back with the above command (with the last line not being a comment) : 
+```bash
+observabilityPluginSetup
+```
+- If you haven't changed anything in the back, you can simply do this to start JMeter in debug, assuming you created the jmeterDebug file :
+```bash
+jmeterDebug
+```
+- You can start a test plan in command line without the GUI like this, be careful to the location wher you use this command because it also generate a test report in the folder when the test finish :
+```bash
+jmeterDebug -n -t /home/ubik/Bureau/jmeterPlugin/plans/myTestPlan.jmx -l TestPlan.csv -j jmeter.log -e -o report-test-plan
+```
+
+When JMeter starts either in GUI or non GUI mode, you can launch your debug configuration in eclipse. If you don't have any error message when you do it, it means the connection was a success. You can then put breakpoints in your backend and start debuging.
