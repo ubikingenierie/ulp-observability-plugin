@@ -60,7 +60,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
           callbacks: {
             label: function(context) {
               let label = context.dataset.label || '';
-              let unitToUse = (label.length > 9 && label.substring(label.length - 9, label.length) === '__threads') ? '' : chartUnit;
+              let unitToUse = (label.length > 9 && label.substring(label.length - 8, label.length) === '_threads') ? '' : chartUnit;
 
               if (label) {
                   label += ': ';
