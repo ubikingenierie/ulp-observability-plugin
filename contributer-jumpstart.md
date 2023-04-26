@@ -21,12 +21,12 @@ As long as the test plan is running, the threads are retrieving the samples resu
 - Micrometer is a library used to calculate metrics averages based on metrics it receives upon time. The MicrometerRegistry class is a wrapper that contains 2 instances of this library.
     - The first calculate averages for the current time interval, for each samplers + their respective thread group independantly. We will call the current time interval Y for later use in this document (Y being the time interval defined by the 'Log Frequency in seconds').
     - The second add each new interval metrics to the previous one, to calculate total values.
- in order to process sampler results as long as they are called. These instances are fed with the samplers data from the current time interval defined by Y seconds, (Y being the Log Frequency in seconds).
+ in order to process sampler results as long as they are called. These instances are fed with the samplers data from the current time interval defined by Y seconds.
 Each Y seconds a cron job (LogTask.java) will reset the data which were used to calculates the metrics for the current interval. It keeps the interval metrics results in a logger, but cleans everything else. 
 - The logger (SampleLogger) is used to store every results obtained through the Micrometer instances. It exposes its datas with a format that Prometheus and the frontend can read.
 - The queue on which the threads are retrieving datas is fed by JMeter each time a sampler complete its requests, thanks to the sampleOccurred(SampleEvent e) method overridden in ULPObservabilityListener.
-- The first servlet, ULPObservabilityConfigServlet, is used to tell the frontend on which url it can get the intervals datas it needs to render + the log frequency -> time in seconds between each calls to the seconds servlets to get more datas to display. It is equal to Y.
-- The second servlet, ULPObservabilityMetricsServlet, can gives 2 things :
+- The first servlet, ULPObservabilityConfigServlet, is used to tell the frontend on which url it can get the intervals datas it needs to render + Y value. Y is used by the frontend as the refresh timer. Each Y seconds, it will asks the back for new datas.
+- The second servlet, ULPObservabilityMetricsServlet, gives 2 things :
     - The last interval metrics which has to be dynamically added to the already displayed graphs with Angular.
     - Every intervals metrics since the start of the test. It is used one time when the front calls for the first time the backend in order to get everything it needs to display. After that, the front only asks for the last interval datas.
     -  As mentionned earlier, these metrics come from the Logger contained in the MicrometerRegistry.
@@ -52,7 +52,25 @@ After that, it asks the backend everything it needs to display on the graphs. Th
 - Install the production plugin by following the instruction at https://www.ubik-ingenierie.com/blog/ubik-load-pack-observability-plugin/ in the Installation section.
 - Once you installed it the normal way, check its name inside the lib folder :
 ![pluginJarLocation](screenshot/jmeterJarLocation.png)
-We can see here that the full name of the jar is 'ulp-observability-listener-1.0.2.jar'. We will need this name later.
+We can see here that the full name of the jar at the time this doc is written is 'ulp-observability-listener-1.0.2.jar'. We will need this name later.
+
+## Front
+```bash
+cd yourPluginPath/ulp-observability-front/src/main/front
+```
+If it is the first time you execute the front :
+```bash
+npm install
+```
+Start the front :
+```bash
+npm start
+```
+At this point you can debug your frontent at localhost:4200.
+You can also see the front at localhost:9090/yourUlpListenerRoute, but you won't have the sources files exposed in the browser, and you would need to re-build the jar everytime as discussed below in the back section.
+
+
+If you need to change the port on which the backend exposes the data, you must change the port in proxy.conf.json.
 
 ## Back
 ### Make JMeter use your develop plugin
@@ -67,7 +85,7 @@ The next step is to replace the jar inside the jmeter libs with this new one. Yo
 mv /home/ubik/Bureau/work/eclipseWorkspace/ulp-observability-plugin/back/target/ulp-observability-listener-1.0.3-SNAPSHOT.jar /home/ubik/Bureau/apache-jmeter-5.5/lib/ulp-observability-listener-1.0.2.jar
 ```
 
-After that, your backend change should be used by JMeter.
+After that, your backend change is used by JMeter.
 ### Bash script 
 If you are like me, you will be annoyed extremely fast to do everything listed above everytime you change something in the back. We will see here a way to make it faster + how to plug the eclipse debuguer to your JMeter plugin code :
 - Add your jmeter/bin folder to your bashrc file so you can access the scripts inside it every time you open a command prompt.
@@ -78,7 +96,7 @@ JVM_ARGS="-Xms3g -Xmx3g -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,ad
 ```
 You should change the '-Xms3g -Xmx3g' parameters to something you want. Here it means we allocate 3g of memory to Jmeter, but feel free to lower or upper it by the value you want. I just needed to increase it to run a test that's why it is here.
 The 'address=127.0.0.1:7999' part is here to give a port on which we can listen to debug JMeter. You can change the port freely to what you prefer.
-- In the same bin folder, create a file named 'observabilityPluginSetup'. Fill it with :
+- In the same bin folder, create a second file named 'observabilityPluginSetup'. Fill it with :
 ```bash
 #! /bin/sh
 
@@ -102,7 +120,7 @@ This way it will make the clean install, and move your jar to the correct locati
 
 ### Eclipse debug
 If you start JMeter with the above defined scripts (uncomment the last line of observabilityPluginSetup), then you can connect the eclipse debuguer to the running JMeter :
-Go to 'debug configurations', then create a new Remote Java Application like this
+Go to 'debug configurations', then create a new Remote Java Application like this. 'back' is the back folder inside the project.
 ![eclipseDebugConfiguration](screenshot/eclipseDebug.png).
 Once it is done, start JMeter with one of the 3 following way :
 - By generating the jar with your back with the above command (with the last line not being a comment) : 
@@ -113,9 +131,10 @@ observabilityPluginSetup
 ```bash
 jmeterDebug
 ```
-- You can start a test plan in command line without the GUI like this, be careful to the location wher you use this command because it also generate a test report in the folder when the test finish :
+- You can start a test plan in command line without the GUI like this, be careful to the location where you use this command because it also generate a test report in the folder when the test finish :
 ```bash
 jmeterDebug -n -t /home/ubik/Bureau/jmeterPlugin/plans/myTestPlan.jmx -l TestPlan.csv -j jmeter.log -e -o report-test-plan
 ```
 
 When JMeter starts either in GUI or non GUI mode, you can launch your debug configuration in eclipse. If you don't have any error message when you do it, it means the connection was a success. You can then put breakpoints in your backend and start debuging.
+
