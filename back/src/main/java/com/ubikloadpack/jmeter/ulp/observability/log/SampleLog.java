@@ -35,12 +35,12 @@ public class SampleLog {
 	/**
 	 * The total count of responses starting from the beginning of test
 	 */
-	private final Long total;
+	private final Long samplerCountTotal;
 	
 	/**
 	 * The total count of current period responses during the given period
 	 */
-	private final Long current;
+	private final Long samplerCount;
 	
 	/**
 	 * The total count of errors during the given period
@@ -112,7 +112,7 @@ public class SampleLog {
      * 
      * @param sampleName Sampler name
      * @param timeStamp Time stamp when record was created
-     * @param current The total count of current period responses during the given period
+     * @param samplerCount The total count of current period responses during the given period
      * @param error The total count of errors during the given period
      * @param pct Response time percentiles for given period
      * @param sum Response time sum for given period
@@ -120,7 +120,7 @@ public class SampleLog {
      * @param max Max response time for given period
      * @param throughput Response throughput per seconds for given period
      * @param threads Virtual users count
-     * @param total The total count of responses starting from the beginning of test
+     * @param samplerCountTotal The total count of responses starting from the beginning of test
 	 * @param maxTotal Max response time for every periods 
 	 * @param avgTotal Average response time for every periods 
 	 * @param errorTotal The total count of errors during every periods 
@@ -131,7 +131,7 @@ public class SampleLog {
 	public SampleLog(
 		String sampleName, 
 		Date timeStamp, 
-		Long current, 
+		Long samplerCount, 
 		Long error, 
 		ValueAtPercentile[] pct,
 		Long sum,
@@ -139,7 +139,7 @@ public class SampleLog {
 		Long max, 
 		Double throughput,
 		Long threads,
-		Long total, 
+		Long samplerCountTotal, 
 		Long maxTotal,
 		Double avgTotal,
 		Long errorTotal,
@@ -149,8 +149,8 @@ public class SampleLog {
 	) {
 		this.sampleName = sampleName;
 		this.timeStamp = timeStamp;
-		this.total = total;
-		this.current = current;
+		this.samplerCount = samplerCount;
+		this.samplerCountTotal = samplerCountTotal;
 		this.error = error;
 		this.pct = pct;
 		this.sum = sum;
@@ -177,12 +177,12 @@ public class SampleLog {
 	}
 
 
-	public Long getTotal() {
-		return this.total;
+	public Long getSamplerCountTotal() {
+		return this.samplerCountTotal;
 	}
 	
-	public Long getCurrent() {
-		return this.current;
+	public Long getSamplerCount() {
+		return this.samplerCount;
 	}
 
 
@@ -249,8 +249,8 @@ public class SampleLog {
 		
 		// Sampler calls count + errors count
 		addOpenMetricTypeHelpToStr(str, this.sampleName + "_total", "gauge", "Response count");
-		str.append(this.sampleName+"_total{count=\"all\"} "+ this.total + " " + this.timeStamp.getTime() +"\n")	
-		.append(this.sampleName+"_total{count=\"period\"} "+ this.current + " " + this.timeStamp.getTime() +"\n")	
+		str.append(this.sampleName+"_total{count=\"sampler_count_every_periods\"} "+ this.samplerCountTotal + " " + this.timeStamp.getTime() +"\n")	
+		.append(this.sampleName+"_total{count=\"sampler_count\"} "+ this.samplerCount + " " + this.timeStamp.getTime() +"\n")	
 		.append(this.sampleName+"_total{count=\"error\"} "+ this.error + " " + this.timeStamp.getTime() +"\n")
 		.append(this.sampleName+"_total{count=\"error_every_periods\"} "+ this.errorTotal + " " + this.timeStamp.getTime() +"\n");
 		
@@ -295,12 +295,14 @@ public class SampleLog {
 		
 		// Current period
 		.append(":\n     Current period: ")
+		.append("\n         Sampler count: ")
+		.append(this.samplerCount)
 		.append("\n         Error: ")
-		.append(PCT_FORMAT.format((float) this.error / (float) (this.current) * 100.0))
+		.append(PCT_FORMAT.format((float) this.error / (float) (this.samplerCount) * 100.0))
 		.append("% (")
 		.append(this.error)
 		.append("/")
-		.append(this.current)
+		.append(this.samplerCount)
 		.append(")")
 		.append("\n         Average: ")
 		.append(this.avg)
@@ -321,14 +323,14 @@ public class SampleLog {
 		
 		// Every periods
 		.append("\n     Every periods: ")
-		.append("\n         Total: ")
-		.append(this.total)
+		.append("\n         Sampler count: ")
+		.append(this.samplerCountTotal)
 		.append("\n         Error: ")
-		.append(PCT_FORMAT.format((float) this.errorTotal / (float) (this.total) * 100.0))
+		.append(PCT_FORMAT.format((float) this.errorTotal / (float) (this.samplerCountTotal) * 100.0))
 		.append("% (")
 		.append(this.errorTotal)
 		.append("/")
-		.append(this.total)
+		.append(this.samplerCountTotal)
 		.append(")")
 		.append("\n         Average: ")
 		.append(this.avgTotal)
@@ -355,7 +357,7 @@ public class SampleLog {
 		StringBuilder s = new StringBuilder();
 		s.append("SampleLog [sampleName=" + this.sampleName 
 				+ ", timeStamp=" + this.timeStamp + 
-				", current="+ this.current + 
+				", samplerCount="+ this.samplerCount + 
 				", error=" + this.error + 
 				", pct={");
 		for(ValueAtPercentile pc : this.pct) {
@@ -365,7 +367,7 @@ public class SampleLog {
 				", max=" + this.max + 
 				", throughput=" + this.throughput + ",");
 		
-		s.append(" total=" + this.total + 
+		s.append(" samplerCountTotal=" + this.samplerCountTotal + 
 				", errorTotal=" + this.errorTotal +
 				", pctTotal={");
 		for(ValueAtPercentile pc : this.pctTotal) {

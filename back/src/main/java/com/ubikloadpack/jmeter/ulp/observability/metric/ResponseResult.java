@@ -56,6 +56,8 @@ public class ResponseResult {
      * @param groupThreads Group thread count
      * @param allThreads Total thread count
      * @param samplerLabel Name of the sampler the sample belongs to
+     * @param startTime Start time of the sample
+     * @param endTime End time of the sample
      */
 	public ResponseResult(String threadGroupLabel, Long responseTime, boolean hasError, Integer groupThreads,
 			Integer allThreads, String samplerLabel, Long startTime, Long endTime) {

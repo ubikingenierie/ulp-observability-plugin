@@ -29,7 +29,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
   @Input() totalLabel = 'total_info';
 
   cards : CardList = {
-    'total': {
+    'samplerCountEveryPeriods': {
       label: 'Total Requests',
       icon: 'summarize',
       data: {
@@ -95,10 +95,10 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
       ['avg','max','throughput'].forEach(type =>{
         this.cards[type].data.value = this.datasets[type + '_every_periods'][this.totalLabel][lastIndex].y;
       });
-      this.cards['total'].data.value = this.datasets['total'][this.totalLabel][lastIndex].y;
+      this.cards['samplerCountEveryPeriods'].data.value = this.datasets['samplerCountEveryPeriods'][this.totalLabel][lastIndex].y;
 
-      this.cards['error'].data.value = (this.datasets['errorEveryPeriods'][this.totalLabel][lastIndex].y / this.datasets['total'][this.totalLabel][lastIndex].y * 100).toFixed(3);
-      this.cards['error'].data.comment = '('+ this.datasets['errorEveryPeriods'][this.totalLabel][lastIndex].y + '/'+ this.datasets['total'][this.totalLabel][lastIndex].y+')';
+      this.cards['error'].data.value = (this.datasets['errorEveryPeriods'][this.totalLabel][lastIndex].y / this.datasets['samplerCountEveryPeriods'][this.totalLabel][lastIndex].y * 100).toFixed(3);
+      this.cards['error'].data.comment = '('+ this.datasets['errorEveryPeriods'][this.totalLabel][lastIndex].y + '/'+ this.datasets['samplerCountEveryPeriods'][this.totalLabel][lastIndex].y+')';
 
       this.cards['threads'].data.value = this.threads[lastIndex].y;
 

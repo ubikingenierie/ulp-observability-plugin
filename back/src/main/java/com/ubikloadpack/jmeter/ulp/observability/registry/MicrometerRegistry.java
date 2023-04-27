@@ -227,7 +227,7 @@ public class MicrometerRegistry {
 				(long) totalReg.counter("count.total","sample",name).count(),
 				(long) everyPeriodsSummary.max(),
 				averageTotalResponseTime,
-				(long) totalReg.counter("count.error","sample",name).count(), // total error count,
+				(long) totalReg.counter("count.error","sample",name).count(), // total error count
 				totalThroughput,
 				everyPeriodsSummary.takeSnapshot().percentileValues(), // total percentiles
 				(long) totalReg.counter("count.threads","sample",name).count()

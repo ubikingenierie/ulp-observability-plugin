@@ -202,8 +202,8 @@ export class UlpObservabilityDashboardComponent implements OnInit{
             sample.metrics.forEach(metric =>{
               if(metric.labels !== undefined){
                 switch(metric.labels['count']){
-                  case('all'):
-                    this.pushMetric('total', nameAndPostfix.name, timestamp, sample.metrics[0].value);
+                  case('sampler_count_every_periods'):
+                    this.pushMetric('samplerCountEveryPeriods', nameAndPostfix.name, timestamp, sample.metrics[0].value);
                     break;
                   case('error'):
                     error = metric.value ?? 0;
@@ -213,9 +213,9 @@ export class UlpObservabilityDashboardComponent implements OnInit{
                     errorEveryPeriods = metric.value ?? 0;
                     this.pushMetric('errorEveryPeriods', nameAndPostfix.name, new Date(timestamp), errorEveryPeriods);
                     break;
-                  case('period'):
+                  case('sampler_count'):
                     count = metric.value ?? 0;
-                    this.pushMetric('period', nameAndPostfix.name, new Date(timestamp), count);
+                    this.pushMetric('samplerCount', nameAndPostfix.name, new Date(timestamp), count);
                     break;
                   default:
                 }
