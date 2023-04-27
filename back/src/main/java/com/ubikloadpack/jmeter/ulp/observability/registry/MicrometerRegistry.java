@@ -56,7 +56,7 @@ public class MicrometerRegistry {
 	 */
 	private SampleLogger logger;
 	
-	private volatile Map<String, Pair<Long,Long>> startAndEndDatesOfSamplers = new ConcurrentHashMap<>();
+	private Map<String, Pair<Long,Long>> startAndEndDatesOfSamplers = new ConcurrentHashMap<>();
 	
     /**
      * Creates new Micrometer registery
