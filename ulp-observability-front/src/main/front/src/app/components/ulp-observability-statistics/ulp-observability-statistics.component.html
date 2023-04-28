@@ -6,7 +6,7 @@
 
     <ng-container  matColumnDef={{columnsToDisplay[0].key}}>
       <th mat-header-cell mat-sort-header *matHeaderCellDef > {{columnsToDisplay[0].label}} </th>
-      <td mat-cell *matCellDef= "let stats"> zerzer</td>
+      <td mat-cell *matCellDef= "let stats"> {{stats[columnsToDisplay[0].key].data.value}} {{stats[columnsToDisplay[0].key].data.unit}}</td>
     </ng-container>
 
     <ng-container matColumnDef={{columnsToDisplay[1].key}}>

@@ -30,16 +30,14 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 public class MicrometerRegistry {
 	
 	/**
-	 * Main sample registry containing
-	 *  sample records of each thread group + total.
+	 * Contains data of current interval
 	 */
-	private MeterRegistry registry = new SimpleMeterRegistry();
+	private MeterRegistry intervalRegistry = new SimpleMeterRegistry();
 
 	/**
-	 * Record count registry for each thread group + total.
+	 * Contains data of every intervals
 	 */
-	private MeterRegistry totalReg =
-			new SimpleMeterRegistry();
+	private MeterRegistry summaryRegistry = new SimpleMeterRegistry();
 	
 	/**
 	 * Total metrics label.
@@ -78,13 +76,13 @@ public class MicrometerRegistry {
 			Integer logFrequency,
 			SampleLogger logger
 			) {
-		this.registry = new SimpleMeterRegistry();
-		this.totalReg = new SimpleMeterRegistry();
+		this.intervalRegistry = new SimpleMeterRegistry();
+		this.summaryRegistry = new SimpleMeterRegistry();
 		this.totalLabel = Util.makeMicrometerName(totalLabel);
 		this.logFrequency = logFrequency;
 		this.logger = logger;
-		this.registry.config().meterFilter(createMeterFilter(pctPrecision, pct1, pct2, pct3));
-		this.totalReg.config().meterFilter(createMeterFilter(pctPrecision, pct1, pct2, pct3));
+		this.intervalRegistry.config().meterFilter(createMeterFilter(pctPrecision, pct1, pct2, pct3));
+		this.summaryRegistry.config().meterFilter(createMeterFilter(pctPrecision, pct1, pct2, pct3));
 	}
 	
 	private MeterFilter createMeterFilter(Integer pctPrecision, Integer pct1, Integer pct2, Integer pct3) {
@@ -99,15 +97,21 @@ public class MicrometerRegistry {
 						)) {
 					return DistributionStatisticConfig
 							.builder()
-							.percentilePrecision(
-									pctPrecision
-									)
+							// TODO we have memory issues if we set this value too high. But because we do not need a big precision,
+							// we concluded it might be better to force the precision to 0 to avoid memory issues for no reasons.
+							// Maybe we can still allow the user to change this value ? But then he really should be aware that
+							// it is not safe.
+							.percentilePrecision(0)
 							.percentiles(
 									(float)pct1/100.0,
 									(float)pct2/100.0,
 									(float)pct3/100.0
-									)
-							.percentilesHistogram(true)
+							)
+							.percentilesHistogram(false)
+							// mettre max expected à 1h
+							// mettre expiry à 1h par défaut
+							
+							
 							.build()
 							.merge(config);
 				}
@@ -120,10 +124,10 @@ public class MicrometerRegistry {
 	 * Clears and closes registry
 	 */
 	public void close() {
-		this.registry.clear();
-		this.registry.close();
-		this.totalReg.clear();
-		this.totalReg.close();
+		this.intervalRegistry.clear();
+		this.intervalRegistry.close();
+		this.summaryRegistry.clear();
+		this.summaryRegistry.close();
 	}
 	
 	/**
@@ -132,7 +136,7 @@ public class MicrometerRegistry {
 	 * @param result Occurred sample result
 	 */
 	public synchronized void addResponse(ResponseResult result) {
-		if(this.registry.isClosed() || this.totalReg.isClosed()) {
+		if(this.intervalRegistry.isClosed() || this.summaryRegistry.isClosed()) {
 			return;
 		}
 
@@ -143,8 +147,8 @@ public class MicrometerRegistry {
 		
 		for(String microMeterTag : micrometerTags) {
 			// Save current period responses time
-			this.registry.summary("summary.response", "sample", microMeterTag).record(result.getResponseTime());
-			this.totalReg.summary("summary.response", "sample", microMeterTag).record(result.getResponseTime());
+			this.intervalRegistry.summary("summary.response", "sample", microMeterTag).record(result.getResponseTime());
+			this.summaryRegistry.summary("summary.response", "sample", microMeterTag).record(result.getResponseTime());
 
 			// Save the first sampler that occured in time, and the last. We have to get them this way or we lack
 			// precision when we calculate the Throughput. We can't use micrometer for this because we can't retrieve minimal value from
@@ -168,31 +172,31 @@ public class MicrometerRegistry {
 			
 			// Increment error counters if there is one
 			if(result.hasError()) {
-				this.registry.counter("count.error", "sample", microMeterTag).increment();
-				this.totalReg.counter("count.error", "sample", microMeterTag).increment();
+				this.intervalRegistry.counter("count.error", "sample", microMeterTag).increment();
+				this.summaryRegistry.counter("count.error", "sample", microMeterTag).increment();
 			}
 			
 			// Accumulate responses time to calculate average responses time with a good precision without being heavy for the memory
-			this.totalReg.counter("accumulate.response", "sample", microMeterTag).increment(result.getResponseTime());
+			this.summaryRegistry.counter("accumulate.response", "sample", microMeterTag).increment(result.getResponseTime());
 			
 			// Increment tag count
-			this.totalReg.counter("count.total", "sample", microMeterTag).increment();
+			this.summaryRegistry.counter("count.total", "sample", microMeterTag).increment();
 		}
 	
 		// Count thread number. The registries keep the max thread number values respectively for the period, and every periods.
-		int threadGroupIncrement = result.getGroupThreads() - (int) this.registry.counter("count.threads", "sample", threadTag).count();
-		this.registry.counter("count.threads", "sample", threadTag).increment(threadGroupIncrement < 0 ? 0 : threadGroupIncrement);
-		int totalIncrement = result.getAllThreads() - (int) this.registry.counter("count.threads", "sample", this.totalLabel).count();
-		this.registry.counter("count.threads", "sample", this.totalLabel).increment(totalIncrement < 0 ? 0 : totalIncrement);
-		int samplerIncrement = result.getGroupThreads() - (int) this.registry.counter("count.threads", "sample", samplerTag).count();
-		this.registry.counter("count.threads", "sample", samplerTag).increment(samplerIncrement < 0 ? 0 : samplerIncrement);
+		int threadGroupIncrement = result.getGroupThreads() - (int) this.intervalRegistry.counter("count.threads", "sample", threadTag).count();
+		this.intervalRegistry.counter("count.threads", "sample", threadTag).increment(threadGroupIncrement < 0 ? 0 : threadGroupIncrement);
+		int totalIncrement = result.getAllThreads() - (int) this.intervalRegistry.counter("count.threads", "sample", this.totalLabel).count();
+		this.intervalRegistry.counter("count.threads", "sample", this.totalLabel).increment(totalIncrement < 0 ? 0 : totalIncrement);
+		int samplerIncrement = result.getGroupThreads() - (int) this.intervalRegistry.counter("count.threads", "sample", samplerTag).count();
+		this.intervalRegistry.counter("count.threads", "sample", samplerTag).increment(samplerIncrement < 0 ? 0 : samplerIncrement);
 		
-		int threadGroupIncrementTotal = result.getGroupThreads() - (int) this.totalReg.counter("count.threads", "sample", threadTag).count();
-		this.totalReg.counter("count.threads", "sample", threadTag).increment(threadGroupIncrementTotal < 0 ? 0 : threadGroupIncrementTotal);
-		int totalIncrementTotal = result.getAllThreads() - (int) this.totalReg.counter("count.threads", "sample", this.totalLabel).count();
-		this.totalReg.counter("count.threads", "sample", this.totalLabel).increment(totalIncrementTotal < 0 ? 0 : totalIncrementTotal);
-		int samplerIncrementTotal = result.getGroupThreads() - (int) this.totalReg.counter("count.threads", "sample", samplerTag).count();
-		this.totalReg.counter("count.threads", "sample", samplerTag).increment(samplerIncrementTotal < 0 ? 0 : samplerIncrementTotal);
+		int threadGroupIncrementTotal = result.getGroupThreads() - (int) this.summaryRegistry.counter("count.threads", "sample", threadTag).count();
+		this.summaryRegistry.counter("count.threads", "sample", threadTag).increment(threadGroupIncrementTotal < 0 ? 0 : threadGroupIncrementTotal);
+		int totalIncrementTotal = result.getAllThreads() - (int) this.summaryRegistry.counter("count.threads", "sample", this.totalLabel).count();
+		this.summaryRegistry.counter("count.threads", "sample", this.totalLabel).increment(totalIncrementTotal < 0 ? 0 : totalIncrementTotal);
+		int samplerIncrementTotal = result.getGroupThreads() - (int) this.summaryRegistry.counter("count.threads", "sample", samplerTag).count();
+		this.summaryRegistry.counter("count.threads", "sample", samplerTag).increment(samplerIncrementTotal < 0 ? 0 : samplerIncrementTotal);
 	}
 	
 	/**
@@ -203,34 +207,34 @@ public class MicrometerRegistry {
 	 * @return New log with recorded period metrics
 	 */
 	public SampleLog makeLog(String name, Date timestamp) {
-		DistributionSummary currentPeriodSummary = registry.find("summary.response").tag("sample", name).summary();
-		DistributionSummary everyPeriodsSummary = totalReg.find("summary.response").tag("sample", name).summary();
+		DistributionSummary currentPeriodSummary = intervalRegistry.find("summary.response").tag("sample", name).summary();
+		DistributionSummary everyPeriodsSummary = summaryRegistry.find("summary.response").tag("sample", name).summary();
 		
-		Double averageTotalResponseTime = totalReg.counter("accumulate.response", "sample", name).count() /
-				totalReg.counter("count.total", "sample", name).count();
+		Double averageTotalResponseTime = summaryRegistry.counter("accumulate.response", "sample", name).count() /
+				summaryRegistry.counter("count.total", "sample", name).count();
 		double timeSinceFirstSampleCallInSeconds = (startAndEndDatesOfSamplers.get(name).getRight() - startAndEndDatesOfSamplers.get(name).getLeft()) / 1000d; 
-		Double totalThroughput = this.totalReg.counter("count.total","sample",name).count() / (timeSinceFirstSampleCallInSeconds);
+		Double totalThroughput = this.summaryRegistry.counter("count.total","sample",name).count() / (timeSinceFirstSampleCallInSeconds);
 		
 		return currentPeriodSummary == null ? null : new SampleLog(
 				Util.micrometerToOpenMetrics(name),
 				timestamp,
 				// Current period data
 				(long) currentPeriodSummary.count(),
-				(long) registry.counter("count.error","sample",name).count(),
+				(long) intervalRegistry.counter("count.error","sample",name).count(),
 				currentPeriodSummary.takeSnapshot().percentileValues(),
 				(long) currentPeriodSummary.totalAmount(),
 				currentPeriodSummary.mean(),
 				(long) currentPeriodSummary.max(),
 				(double) currentPeriodSummary.count() / this.logFrequency,
-				(long) registry.counter("count.threads","sample",name).count(),
+				(long) intervalRegistry.counter("count.threads","sample",name).count(),
 				// Every periods data
-				(long) totalReg.counter("count.total","sample",name).count(),
+				(long) summaryRegistry.counter("count.total","sample",name).count(),
 				(long) everyPeriodsSummary.max(),
 				averageTotalResponseTime,
-				(long) totalReg.counter("count.error","sample",name).count(), // total error count
+				(long) summaryRegistry.counter("count.error","sample",name).count(), // total error count
 				totalThroughput,
 				everyPeriodsSummary.takeSnapshot().percentileValues(), // total percentiles
-				(long) totalReg.counter("count.threads","sample",name).count()
+				(long) summaryRegistry.counter("count.threads","sample",name).count()
 		);
 	}
 
@@ -271,14 +275,14 @@ public class MicrometerRegistry {
 	 */
 	public void logAndReset(List<String> names) {
 		this.log(names);
-		this.registry.clear();
+		this.intervalRegistry.clear();
 	}
 
 	/**
 	 * @return List of recorded thread group names + total
 	 */
 	public List<String> getSampleNames() {
-		return this.registry.find("summary.response").summaries()                  
+		return this.intervalRegistry.find("summary.response").summaries()                  
 				.stream().map(summary -> summary.getId().getTag("sample"))
 				.collect(Collectors.toList());
 	}
