@@ -32,10 +32,12 @@ If you feel like your graphs have too many lines, you can use the navbar at the 
 In the below exemple, we filtered the displayed lines thanks to the navbar and by clicking on some names at the top which enable/disable them.
 ![Schema](images/newExemple2.png)
 
-Alternatively, you can use the regex parmeter presented earlier like this, and directly have the samplers you are interested in :
+Alternatively, you can use the regex parmeter presented earlier like this, and directly have the samplers you are interested in.
+This filtering is done on the server side and would also reduce resources used by JMeter.
+
 ![Schema](images/regexExemple.png)
 ![Schema](images/regexResult.png)
-A good practice concerning the name of the samplers is to prefix their name with the group name. As such, if your group name is 'group_2', your samplers name should start with 'group_2'. This way you can very easily filter them with the navbar and/or regex parameter.
+A good practice concerning the name of the samplers is to prefix their name with the group name. As such, if your group name is 'group_2', your samplers name should start with 'group_2'. This way you can very easily filter them with the thread group name.
 
 # https://www.ubik-ingenierie.com/blog/monitor-jmeter-test-from-browser/
 Replace this image :
