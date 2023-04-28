@@ -90,7 +90,6 @@ public class MicrometerRegistry {
 	}
 	
 	private MeterFilter createMeterFilter(Integer pct1, Integer pct2, Integer pct3, Integer expiry) {
-	    System.out.println("Percentiles:"+(float)pct1/100.0+","+(float)pct2/100.0+","+(float)pct3/100.0);
 		return new MeterFilter() {
 			@Override
 			public DistributionStatisticConfig configure(
