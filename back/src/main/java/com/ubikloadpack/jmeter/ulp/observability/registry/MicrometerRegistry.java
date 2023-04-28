@@ -1,5 +1,6 @@
 package com.ubikloadpack.jmeter.ulp.observability.registry;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -101,17 +102,14 @@ public class MicrometerRegistry {
 							// we concluded it might be better to force the precision to 0 to avoid memory issues for no reasons.
 							// Maybe we can still allow the user to change this value ? But then he really should be aware that
 							// it is not safe.
-							.percentilePrecision(0)
+							.percentilePrecision(1)
 							.percentiles(
 									(float)pct1/100.0,
 									(float)pct2/100.0,
 									(float)pct3/100.0
 							)
 							.percentilesHistogram(false)
-							// mettre max expected à 1h
-							// mettre expiry à 1h par défaut
-							
-							
+							.expiry(Duration.ofSeconds(3600))
 							.build()
 							.merge(config);
 				}
