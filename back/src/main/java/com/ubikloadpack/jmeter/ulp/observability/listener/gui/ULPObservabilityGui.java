@@ -195,6 +195,15 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	    }
 	}
 	
+	private Integer checkIfNumberIsBetween0And5(String text, Integer currentValue, String parameter) {
+		int inputNumber = validateNumeric(text,currentValue);
+		if(inputNumber < 0 || inputNumber > 5) {
+			LOG.error("{} must be between 0 and 5", parameter);
+			return currentValue;
+		}
+		return inputNumber;
+	}
+	
 	/**
 	 * Check the listener configuration parameter is greater than 0
 	 */
@@ -259,7 +268,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			observabilityListener.setPct1(validatePercentile(pct1.getText(), observabilityListener.getPct1(),"percentile 1"));
 			observabilityListener.setPct2(validatePercentile(pct2.getText(), observabilityListener.getPct2(),"percentile 2"));
 			observabilityListener.setPct3(validatePercentile(pct3.getText(), observabilityListener.getPct3(),"percentile 3"));
-			observabilityListener.setPctPrecision(validatePositiveNumeric(pctPrecision.getText(), observabilityListener.getPctPrecision(),"percentiles precision"));
+			observabilityListener.setPctPrecision(checkIfNumberIsBetween0And5(pctPrecision.getText(), observabilityListener.getPctPrecision(),"percentiles precision"));
 			observabilityListener.setLogFreq(validatePositiveNumeric(logFrequency.getText(), observabilityListener.getLogFreq(),"log frequency"));
 		}
 	}

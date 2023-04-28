@@ -106,7 +106,7 @@ public class MicrometerRegistry {
 							// we concluded it might be better to force the precision to 0 to avoid memory issues for no reasons.
 							// Maybe we can still allow the user to change this value ? But then he really should be aware that
 							// it is not safe.
-							.percentilePrecision(1)
+							.percentilePrecision(0)
 							.percentiles(
 									(float)pct1/100.0,
 									(float)pct2/100.0,
