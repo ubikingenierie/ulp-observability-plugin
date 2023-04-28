@@ -50,11 +50,6 @@ public class ULPODefaultConfig {
 	public static final String PCT3_PROP =
 			"ULPObservability.Pct3";
 	/**
-	 * JMeter property key for percentile precision.
-	 */
-	public static final String PCT_PRECISION_PROP =
-			"ULPObservability.PctPrecision";
-	/**
 	 * JMeter property key for log frequency.
 	 */
 	public static final String LOG_FREQUENCY_PROP =
@@ -118,11 +113,6 @@ public class ULPODefaultConfig {
 	 * Default 3rd percentile score.
 	 */
 	private static final Integer PCT3 = 95;
-
-	/**
-	 * Default number of significant decimal digits for percentiles.
-	 */
-	private static final Integer PCT_PRECISION = 5;
 
 	/**
 	 * Default logging frequency in seconds.
@@ -257,16 +247,6 @@ public class ULPODefaultConfig {
 	 */
 	public static Integer pct3() {
 		return JMeterUtils.getPropDefault(PCT3_PROP, PCT3);
-	}
-
-	/**
-	 * Get default percentile precision value from JMeter properties file;
-	 *  if it not exists, retrieve hardcoded default value instead.
-	 * @return Default percentile precision
-	 */
-	public static Integer pctPrecision() {
-		return JMeterUtils
-				.getPropDefault(PCT_PRECISION_PROP, PCT_PRECISION);
 	}
 
 	/**

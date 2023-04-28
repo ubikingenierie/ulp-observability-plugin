@@ -66,16 +66,15 @@ public class MicrometerRegistry {
      * @param pct1 First percentile
      * @param pct2 Second percentile
      * @param pct3 Third percentile
-     * @param pctPrecision Percentile precision
      * @param logFrequency Log frequency 
      * @param logger Metrics logger
+     * @param micrometerExpiryTimeInSeconds Expiry value for micrometer
      */
 	public MicrometerRegistry(
 			String totalLabel,
 			Integer pct1,
 			Integer pct2,
 			Integer pct3,
-			Integer pctPrecision,
 			Integer logFrequency,
 			SampleLogger logger,
 			Integer micrometerExpiryTimeInSeconds
@@ -85,12 +84,13 @@ public class MicrometerRegistry {
 		this.totalLabel = Util.makeMicrometerName(totalLabel);
 		this.logFrequency = logFrequency;
 		this.logger = logger;
-		this.intervalRegistry.config().meterFilter(createMeterFilter(pctPrecision, pct1, pct2, pct3));
-		this.summaryRegistry.config().meterFilter(createMeterFilter(pctPrecision, pct1, pct2, pct3));
-		this.micrometerExpiryTimeInSeconds = micrometerExpiryTimeInSeconds;
+        this.micrometerExpiryTimeInSeconds = micrometerExpiryTimeInSeconds;
+		this.intervalRegistry.config().meterFilter(createMeterFilter(pct1, pct2, pct3, 60));
+		this.summaryRegistry.config().meterFilter(createMeterFilter(pct1, pct2, pct3, micrometerExpiryTimeInSeconds));
 	}
 	
-	private MeterFilter createMeterFilter(Integer pctPrecision, Integer pct1, Integer pct2, Integer pct3) {
+	private MeterFilter createMeterFilter(Integer pct1, Integer pct2, Integer pct3, Integer expiry) {
+	    System.out.println("Percentiles:"+(float)pct1/100.0+","+(float)pct2/100.0+","+(float)pct3/100.0);
 		return new MeterFilter() {
 			@Override
 			public DistributionStatisticConfig configure(
@@ -102,18 +102,16 @@ public class MicrometerRegistry {
 						)) {
 					return DistributionStatisticConfig
 							.builder()
-							// TODO we have memory issues if we set this value too high. But because we do not need a big precision,
-							// we concluded it might be better to force the precision to 0 to avoid memory issues for no reasons.
-							// Maybe we can still allow the user to change this value ? But then he really should be aware that
-							// it is not safe.
-							.percentilePrecision(0)
+							.percentilePrecision(2)
+                            .minimumExpectedValue(1d)
+							.maximumExpectedValue(360000d)
 							.percentiles(
 									(float)pct1/100.0,
 									(float)pct2/100.0,
 									(float)pct3/100.0
 							)
-							.percentilesHistogram(false)
-							.expiry(Duration.ofSeconds(micrometerExpiryTimeInSeconds))
+							.percentilesHistogram(true)
+							.expiry(Duration.ofSeconds(expiry))
 							.build()
 							.merge(config);
 				}

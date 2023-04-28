@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.visualizers.gui.AbstractListenerGui;
@@ -64,9 +65,9 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	 */
 	private final JTextField pct3 = new JTextField();
 	/**
-	 * Percentile precision value
+	 * Micrometer Expiry Time
 	 */
-	private final JTextField pctPrecision = new JTextField();
+	private final JTextField micrometerExpiryTime = new JTextField();
 	/**
 	 * Log frequency value
 	 */
@@ -131,7 +132,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	labelsAndFields.add(Pair.of(new JLabel("OpenMetrics route"), this.metricsRoute));
     	labelsAndFields.add(Pair.of(new JLabel("Number of Processing Threads"), this.threadSize));
     	labelsAndFields.add(Pair.of(new JLabel("Sample Queue Buffer Capacity"), this.bufferCapacity));
-    	labelsAndFields.add(Pair.of(new JLabel("Percentiles precision"), this.pctPrecision));
+    	labelsAndFields.add(Pair.of(new JLabel("Test Duration in seconds"), this.micrometerExpiryTime));
     	labelsAndFields.add(Pair.of(new JLabel("Log Frequency in seconds"), this.logFrequency));
     	labelsAndFields.add(Pair.of(new JLabel("Total metrics label"), this.totalLabel));
     	
@@ -193,15 +194,6 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	        LOG.error("Must be a number", e);
 	        return currentValue;
 	    }
-	}
-	
-	private Integer checkIfNumberIsBetween0And5(String text, Integer currentValue, String parameter) {
-		int inputNumber = validateNumeric(text,currentValue);
-		if(inputNumber < 0 || inputNumber > 5) {
-			LOG.error("{} must be between 0 and 5", parameter);
-			return currentValue;
-		}
-		return inputNumber;
 	}
 	
 	/**
@@ -268,7 +260,8 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			observabilityListener.setPct1(validatePercentile(pct1.getText(), observabilityListener.getPct1(),"percentile 1"));
 			observabilityListener.setPct2(validatePercentile(pct2.getText(), observabilityListener.getPct2(),"percentile 2"));
 			observabilityListener.setPct3(validatePercentile(pct3.getText(), observabilityListener.getPct3(),"percentile 3"));
-			observabilityListener.setPctPrecision(checkIfNumberIsBetween0And5(pctPrecision.getText(), observabilityListener.getPctPrecision(),"percentiles precision"));
+			observabilityListener.setMicrometerExpiryTimeInSeconds(
+			        StringUtils.isNotEmpty(micrometerExpiryTime.getText()) ? Integer.valueOf(micrometerExpiryTime.getText().trim()) : null);
 			observabilityListener.setLogFreq(validatePositiveNumeric(logFrequency.getText(), observabilityListener.getLogFreq(),"log frequency"));
 		}
 	}
@@ -292,16 +285,13 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			this.pct1.setText(Integer.toString(ulpObservabilityListener.getPct1()));
 			this.pct2.setText(Integer.toString(ulpObservabilityListener.getPct2()));
 			this.pct3.setText(Integer.toString(ulpObservabilityListener.getPct3()));
-			this.pctPrecision.setText(Integer.toString(ulpObservabilityListener.getPctPrecision()));
+			this.micrometerExpiryTime.setText(Integer.toString(ulpObservabilityListener.getMicrometerExpiryTimeInSeconds()));
 			this.logFrequency.setText(Integer.toString(ulpObservabilityListener.getLogFreq()));
 			this.totalLabel.setText(ulpObservabilityListener.getTotalLabel());
 			this.regex.setText(ulpObservabilityListener.getRegex());
 		}
-
 	}
 
-	
-	
     /**
      * Set all config parameters to their default values
      */
@@ -316,14 +306,9 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		this.pct1.setText(Integer.toString(ULPODefaultConfig.pct1()));
 		this.pct2.setText(Integer.toString(ULPODefaultConfig.pct2()));
 		this.pct3.setText(Integer.toString(ULPODefaultConfig.pct3()));
-		this.pctPrecision.setText(Integer.toString(ULPODefaultConfig.pctPrecision()));
+		this.micrometerExpiryTime.setText(Integer.toString(ULPODefaultConfig.micrometerExpiryTimeInSeconds()));
 		this.logFrequency.setText(Integer.toString(ULPODefaultConfig.logFrequency()));
 		this.totalLabel.setText(ULPODefaultConfig.totalLabel());
 		this.regex.setText(ULPODefaultConfig.regex());
 	}
-
-	
-
-	
 }
-
