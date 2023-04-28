@@ -70,6 +70,9 @@ public class ULPODefaultConfig {
 
 	public static final String KEEP_JETTY_SERVER_UP_AFTER_TEST_END_PROP =
 			"ULPObservability.KeepJettyServerUpAfterTestEnd";
+	
+	public static final String MICROMETER_EXPIRY_TIME_IN_SECONDS_PROP =
+			"ULPObservability.MicrometerExpiryTimeInSeconds";
 	/**
 	 * Default plugin name.
 	 */
@@ -140,6 +143,12 @@ public class ULPODefaultConfig {
 	 * Default Checkbox value for the jetty server
 	 */
 	public static final Boolean KEEP_JETTY_SERVER_UP_AFTER_TEST_END = false;
+	
+	/**
+	 * Default OpenMetrics name to denote total metrics.
+	 */
+	public static final Integer MICROMETER_EXPIRY_TIME_IN_SECONDS = 3600;
+	
 	/**
 	 * Get default ULP Observability plugin name.
 	 * @return Default plugin name
@@ -156,6 +165,11 @@ public class ULPODefaultConfig {
 	public static String totalLabel() {
 		return JMeterUtils
 				.getPropDefault(TOTAL_LABEL_PROP, TOTAL_LABEL);
+	}
+	
+	public static Integer micrometerExpiryTimeInSeconds() {
+		return JMeterUtils
+				.getPropDefault(MICROMETER_EXPIRY_TIME_IN_SECONDS_PROP, MICROMETER_EXPIRY_TIME_IN_SECONDS);
 	}
 	
 	/**

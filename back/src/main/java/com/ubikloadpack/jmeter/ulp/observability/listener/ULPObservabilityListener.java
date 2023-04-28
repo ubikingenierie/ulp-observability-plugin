@@ -221,6 +221,10 @@ public class ULPObservabilityListener extends AbstractTestElement
 	public String getRegex() {
 		return getPropertyAsString(ULPODefaultConfig.REGEX_PROP, ULPODefaultConfig.regex());
 	}
+	
+	public Integer getMicrometerExpiryTimeInSeconds() {
+		return getPropertyAsInt(ULPODefaultConfig.MICROMETER_EXPIRY_TIME_IN_SECONDS_PROP, ULPODefaultConfig.micrometerExpiryTimeInSeconds());
+	}
 
 	public BlockingQueue<ResponseResult> getSampleQueue() {
 		return listenerClientData.sampleQueue;
@@ -235,7 +239,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	public void init(ListenerClientData listenerClientData) {
 		listenerClientData.logger = new SampleLogger(getTotalLabel());
 		listenerClientData.registry = new MicrometerRegistry(getTotalLabel(), getPct1(), getPct2(), getPct3(),
-				getPctPrecision(), getLogFreq(), listenerClientData.logger);
+				getPctPrecision(), getLogFreq(), listenerClientData.logger, getMicrometerExpiryTimeInSeconds());
 
 		listenerClientData.sampleQueue = new ArrayBlockingQueue<>(getBufferCapacity());
 

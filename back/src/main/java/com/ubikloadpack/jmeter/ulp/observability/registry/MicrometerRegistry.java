@@ -57,6 +57,8 @@ public class MicrometerRegistry {
 	
 	private Map<String, Pair<Long,Long>> startAndEndDatesOfSamplers = new ConcurrentHashMap<>();
 	
+	private Integer micrometerExpiryTimeInSeconds;
+	
     /**
      * Creates new Micrometer registery
      * 
@@ -75,7 +77,8 @@ public class MicrometerRegistry {
 			Integer pct3,
 			Integer pctPrecision,
 			Integer logFrequency,
-			SampleLogger logger
+			SampleLogger logger,
+			Integer micrometerExpiryTimeInSeconds
 			) {
 		this.intervalRegistry = new SimpleMeterRegistry();
 		this.summaryRegistry = new SimpleMeterRegistry();
@@ -84,6 +87,7 @@ public class MicrometerRegistry {
 		this.logger = logger;
 		this.intervalRegistry.config().meterFilter(createMeterFilter(pctPrecision, pct1, pct2, pct3));
 		this.summaryRegistry.config().meterFilter(createMeterFilter(pctPrecision, pct1, pct2, pct3));
+		this.micrometerExpiryTimeInSeconds = micrometerExpiryTimeInSeconds;
 	}
 	
 	private MeterFilter createMeterFilter(Integer pctPrecision, Integer pct1, Integer pct2, Integer pct3) {
@@ -109,7 +113,7 @@ public class MicrometerRegistry {
 									(float)pct3/100.0
 							)
 							.percentilesHistogram(false)
-							.expiry(Duration.ofSeconds(3600))
+							.expiry(Duration.ofSeconds(micrometerExpiryTimeInSeconds))
 							.build()
 							.merge(config);
 				}
