@@ -14,6 +14,11 @@ interface StatList {
   [name:string]: StatInfo
 }
 
+interface KeyAndLabel {
+  key: string,
+  label: string
+}
+
 @Component({
   selector: 'app-ulp-observability-statistics',
   templateUrl: './ulp-observability-statistics.component.html',
@@ -27,7 +32,8 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
   
   dataSource!: MatTableDataSource<StatList>;
   statLine !: Array<StatList>;
-  columnsToDisplay !: Array<string>;
+  columnsToDisplay !: Array<KeyAndLabel>;
+  columnsKeys !: Array<string>;
   
   constructor() { }
 
@@ -47,6 +53,7 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
   refreshStats(){
     this.statLine = [];
     this.columnsToDisplay = [];
+    this.columnsKeys = [];
     if(this.threads !== undefined){
       for (const [key, value] of Object.entries({...this.threads})){
         
@@ -62,7 +69,7 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
                 value:'0'
               }
             },
-            'total': {
+            'samplerCountEveryPeriods': {
               label: 'Total Requests',
               data: {
                 unit: '',
@@ -99,15 +106,17 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
             },
           };
 
-          ['avg','max','total','throughput'].forEach(type =>{
-            stats[type].data.value = this.datasets[type][samplerName][lastIndex].y;
+          ['avg','max','throughput'].forEach(type =>{
+            stats[type].data.value = this.datasets[type + '_every_periods'][samplerName][lastIndex].y;
           });
+          stats['samplerCountEveryPeriods'].data.value = this.datasets['samplerCountEveryPeriods'][samplerName][lastIndex].y;
           stats['sampler'].data.value = samplerName.slice(key.indexOf('_')+1,key.length);
-          stats['error'].data.value = (this.datasets['error'][samplerName][lastIndex].y / this.datasets['period'][samplerName][lastIndex].y * 100).toFixed(3);
+          stats['error'].data.value = (this.datasets['errorEveryPeriods'][samplerName][lastIndex].y / this.datasets['samplerCountEveryPeriods'][samplerName][lastIndex].y * 100).toFixed(3);
     
-          Object.keys(this.datasets).filter(type => type.startsWith('pc')).forEach(pct => {
-            stats['Percentile '+pct.substring(2) + 'th'] = {
-              label: 'Percentile '+pct.substring(2) + 'th',
+          Object.keys(this.datasets).filter(type => type.startsWith('pctEveryPeriods')).forEach(pct => {
+            let percentileNumber = (pct.match(/\d/g) ?? ["0"]).join(""); // regex that get every numbers of a string
+            stats['Percentile '+ percentileNumber + 'th'] = {
+              label: 'Percentile '+ percentileNumber + 'th',
                   data: {
                     unit: 'ms',
                     value: this.datasets[pct][samplerName][lastIndex].y
@@ -116,7 +125,8 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
           });
           if(this.columnsToDisplay.length==0){
             for (const [key, value] of Object.entries({...stats})){
-              this.columnsToDisplay.push(key)
+              this.columnsToDisplay.push({key: key, label: value.label})
+              this.columnsKeys.push(key)
             }
           }
           this.statLine.push(stats)

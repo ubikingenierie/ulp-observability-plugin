@@ -1,6 +1,7 @@
 package com.ubikloadpack.jmeter.ulp.observability.listener;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.apache.jmeter.samplers.SampleListener;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.TestStateListener;
+import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -178,14 +180,6 @@ public class ULPObservabilityListener extends AbstractTestElement
 		return getPropertyAsInt(ULPODefaultConfig.PCT3_PROP, ULPODefaultConfig.pct3());
 	}
 
-	public void setPctPrecision(Integer pct_precision) {
-		setProperty(ULPODefaultConfig.PCT_PRECISION_PROP, pct_precision);
-	}
-
-	public Integer getPctPrecision() {
-		return getPropertyAsInt(ULPODefaultConfig.PCT_PRECISION_PROP, ULPODefaultConfig.pctPrecision());
-	}
-
 	public void setLogFreq(Integer logFreq) {
 		setProperty(ULPODefaultConfig.LOG_FREQUENCY_PROP, logFreq);
 	}
@@ -193,6 +187,14 @@ public class ULPObservabilityListener extends AbstractTestElement
 	public Integer getLogFreq() {
 		return getPropertyAsInt(ULPODefaultConfig.LOG_FREQUENCY_PROP, ULPODefaultConfig.logFrequency());
 	}
+	
+	public Integer getMicrometerExpiryTimeInSeconds() {
+        return getPropertyAsInt(ULPODefaultConfig.MICROMETER_EXPIRY_TIME_IN_SECONDS_PROP, ULPODefaultConfig.micrometerExpiryTimeInSeconds());
+    }
+    
+    public void setMicrometerExpiryTimeInSeconds(Integer expiryTimeInSeconds) {
+        setProperty(ULPODefaultConfig.MICROMETER_EXPIRY_TIME_IN_SECONDS_PROP, expiryTimeInSeconds);
+    }
 
 	public void setTotalLabel(String totalLabel) {
 		setProperty(ULPODefaultConfig.TOTAL_LABEL_PROP, totalLabel);
@@ -212,8 +214,6 @@ public class ULPObservabilityListener extends AbstractTestElement
 				this.regex = Optional.empty();
 			}
 		}
-		
-		
 	}
 
 	public String getTotalLabel() {
@@ -237,7 +237,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	public void init(ListenerClientData listenerClientData) {
 		listenerClientData.logger = new SampleLogger(getTotalLabel());
 		listenerClientData.registry = new MicrometerRegistry(getTotalLabel(), getPct1(), getPct2(), getPct3(),
-				getPctPrecision(), getLogFreq(), listenerClientData.logger);
+				getLogFreq(), listenerClientData.logger, getMicrometerExpiryTimeInSeconds());
 
 		listenerClientData.sampleQueue = new ArrayBlockingQueue<>(getBufferCapacity());
 
@@ -253,16 +253,18 @@ public class ULPObservabilityListener extends AbstractTestElement
 	 * log buffer overflow exception otherwise
 	 */
 	public void sampleOccurred(SampleEvent sampleEvent) {
+		
 		if (sampleEvent != null) {
 			try {
 				SampleResult sample = sampleEvent.getResult();
+				boolean hasError = !sample.isSuccessful();
 				String sampleLabel = sample.getSampleLabel();
 				
 				if(isStringMatchingRegex(sampleLabel)) {
 					if (!listenerClientData.sampleQueue.offer(new ResponseResult(sampleEvent.getThreadGroup(),
-							Util.getResponseTime(sample.getEndTime(), sample.getStartTime()), sample.getErrorCount() > 0,
-							sample.getGroupThreads(), sample.getAllThreads(), sample.getSampleLabel()), 1000,
-							TimeUnit.MILLISECONDS)) {
+							Util.getResponseTime(sample.getEndTime(), sample.getStartTime()), hasError,
+							sample.getGroupThreads(), sample.getAllThreads(), sample.getSampleLabel(), sample.getStartTime(),
+							sample.getEndTime()), 1000, TimeUnit.MILLISECONDS)) {
 						LOG.error("Sample queue overflow. Sample dropped: {}", sampleEvent.getThreadGroup());
 					}
 				}
@@ -270,7 +272,6 @@ public class ULPObservabilityListener extends AbstractTestElement
 			} catch (InterruptedException e) {
 				LOG.warn(sampleEvent.getResult().getThreadName() + ": Interrupting sample queue");
 			}
-			;
 		}
 	}
 	
@@ -338,10 +339,10 @@ public class ULPObservabilityListener extends AbstractTestElement
 							getMetricsRoute(), getWebAppRoute(), getLogFreq(), getTotalLabel(),
 							listenerClientData.logger);
 					listenerClientData.ulpObservabilityServer.start();
-					LOG.info("Jetty Endpoint started\n" + "Port: {}\n" + "Metrics route: {}\n" + "Web app route: {}",
+					LOG.info("Webapp Endpoint started\n" + "Port: {}\n" + "Metrics route: {}\n" + "Web app route: {}",
 							listenerClientData.ulpObservabilityServer.getPort(),
-							listenerClientData.ulpObservabilityServer.getServer().getURI() + getMetricsRoute(),
-							listenerClientData.ulpObservabilityServer.getServer().getURI() + getWebAppRoute());
+							computeUrl(listenerClientData.ulpObservabilityServer.getServer(), getMetricsRoute()),
+							computeUrl(listenerClientData.ulpObservabilityServer.getServer(), getWebAppRoute()));
 				} catch (Exception e) {
 					throw new IllegalStateException("Error while starting Jetty server on port "
 							+ listenerClientData.ulpObservabilityServer.getPort() + " : ", e);
@@ -372,7 +373,12 @@ public class ULPObservabilityListener extends AbstractTestElement
 		}
 	}
 
-	/**
+	private String computeUrl(Server server, String contextPath) {
+	    URI uri = server.getURI();
+        return uri.getScheme()+"://"+uri.getHost()+":"+uri.getPort()+contextPath;
+    }
+
+    /**
 	 * Ends test and clears sample registry and log; Stops all running registry task
 	 * threads; Stops Jetty server if it is running
 	 */
@@ -389,7 +395,6 @@ public class ULPObservabilityListener extends AbstractTestElement
 	 */
 	public void testEnded(String host) {
 		LOG.info("Test stopped : {}", host);
-
 		synchronized (LOCK) {
 			instanceCount--;
 			if (instanceCount == 0) {
@@ -397,6 +402,9 @@ public class ULPObservabilityListener extends AbstractTestElement
 
 				try {
 					if (listenerClientData.logCron.isThreadRunning()) {
+						// make last logs, then shutdown cron task
+						listenerClientData.registry.logAndReset();
+						System.out.println(listenerClientData.registry.guiLog());
 						listenerClientData.logCron.shutdownNow();
 						listenerClientData.logCron.purge();
 					}

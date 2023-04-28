@@ -50,11 +50,6 @@ public class ULPODefaultConfig {
 	public static final String PCT3_PROP =
 			"ULPObservability.Pct3";
 	/**
-	 * JMeter property key for percentile precision.
-	 */
-	public static final String PCT_PRECISION_PROP =
-			"ULPObservability.PctPrecision";
-	/**
 	 * JMeter property key for log frequency.
 	 */
 	public static final String LOG_FREQUENCY_PROP =
@@ -70,6 +65,9 @@ public class ULPODefaultConfig {
 
 	public static final String KEEP_JETTY_SERVER_UP_AFTER_TEST_END_PROP =
 			"ULPObservability.KeepJettyServerUpAfterTestEnd";
+	
+	public static final String MICROMETER_EXPIRY_TIME_IN_SECONDS_PROP =
+			"ULPObservability.MicrometerExpiryTimeInSeconds";
 	/**
 	 * Default plugin name.
 	 */
@@ -117,11 +115,6 @@ public class ULPODefaultConfig {
 	private static final Integer PCT3 = 95;
 
 	/**
-	 * Default number of significant decimal digits for percentiles.
-	 */
-	private static final Integer PCT_PRECISION = 5;
-
-	/**
 	 * Default logging frequency in seconds.
 	 */
 	private static final Integer LOG_FREQUENCY = 10;
@@ -140,6 +133,12 @@ public class ULPODefaultConfig {
 	 * Default Checkbox value for the jetty server
 	 */
 	public static final Boolean KEEP_JETTY_SERVER_UP_AFTER_TEST_END = false;
+	
+	/**
+	 * Default OpenMetrics name to denote total metrics.
+	 */
+	public static final Integer MICROMETER_EXPIRY_TIME_IN_SECONDS = 3600;
+	
 	/**
 	 * Get default ULP Observability plugin name.
 	 * @return Default plugin name
@@ -156,6 +155,11 @@ public class ULPODefaultConfig {
 	public static String totalLabel() {
 		return JMeterUtils
 				.getPropDefault(TOTAL_LABEL_PROP, TOTAL_LABEL);
+	}
+	
+	public static Integer micrometerExpiryTimeInSeconds() {
+		return JMeterUtils
+				.getPropDefault(MICROMETER_EXPIRY_TIME_IN_SECONDS_PROP, MICROMETER_EXPIRY_TIME_IN_SECONDS);
 	}
 	
 	/**
@@ -243,16 +247,6 @@ public class ULPODefaultConfig {
 	 */
 	public static Integer pct3() {
 		return JMeterUtils.getPropDefault(PCT3_PROP, PCT3);
-	}
-
-	/**
-	 * Get default percentile precision value from JMeter properties file;
-	 *  if it not exists, retrieve hardcoded default value instead.
-	 * @return Default percentile precision
-	 */
-	public static Integer pctPrecision() {
-		return JMeterUtils
-				.getPropDefault(PCT_PRECISION_PROP, PCT_PRECISION);
 	}
 
 	/**

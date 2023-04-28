@@ -98,18 +98,11 @@ export default function parsePrometheusTextFormat(metrics: any) {
                 if (type === SUMMARY_TYPE) {
                     samples = flattenMetrics(
                         samples,
-                        'quantiles',
-                        'quantile',
+                        ['quantiles', 'quantilesEveryPeriods'], // new keys for the parsed metrics
+                        ['quantile', 'quantile_every_periods'], // open metrics keys
                         'value'
                     );
-                } else if (type === HISTOGRAM_TYPE) {
-                    samples = flattenMetrics(
-                        samples,
-                        'buckets',
-                        'le',
-                        'bucket'
-                    );
-                }
+                } 
                 converted.push({
                     name: metric,
                     help: help ? help : '',
@@ -165,17 +158,28 @@ export default function parsePrometheusTextFormat(metrics: any) {
     return converted;
 }
 
-function flattenMetrics(metrics: any, groupName: any, keyName: any, valueName: any) {
+function flattenMetrics(metrics: any, groupNames: any, keyNames: any, valueName: any) {
     let flattened : any = null;
     for (let i = 0; i < metrics.length; ++i) {
         const sample = metrics[i];
-        if (sample.labels && sample.labels[keyName] && sample[valueName]) {
-            if (!flattened) {
-                flattened = {};
-                flattened[groupName] = {};
+        if (sample.labels) {
+            for(let j = 0; j < keyNames.length; j++) {
+                let keyName = keyNames[j];
+                let groupName = groupNames[j];
+
+                if(sample.labels[keyName] && sample[valueName]) {
+                    if(!flattened) {
+                        flattened = {};
+                        flattened[groupName] = {};
+                    } else if(!flattened[groupName]) {
+                        flattened[groupName] = {};
+                    }
+                    flattened[groupName][sample.labels[keyName]] = sample[valueName];
+                }
             }
-            flattened[groupName][sample.labels[keyName]] = sample[valueName];
-        } else if (!sample.labels) {
+        }
+        
+        else if (!sample.labels) {
             if (!flattened) {
                 flattened = {};
             }

@@ -11,6 +11,7 @@ export interface Metrics {
     labels?: Label
     timestamp_ms?: Date,
     quantiles?: Quantiles,
+    quantilesEveryPeriods?: Quantiles,
     count?: number,
     created?: number
 }

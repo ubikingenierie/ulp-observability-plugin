@@ -1,3 +1,4 @@
+import { Title } from '@angular/platform-browser';
 import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { ChartType, ChartConfiguration } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
@@ -16,6 +17,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
   @Input() datasets : DatasetGroup = {};
   @Input() threads : DatasetGroup = {};
   @Input() title : string = '';
+  @Input() unit : string = '';
   @Input() totalLabel = 'total_info';
   @Input() visibleSamplers !: Array<string>;
 
@@ -33,6 +35,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    let chartUnit = this.unit;
     this.chartOptions = {
       responsive: true,
       maintainAspectRatio: false,
@@ -52,6 +55,22 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
         },
         legend: {
           align: 'center'
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              let label = context.dataset.label || '';
+              let unitToUse = (label.length > 9 && label.substring(label.length - 8, label.length) === '_threads') ? '' : chartUnit;
+
+              if (label) {
+                  label += ': ';
+              }
+              if (context.parsed.y !== null) {
+                  label += context.parsed.y + ' ' + unitToUse;
+              }
+              return label;
+            }
+          }
         }
       },
       scales: {

@@ -20,7 +20,7 @@ public class ResponseResult {
 	/**
 	 * True if sample response is KO
 	 */
-	private final Boolean hasError;
+	private final boolean hasError;
 	/**
 	 * Group thread count
 	 */
@@ -36,6 +36,16 @@ public class ResponseResult {
 	 */
 	private final String samplerLabel;
 	
+	/**
+	 * Start time of the sample
+	 */
+	private Long startTime;
+	
+	/**
+	 * End time of the sample
+	 */
+	private Long endTime;
+	
 	
     /**
      * Creates new Response result
@@ -46,14 +56,19 @@ public class ResponseResult {
      * @param groupThreads Group thread count
      * @param allThreads Total thread count
      * @param samplerLabel Name of the sampler the sample belongs to
+     * @param startTime Start time of the sample
+     * @param endTime End time of the sample
      */
-	public ResponseResult(String threadGroupLabel, Long responseTime, Boolean hasError, Integer groupThreads, Integer allThreads, String samplerLabel) {
+	public ResponseResult(String threadGroupLabel, Long responseTime, boolean hasError, Integer groupThreads,
+			Integer allThreads, String samplerLabel, Long startTime, Long endTime) {
 		this.threadGroupLabel = threadGroupLabel;
 		this.responseTime = responseTime;
 		this.hasError = hasError;
 		this.groupThreads = groupThreads;
 		this.allThreads = allThreads;
 		this.samplerLabel = samplerLabel;
+		this.startTime = startTime;
+		this.endTime = endTime;
 	}
 	
 	public String getThreadGroupLabel() {
@@ -80,6 +95,14 @@ public class ResponseResult {
 	
 	public String getSamplerLabel() {
 		return samplerLabel;
+	}
+	
+	public Long getStartTime() {
+		return this.startTime;
+	}
+	
+	public Long getEndTime() {
+		return this.endTime;
 	}
 
 }

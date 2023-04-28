@@ -108,7 +108,10 @@ public class MicrometerTask implements Runnable {
 		terminated.set(false);
 		while (running.get()) {
 			try {
-				this.registry.addResponse(this.sampleQueue.take());
+				ResponseResult sampleResult = this.sampleQueue.take();
+				if(sampleResult != null) {
+					this.registry.addResponse(sampleResult);
+				}
 			} catch (InterruptedException e) {
 				LOG.warn("Sample process task interrupted");
 				interrupt();
