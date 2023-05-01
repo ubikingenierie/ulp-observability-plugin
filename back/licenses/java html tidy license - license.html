@@ -4,35 +4,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<script>
-    var __gdpr = true;
-    var __ccpa = false;
-    window.bizx = window.bizx || {
-        cmp: {
-            init: function(){/*noop*/},
-            trackingPixel: function(){/*noop*/},
-            ifConsent: function (p, pv, hasConsentFn, noConsentFn, finallyFn) {
-                if (document.URL.indexOf('cmp_debug') >= 0) {
-                    console.warn('CMP Stub invoked');
-                }
-                if (__gdpr || __ccpa) {
-                    if (noConsentFn) {
-                        noConsentFn();
-                    }
-                } else {
-                    if (hasConsentFn) {
-                        hasConsentFn();
-                    }
-                }
-                if (finallyFn) {
-                    finallyFn();
-                }
-            }
-        }
-    };
-</script>
-<script src="//a.fsdn.com/con/js/sftheme/cmp4.js?1674153297"></script>
-<link rel="stylesheet" href="//a.fsdn.com/con/css/sftheme/sandiego/cmp.css?1674153297">
+<script src="//a.fsdn.com/con/js/sftheme/cmp2.js?1682692104"></script>
+<link rel="stylesheet" href="//a.fsdn.com/con/css/sftheme/sandiego/cmp.css?1682692104">
 <script>
         window.bizx.cmp.init({
             
@@ -61,7 +34,7 @@ bizx.cmp.ifConsent('', ['all'], function () {
             if (!window.net.sf) { window.net.sf = {}; }
             SF.Ads = {};
             SF.cdn = '//a.fsdn.com/con';
-            SF.deploy_time = '1674153297';
+            SF.deploy_time = '1682692104';
             SF.sandiego = true;
             SF.sandiego_chrome = true;
             SF.variant = 'sf';
@@ -95,11 +68,11 @@ bizx.cmp.ifConsent('', ['all'], function () {
                 timeout: 650,
                 timeouts_by_bids: {650: 3, 2000: 1, 3000: 0},
                 pbjsConfig: {userSync: { filterSettings: { iframe: {
-                            filter: 'include',
-                            bidders: ['pubmatic']
-                        } } },
-                    },
-            };
+                        filter: 'include',
+                        bidders: ['pubmatic', 'smartadserver']
+                    } } },
+                },
+                };
 
             SF.Ads.prebidUnits = [];if (SF.initial_breakpoints_visible.leaderboard) {
                 var thisUnit =  {
@@ -108,6 +81,7 @@ bizx.cmp.ifConsent('', ['all'], function () {
                             {"bidder":"appnexus","params":{"placementId":9265107}},
                             {"bidder":"sharethrough","params":{"pkey":"0O0HaNkULcWUqgdT4RyA3HmD"}},
                             {"bidder":"pubmatic","params":{"adSlot":"4741589","publisherId":"162538"}},
+                            {"bidder":"smartadserver","params":{"networkId":4559,"siteId":575816,"pageId":1743018,"formatId":119583}},
                             ],
                     code: 'div-gpt-ad-1394209358853-0',
                     tag: 'SF_ProjectSum_728x90_A',
@@ -129,6 +103,7 @@ bizx.cmp.ifConsent('', ['all'], function () {
                             {"bidder":"appnexus","params":{"placementId":12559081}},
                             {"bidder":"sharethrough","params":{"pkey":"BMaGlI19W57KKQXdp5OJTkmO"}},
                             {"bidder":"pubmatic","params":{"adSlot":"4845070","publisherId":"162538"}},
+                            {"bidder":"smartadserver","params":{"networkId":4559,"siteId":575816,"pageId":1743018,"formatId":119583}},
                             ],
                     code: 'div-gpt-ad-1512154506943-0',
                     tag: 'SF_Mobile_320x50_A',
@@ -144,6 +119,7 @@ bizx.cmp.ifConsent('', ['all'], function () {
                             {"bidder":"appnexus","params":{"placementId":9265108}},
                             {"bidder":"sharethrough","params":{"pkey":"wRfKsiMDUYdf3l7d5oiqLGNN"}},
                             {"bidder":"pubmatic","params":{"adSlot":"4741586","publisherId":"162538"}},
+                            {"bidder":"smartadserver","params":{"networkId":4559,"siteId":575816,"pageId":1743018,"formatId":119583}},
                             ],
                     code: 'div-gpt-ad-1394209358855-0',
                     tag: 'SF_ProjectSum_300x250_A',
@@ -159,6 +135,7 @@ bizx.cmp.ifConsent('', ['all'], function () {
                             {"bidder":"appnexus","params":{"placementId":9265109}},
                             {"bidder":"sharethrough","params":{"pkey":"7HxEnZ0CEMTA5NRl4AUaORu0"}},
                             {"bidder":"pubmatic","params":{"adSlot":"4741587","publisherId":"162538"}},
+                            {"bidder":"smartadserver","params":{"networkId":4559,"siteId":575816,"pageId":1743018,"formatId":119583}},
                             ],
                     code: 'div-gpt-ad-1394209358856-0',
                     tag: 'SF_ProjectSum_300x250_B',
@@ -174,6 +151,7 @@ bizx.cmp.ifConsent('', ['all'], function () {
                             {"bidder":"appnexus","params":{"placementId":9265110}},
                             {"bidder":"sharethrough","params":{"pkey":"rvuxL42mH8PIbkmQJS7tHEZh"}},
                             {"bidder":"pubmatic","params":{"adSlot":"4741588","publisherId":"162538"}},
+                            {"bidder":"smartadserver","params":{"networkId":4559,"siteId":575816,"pageId":1743018,"formatId":119583}},
                             ],
                     code: 'div-gpt-ad-1394209358857-0',
                     tag: 'SF_ProjectSum_300x250_C',
@@ -189,6 +167,7 @@ bizx.cmp.ifConsent('', ['all'], function () {
                             {"bidder":"appnexus","params":{"placementId":9265111}},
                             {"bidder":"sharethrough","params":{"pkey":"gxlPOpGoCVd0mEaTT2EaPIkD"}},
                             {"bidder":"pubmatic","params":{"adSlot":"4741590","publisherId":"162538"}},
+                            {"bidder":"smartadserver","params":{"networkId":4559,"siteId":575816,"pageId":1743018,"formatId":119583}},
                             ],
                     code: 'div-gpt-ad-1392148208790-0',
                     tag: 'SF_ProjectSum_728x90_B',
@@ -210,6 +189,7 @@ bizx.cmp.ifConsent('', ['all'], function () {
                             {"bidder":"appnexus","params":{"placementId":12559084}},
                             {"bidder":"sharethrough","params":{"pkey":"SXwmmIIkcmWjzHzA894YxcyC"}},
                             {"bidder":"pubmatic","params":{"adSlot":"4845074","publisherId":"162538"}},
+                            {"bidder":"smartadserver","params":{"networkId":4559,"siteId":575816,"pageId":1743018,"formatId":119583}},
                             ],
                     code: 'div-gpt-ad-1512154653435-0',
                     tag: 'SF_Mobile_Multi_B',
@@ -225,6 +205,7 @@ bizx.cmp.ifConsent('', ['all'], function () {
                             {"bidder":"appnexus","params":{"placementId":12559070}},
                             {"bidder":"sharethrough","params":{"pkey":"ocrhilNvTSAhgL1EczYFJ2hy"}},
                             {"bidder":"pubmatic","params":{"adSlot":"4845073","publisherId":"162538"}},
+                            {"bidder":"smartadserver","params":{"networkId":4559,"siteId":575816,"pageId":1743018,"formatId":119583}},
                             ],
                     code: 'div-gpt-ad-1491500833666-0',
                     tag: 'SF_ProjectSum_728x90_C',
@@ -246,6 +227,7 @@ bizx.cmp.ifConsent('', ['all'], function () {
                             {"bidder":"appnexus","params":{"placementId":12559087}},
                             {"bidder":"sharethrough","params":{"pkey":"fHzpAnRYW6tF9CT8ux9oAtwB"}},
                             {"bidder":"pubmatic","params":{"adSlot":"4845075","publisherId":"162538"}},
+                            {"bidder":"smartadserver","params":{"networkId":4559,"siteId":575816,"pageId":1743018,"formatId":119583}},
                             ],
                     code: 'div-gpt-ad-1512154755912-0',
                     tag: 'SF_Mobile_Multi_C',
@@ -254,18 +236,23 @@ bizx.cmp.ifConsent('', ['all'], function () {
 
                 SF.Ads.prebidUnits.push(thisUnit);
             }
-            SF.Ads.prebidAdjustments = {"bidder_deflations":{"aardvark":1,"aol":0.98,"appnexus":1.14,"brealtime":0.98,"districtm":1.04,"districtmdmx":1.08,"emxdigital":1,"indexex#hange":0.98,"indexexchange":0.95,"komoona":0.92,"oftmedia":0.9,"onefiftytwo":0.9,"pubmatic":1.1871,"pulsepoint":0.93,"rhythmone":0.85,"rubicon":1.14,"rubiconlite":1,"sharethrough":1.19,"sovrn":1.126,"springserve":0.001},"inflation":1,"floor":0.02};
+            SF.Ads.prebidAdjustments = {"bidder_deflations":{"aardvark":1,"aol":0.98,"appnexus":1.05,"brealtime":0.98,"districtm":1.04,"districtmdmx":1.08,"emxdigital":1,"indexex#hange":0.98,"indexexchange":0.95,"komoona":0.92,"oftmedia":0.9,"onefiftytwo":0.9,"pubmatic":1,"pulsepoint":0.93,"rhythmone":0.85,"rubicon":1.3,"rubiconlite":1,"sharethrough":1.03,"sovrn":1.05,"springserve":0.001},"inflation":1,"floor":0.02};
         </script>
-<script id="pbjs_script" data-dom="https://d3tglifpd8whs6.cloudfront.net" src="//a.fsdn.com/con/js/sftheme/vendor/bizx-prebid.js?1674153297"></script>
+<script id="pbjs_script" data-dom="https://d3tglifpd8whs6.cloudfront.net" src="//a.fsdn.com/con/js/sftheme/vendor/bizx-prebid.js?1682692104"></script>
 <script>
-            bizx.cmp.ifConsent('', ['all', 'google-ads'], function () {
+            bizx.cmp.ifConsent('', ['all', 'prebid'], function () {
                 if (window.bizxPrebid) {
                     window.bizxPrebid.Ads.initPrebid(window.bizxPrebid.adUnits);
                 }
+            }, function() {
+                // no 'prebid' consent (e.g. region without prebid consent string support) but try GPT directly
+                bizx.cmp.ifConsent('', ['all', 'google-ads'], function () {
+                    bizx.cmp.embedScript('https://securepubads.g.doubleclick.net/tag/js/gpt.js');
+                });
             });
         </script>
-<link rel="stylesheet" href="//a.fsdn.com/con/css/lato.css?1674153297">
-<link rel="stylesheet" href="//a.fsdn.com/con/css/sandiego.css?1674153297">
+<link rel="stylesheet" href="//a.fsdn.com/con/css/lato.css?1682692104">
+<link rel="stylesheet" href="//a.fsdn.com/con/css/sandiego.css?1682692104">
 <meta name="description" content="Download JTidy for free.   JTidy is a Java port of HTML Tidy, a HTML syntax checker and pretty printer. Like its non-Java cousin, JTidy can be used as a tool for cleaning up malformed and faulty HTML." />
 <meta name="keywords" content="JTidy, download JTidy free, Internet" />
 <meta property="og:title" content="JTidy" />
@@ -279,19 +266,19 @@ bizx.cmp.ifConsent('', ['all'], function () {
 <link rel="apple-touch-icon" sizes="180x180" href="//a.fsdn.com/con/img/sandiego/logo-180x180.png">
 <link rel="mask-icon" href="//a.fsdn.com/con/img/sandiego/svg/originals/sf-icon-orange-no_sf.svg" color="#FF6600">
 <script>
-            /*global unescape, window, console, jQuery, $, net, SF, DD_belatedPNG, ga, bizx  */
+            /*global unescape, window, console, jQuery, $, net, SF, DD_belatedPNG, bizx  */
             if (!window.SF) {
                 window.SF = {};
-            }SF.EU_country_codes = ["PM","MQ","DK","EE","YT","IO","MS","SH","BE","CW","HR","GI","RE","GF","MF","BL","LT","AW","ME","SI","PT","PF","PL","HU","SX","NL","TC","NC","TF","LU","IE","FR","MT","WF","SK","CZ","JE","DE","GP","FI","GL","ES","VG","PN","GS","IT","GB","AT","LV","RO","BM","GR","AX","AI","FK","GG","KY","SE","BG","CY"];
+            }SF.EU_country_codes = ["IT","SI","LU","GR","FR","MT","NC","TF","GI","KY","RE","CY","CZ","GB","LT","SX","PN","TC","NL","MQ","BM","GG","HU","SK","CW","IE","SE","BE","DK","PL","GP","JE","BL","PF","AI","SH","PM","YT","DE","AX","ES","RO","HR","GS","GL","AW","LV","EE","VG","MF","GF","IO","FK","ME","MS","BG","PT","FI","WF","AT"];
             SF.unknown_country_codes = ["","A1","A2","O1"];
         </script>
-<script src="//a.fsdn.com/con/js/min/sf.sandiego-head.js?1674153297"></script>
-<style>.R1c6f8438635e18d67e3139535b487b8a3966fe87 { display: none !important; }</style>
+<script src="//a.fsdn.com/con/js/min/sf.sandiego-head.js?1682692104"></script>
+<style>.O9ca11391393c5cdd85cafdb0034582cb0660e778 { display: none !important; }</style>
 <link rel="alternate" type="application/rss+xml" title="JTidy&#8230;Recent Activity" href="/p/jtidy/activity/feed" />
 <link rel="alternate" type="application/rss+xml" title="JTidy&#8230;File Releases" href="/projects/jtidy/rss?path=/" />
 <link rel="canonical" href="https://sourceforge.net/projects/jtidy/">
 <script>SF.adblock = true;</script>
-<script src="//a.fsdn.com/con/js/adgenerator.js?1674153297"></script>
+<script src="//a.fsdn.com/con/js/adgenerator.js?1682692104"></script>
 <script>
        /*global Foundation */
            /*global googletag, bizxPrebid */
@@ -302,7 +289,6 @@ bizx.cmp.ifConsent('', ['all'], function () {
        SF.Ads.slotsById = {};
        SF.Ads.idsByPath = {};
 
-       if (window.bizxPrebid) {
         googletag.cmd.push(function() {
             var leaderboard = googletag.sizeMapping()
                 .addSize([970, 901], [[728,90],[970,250]])
@@ -460,8 +446,11 @@ bizx.cmp.ifConsent('', ['all'], function () {
                 bizxPrebid.Ads.pushToGoogle();
 
                 googletag.enableServices();
+
+                if ($.isEmptyObject(SF.Ads.slotsById)) {
+                    $('body').addClass("no-ads");
+                }
             });
-        }
    </script>
 <script>
         function initPiwik(){
@@ -588,7 +577,7 @@ Menu
 </div>
 <div class="search">
 <div class="github-sync-button">
-<a href="/p/import_project/github/" rel="nofollow" title="Sync your Github project to SourceForge" id="github-link" onclick="window._paq.push(['trackEvent', 'Nav Menu', 'GitHub Sync Tool']);">
+<a href="/p/import_project/github/" rel="nofollow" title="Sync your Github project to SourceForge" id="github-link">
 <img src="//a.fsdn.com/con/images/sandiego/github-sync.png" srcset="//a.fsdn.com/con/images/sandiego/github-sync_2x.png 2x" alt="GitHub sync" id="github-sync" />
 </a>
 </div>
@@ -666,10 +655,10 @@ gptadRenderers['SF_Mobile_320x50_A']();  // jshint ignore:line
 </script>
 </div>
 </div>
-
 <div class="l-two-column-page">
 <div class="l-content-column l-has-sidebar">
 <div class="project-body" itemscope itemtype="http://schema.org/SoftwareApplication">
+
 <section class="project-masthead">
 <div class="backdrop" style="box-sizing: content-box; padding-bottom: 162px"></div>
 <div class="content">
@@ -680,7 +669,7 @@ gptadRenderers['SF_Mobile_320x50_A']();  // jshint ignore:line
 <meta itemprop="position" content="1" />
 </li>
 <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-<a itemprop="item" href="/directory/"><span itemprop="name">Browse</span></a>
+<a itemprop="item" href="/directory/"><span itemprop="name">Browse Open Source</span></a>
 <meta itemprop="position" content="2" />
 </li>
 <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
@@ -713,6 +702,7 @@ and <a href="/p/jtidy/_members/">4 others</a>
 <div class="star large yellow">
 <svg data-name="sf_star_yellow" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 285.8" style="enable-background:new 0 0 300 285.8;" xml:space="preserve"><polygon class="st0" fill="#ffcc00" points="150,0 185.4,109.2 300,109.2 207.3,176.6 242.7,285.8 150,218.3 57.3,285.8 92.7,176.6 0,109.2 114.6,109.2 " /></svg>
 </div>
+
 <div class="star large yellow">
 <svg data-name="sf_star_yellow" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 285.8" style="enable-background:new 0 0 300 285.8;" xml:space="preserve"><polygon class="st0" fill="#ffcc00" points="150,0 185.4,109.2 300,109.2 207.3,176.6 242.7,285.8 150,218.3 57.3,285.8 92.7,176.6 0,109.2 114.6,109.2 " /></svg>
 </div>
@@ -733,7 +723,7 @@ and <a href="/p/jtidy/_members/">4 others</a>
 <div class="as-h2">
 <b class="label">Downloads:</b>
 <a href="/projects/jtidy/files/stats/timeline" title="Downloads This Week">
-13 This Week
+6 This Week
 </a>
 </div>
 <div class="as-h2">
@@ -772,6 +762,8 @@ and <a href="/p/jtidy/_members/">4 others</a>
 <span><meta itemprop="operatingSystem" content="Windows" />Windows</span>
 <span><meta itemprop="operatingSystem" content="Mac" />Mac</span>
 <span><meta itemprop="operatingSystem" content="Linux" />Linux</span>
+<span><meta itemprop="operatingSystem" content="BSD" />BSD</span>
+<span><meta itemprop="operatingSystem" content="ChromeOS" />ChromeOS</span>
 </div>
 <div class="badges">
 </div>
@@ -809,7 +801,7 @@ and <a href="/p/jtidy/_members/">4 others</a>
 <ul>
 <li>
 <a href="/p/jtidy/jtidyservlet/">jtidyservlet
-</a>
+ </a>
 </li>
 <li>
 <a href="/p/jtidy/feature-requests/">Feature Requests
@@ -882,7 +874,7 @@ and <a href="/p/jtidy/_members/">4 others</a>
 <h3>Categories</h3><a href="/directory/internet/"><span itemprop="applicationCategory">Internet</span></a></div>
 <div class="medium-5 small-12 columns">
 <section class="project-info">
-<h3>License</h3><a href="/directory/?license=other-license">Other License</a></section>
+<h3>License</h3>Other License</section>
 </div>
 </section>
 <section class="row psp-section collapsible-section">
@@ -953,34 +945,34 @@ gptadRenderers['SF_Mobile_Multi_B']();  // jshint ignore:line
 <div class="as-header">
 <div class="as-h2">Other Useful Business Software</div>
 </div>
-<div class="nel standard trunc-eligible " data-id="12530" data-cid="9559">
-<span id="2f7bbcd5-78dc-48fa-beb8-0b0ec700d521"></span>
+<div class="nel standard trunc-eligible " data-id="5249" data-cid="5293">
+<span id="d05203c9-6def-48de-9b62-0bc5b71b9e07"></span>
 <script>
     /* globals bizx */
-    bizx.cmp.trackingPixel('publisher', ['storage', 'measurement'], '/directory/tp3/?b=49211&c=9559&z=46550&cb=9336fcc315', "Custom workflows loved by teams across all industries.", '2f7bbcd5-78dc-48fa-beb8-0b0ec700d521');
+    bizx.cmp.trackingPixel('publisher', ['storage', 'measurement'], '/directory/tp3/?b=27556&c=5293&z=24939&cb=465b78863a', "Android Device Management for tablets, kiosks, POS, rugged devices, and more", 'd05203c9-6def-48de-9b62-0bc5b71b9e07');
 </script>
-<a class="application-image thumbnail" href="https://a.slashdotmedia.com/www/delivery/ck.php?oaparams=2__bannerid=49211__zoneid=46550__cb=9336fcc315__oadest=https%3A%2F%2Fclickup.com%3Futm_source%3Dsource-forge%26utm_medium%3Dcpc%26utm_campaign%3Dsf_cpc_t1_nnc_pro_trial_all-devices_cpc_lp_x_all-departments_x_generic" target="_blank" rel="nofollow">
-<img class="main-image" src="//a.fsdn.com/con/app/nel_img/12530" alt="Custom workflows loved by teams across all industries. Icon">
+<a class="application-image thumbnail" href="https://a.slashdotmedia.com/www/delivery/ck.php?oaparams=2__bannerid=27556__zoneid=24939__cb=465b78863a__oadest=https%3A%2F%2Fesper.io%2F%3Futm_source%3Dsourceforge%26utm_medium%3Dcpc%26utm_campaign%3Dkiosk" target="_blank" rel="nofollow">
+<img class="main-image" src="//a.fsdn.com/con/app/nel_img/5249" alt="Android Device Management for tablets, kiosks, POS, rugged devices, and more Icon">
 </a>
 <div class="wrapper">
 <div class="heading">
 <div class="heading-main">
-<a href="https://a.slashdotmedia.com/www/delivery/ck.php?oaparams=2__bannerid=49211__zoneid=46550__cb=9336fcc315__oadest=https%3A%2F%2Fclickup.com%3Futm_source%3Dsource-forge%26utm_medium%3Dcpc%26utm_campaign%3Dsf_cpc_t1_nnc_pro_trial_all-devices_cpc_lp_x_all-departments_x_generic" target="_blank" rel="nofollow" title="Find out more about Custom workflows loved by teams across all industries.">Custom workflows loved by teams across all industries.</a>
-<p class="teaser">More than just task management - ClickUp offers docs, reminders, goals, calendars, and even an inbox. Fully customizable</p>
+<a href="https://a.slashdotmedia.com/www/delivery/ck.php?oaparams=2__bannerid=27556__zoneid=24939__cb=465b78863a__oadest=https%3A%2F%2Fesper.io%2F%3Futm_source%3Dsourceforge%26utm_medium%3Dcpc%26utm_campaign%3Dkiosk" target="_blank" rel="nofollow" title="Find out more about Android Device Management for tablets, kiosks, POS, rugged devices, and more">Android Device Management for tablets, kiosks, POS, rugged devices, and more</a>
+<p class="teaser">For single-use devices that are vertical specific like POS, Kiosk, ATM, Digital Signage, etc.</p>
 </div>
 </div>
 <div class="tiles">
 <div class="tile">
 <div class="description ">
- <div class="description-inner">
-Start with a tailored template for your projects and tasks, and build the workflow and process you need with the tools at your fingertips. ClickUp is the online solution to let your team get more done! Easily manage your team's tasks from anywhere in the modern world.
+<div class="description-inner">
+Esper is the industry's most powerful and comprehensive solution for single-purpose Android Enterprise devices such as kiosks, tablets, mPoS, digital signage, and more. It offers powerful, intuitive features to configure, deploy, and manage the your devices. It empowers control over the enterprise Android device lifecycle, including hardware, firmware, app development, monitoring, and remote remediation. Esper is the first solution to combine custom OS, enhanced firmware, a complete DevOps toolchain, and endpoint detection and response. Esper's full-stack admin suite goes beyond a regular MDM with unprecedented support for device management, remote control, and real-time OTA updates. It's the only single-dashboard suite for remote device diagnostics, advanced telemetry and debugging.
 </div>
 </div>
 </div>
 </div>
 </div>
 <div class="download standard">
-<a class="button green wide sfdl sfdl-lite" target="_blank" rel="nofollow" href="https://a.slashdotmedia.com/www/delivery/ck.php?oaparams=2__bannerid=49211__zoneid=46550__cb=9336fcc315__oadest=https%3A%2F%2Fclickup.com%3Futm_source%3Dsource-forge%26utm_medium%3Dcpc%26utm_campaign%3Dsf_cpc_t1_nnc_pro_trial_all-devices_cpc_lp_x_all-departments_x_generic" data-zone="46540" data-slug="ClickUp">Learn More</a>
+<a class="button green wide sfdl sfdl-lite" target="_blank" rel="nofollow" href="https://a.slashdotmedia.com/www/delivery/ck.php?oaparams=2__bannerid=27556__zoneid=24939__cb=465b78863a__oadest=https%3A%2F%2Fesper.io%2F%3Futm_source%3Dsourceforge%26utm_medium%3Dcpc%26utm_campaign%3Dkiosk" data-zone="24932" data-slug="Esper">Free Trial</a>
 </div>
 </div>
 </section>
@@ -1138,7 +1130,6 @@ Posted 2013-03-05
 <div class="star  yellow">
 <svg data-name="sf_star_yellow" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 285.8" style="enable-background:new 0 0 300 285.8;" xml:space="preserve"><polygon class="st0" fill="#ffcc00" points="150,0 185.4,109.2 300,109.2 207.3,176.6 242.7,285.8 150,218.3 57.3,285.8 92.7,176.6 0,109.2 114.6,109.2 " /></svg>
 </div>
-
 <div class="star  yellow">
 <svg data-name="sf_star_yellow" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 285.8" style="enable-background:new 0 0 300 285.8;" xml:space="preserve"><polygon class="st0" fill="#ffcc00" points="150,0 185.4,109.2 300,109.2 207.3,176.6 242.7,285.8 150,218.3 57.3,285.8 92.7,176.6 0,109.2 114.6,109.2 " /></svg>
 </div>
@@ -1293,6 +1284,7 @@ Posted 2012-06-02
 <svg data-name="sf_star_yellow" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 285.8" style="enable-background:new 0 0 300 285.8;" xml:space="preserve"><polygon class="st0" fill="#ffcc00" points="150,0 185.4,109.2 300,109.2 207.3,176.6 242.7,285.8 150,218.3 57.3,285.8 92.7,176.6 0,109.2 114.6,109.2 " /></svg>
 </div>
 <div class="star  yellow">
+
 <svg data-name="sf_star_yellow" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 300 285.8" style="enable-background:new 0 0 300 285.8;" xml:space="preserve"><polygon class="st0" fill="#ffcc00" points="150,0 185.4,109.2 300,109.2 207.3,176.6 242.7,285.8 150,218.3 57.3,285.8 92.7,176.6 0,109.2 114.6,109.2 " /></svg>
 </div>
 <div class="star  yellow">
@@ -1372,7 +1364,7 @@ Beneficial job, thanks for your time for writing
 <div class="small-12 columns">
 <h3>Additional Project Details</h3>
 <section class="project-info">
-<h4>Languages</h4><a href="/directory/?natlanguage=english" itemprop=inLanguage>English</a></section>
+<h4>Languages</h4>English</section>
 <section class="project-info">
 <h4>Intended Audience</h4>Developers</section>
 <section class="project-info">
@@ -1393,7 +1385,6 @@ Similar Business Software
 </div>
 <div class="body">
 <ul>
-
 <li>
 <div class="project-icon   ">
 <img alt="TSplus Remote Access" title="TSplus Remote Access" src="//a.fsdn.com/allura/s/tsplus/icon?ad7de387e74d5e9e59311d760e15d7ede3080ff727ea8134ef53b35e963291cb?&amp;w=48" loading="lazy" /></div>
@@ -1418,21 +1409,19 @@ TSplus Remote Access:
 </li>
 <li>
 <div class="project-icon   ">
-<img alt="MailerCheck" title="MailerCheck" src="//a.fsdn.com/allura/s/mailercheck/icon?1628152800?&amp;w=48" loading="lazy" /></div>
+<img alt="Acunetix" title="Acunetix" src="//a.fsdn.com/allura/s/acunetix/icon?993a18530655bb24de30ee5f62bbc6d53f7d213630cd155f1d1c2b50f82ecdfd?&amp;w=48" loading="lazy" /></div>
 <div class="project-info ">
 <div class="result-heading-texts">
-<a href="/software/product/MailerCheck/" title="Find out more about MailerCheck">
-<strong>MailerCheck</strong>
+<a href="/software/product/Acunetix/" title="Find out more about Acunetix">
+<strong>Acunetix</strong>
 </a>
 </div>
 <div class="summary">
-<span>Reach the inbox and boost your deliverability by verifying, analyzing and cleaning your email lists.
-Improve your campaigns further with Inbox Insights, a smart analysis tool that checks for spam, validates HTML, troubleshoots sender authentication, and much more!
-See all your email...</span>
+<span>As the market leader in automated web application security testing, Acunetix by Invicti is the go-to security tool for Fortune 500 companies. DevSecOps teams can cut through the noise to uncover unseen risks and mitigate dangerous exploits, detecting and reporting on a wide array of...</span>
 </div>
 </div>
 <div>
-<a href="/software/product/MailerCheck/" title="Find out more about MailerCheck" class="button blue hollow see-project">See Software</a>
+<a href="/software/product/Acunetix/" title="Find out more about Acunetix" class="button blue hollow see-project">See Software</a>
 </div>
 </li>
 <li>
@@ -1644,6 +1633,9 @@ gptadRenderers['SF_ProjectSum_300x250_C']();  // jshint ignore:line
 <li class="item">
 <a href="/directory/?q=jtidy">jtidy</a>
 </li>
+<li class="item">
+<a href="/directory/?q=html+to+xml+converter">html to xml converter</a>
+</li>
 </ul>
 </div>
 </aside>
@@ -1695,7 +1687,7 @@ gptadRenderers['SF_Mobile_Multi_C']();  // jshint ignore:line
 }
 </script>
 </div>
- </div>
+</div>
 </div>
 <footer class="sandiego">
 <div class="as-row">
@@ -1765,47 +1757,20 @@ gptadRenderers['SF_Mobile_Multi_C']();  // jshint ignore:line
 <div class="columns large-6 links links-right">
 <a href="https://slashdotmedia.com/terms-of-use" title="Terms" rel="nofollow">Terms</a>
 <a href="https://slashdotmedia.com/privacy-statement/" title="Privacy" rel="nofollow">Privacy</a>
-<a href="#" title="Privacy Choices" onclick="bizx.cmp.promptConsent();return false;" class="btn-privay-choices">Privacy Choices</a>
+<a href="#" title="Privacy Choices" id="privacy-choices" class="btn-privay-choices">Privacy Choices</a>
 <a href="https://slashdotmedia.com/contact/" target="_blank" title="Advertise" rel="nofollow">Advertise</a>
 </div>
 </nav>
 </section>
 </footer>
-<div id="l-no-css" style="position:absolute;top:0;z-index:100;font-family:sans-serif;width:100%;background:#fff;padding:0.5rem;border:1px solid #ff3300;box-sizing: border-box;">
-<span style="font-family:sans-serif;color:#ff3300;">Oh no! Some styles failed to load. 😵</span>
-Please try <a href='#' onclick="window.location.href='https://sourceforge.net/projects/jtidy/?css-reload=2'" rel="nofollow">reloading this page</a>
 </div>
-<script>
-
-document.addEventListener('DOMContentLoaded', function () {
-    var hasCSS = window.getComputedStyle(document.querySelector('#l-no-css')).display === 'none';
-    if(!hasCSS) {
-        var svgs = document.querySelectorAll('svg');
-        for (var x=0; x<svgs.length; x++){
-            svgs[x].style.display = 'none';
-        }
-        window.scroll(0, 0);  
-        document.getElementById('offCanvas').style.display = 'none';
-        var hides = document.querySelectorAll('.nav-dropdown-menu,.backdrop,#psp-newsletter-modal,.l-header-nav,#breadcrumbs,.breadcrumbs');
-        for (x=0; x<hides.length; x++){
-            hides[x].style.display = 'none';
-        }
-        var problemDownloading = document.getElementById('btn-problems-downloading');
-        if (problemDownloading) {
-            problemDownloading.setAttribute('href', problemDownloading.getAttribute('data-release-url'));
-            problemDownloading.style.fontSize = '40px';
-        }
-    }
-});
-</script>
-</div>
-<script src="//a.fsdn.com/con/js/min/sf.sandiego-base.js?1674153297"></script>
+<script src="//a.fsdn.com/con/js/min/sf.sandiego-base.js?1682692104"></script>
 <script>
         /* global Dropzone */
         Dropzone.options.blockthisForm = false;
     </script>
-<script src="//a.fsdn.com/con/js/min/sf.sandiego-foundation-base.js?1674153297"></script>
-<script src="//a.fsdn.com/con/js/min/sf.sandiego-foundation-tooltip.js?1674153297"></script>
+<script src="//a.fsdn.com/con/js/min/sf.sandiego-foundation-base.js?1682692104"></script>
+<script src="//a.fsdn.com/con/js/min/sf.sandiego-foundation-tooltip.js?1682692104"></script>
 <script>
             /* global Foundation */
             $(document).foundation();
@@ -1815,9 +1780,6 @@ document.addEventListener('DOMContentLoaded', function () {
             bizx.cmp.ifConsent('', ['all', 'google-ads'], function () {}, function () {
                 $('body').addClass('no-ads-consent');  
             });
-            if (!SF.Ads.prebidUnits || !SF.Ads.prebidUnits.length) {
-                $('body').addClass("no-ads");
-            }
         </script>
 <script>
 
@@ -1833,7 +1795,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         
         function loadimg(params, dimension_prefix) {
-            params = Object.assign({"idsite":1,"rec":1,"rand":4992,"dimension2":"pg_project","url":"https://sourceforge.net/projects/jtidy/","action_name":"JTidy download | SourceForge.net"}, params);
+            params = Object.assign({"idsite":1,"rec":1,"rand":11554,"dimension2":"pg_project","url":"https://sourceforge.net/projects/jtidy/","action_name":"JTidy download | SourceForge.net"}, params);
             for (var key in params) {
                 if (params.hasOwnProperty(key) && key.indexOf('dimension') === 0 && params[key] !== undefined) {
                     params[key] = (dimension_prefix||'') + params[key];
@@ -1871,7 +1833,7 @@ document.addEventListener('DOMContentLoaded', function () {
           /*global _ml:true, window */
           _ml = window._ml || {};
           _ml.eid = '771';
-          _ml.fp = '7c277992-735e-4c51-89e6-0bff3efe5896';
+          _ml.fp = '83c07e26-0289-4644-b744-adcba49f418d';
           var s = document.getElementsByTagName('script')[0], cd = new Date(), mltag = document.createElement('script');
           mltag.type = 'text/javascript';
           mltag.async = true;
@@ -1889,21 +1851,21 @@ document.addEventListener('DOMContentLoaded', function () {
 <form class="dropzone small-12" action="/api/instrumentation/gpt" id="blockthisForm" method="POST">
 <div class="row small-12">
 <div class="column description small-12">
-<input type="hidden" name="_visit_cookie" value="7c277992-735e-4c51-89e6-0bff3efe5896" />
-<input type='hidden' name='timestamp' value='1674477516' />
-<input type='hidden' name='spinner' value='XzSS6RJ378TNEEY7Kbf:wdZrN0zM' />
-<p class='R1c6f8438635e18d67e3139535b487b8a3966fe87'><label for='Xw4pMw5Uqw7jCgsOBA8Kqw7odbcKLLsKGwrHCjcKaw7xo'>You seem to have CSS turned off.
-Please don't fill out this field.</label><input id='Xw4pMw5Uqw7jCgsOBA8Kqw7odbcKLLsKGwrHCjcKaw7xo' name='Xw4tMw5Uqw7jCgsOBw53Cr8KCKSzCvMOJdGLDjcOiwogc' type="text" /></p>
-<p class='R1c6f8438635e18d67e3139535b487b8a3966fe87'><label for='Xw4pMw5Uqw7jCgsOBAsKqw7odbcKLLsKGwrHCjcKaw7xo'>You seem to have CSS turned off.
-Please don't fill out this field.</label><input id='Xw4pMw5Uqw7jCgsOBAsKqw7odbcKLLsKGwrHCjcKaw7xo' name='Xw4tMw5Uqw7jCgsOAw53Cr8KCKSzCvMOJdGLDjcOiwogc' type="text" /></p>
-Briefly describe the problem (required):
-<input name="Xw4ZAw583w77CicKYQzB4w6HCpMKDFCPDknwcw6XDtw" type="text" required>
+<input type="hidden" name="_visit_cookie" value="83c07e26-0289-4644-b744-adcba49f418d" />
+<input type='hidden' name='timestamp' value='1682929614' />
+<input type='hidden' name='spinner' value='XSV_L0bV0fBtAqj1c7vWXFIBnrmM' />
+<p class='O9ca11391393c5cdd85cafdb0034582cb0660e778'><label for='XTjfCpMK_w5ANTCvCuMKsOMKiO8KeHElHLMO4Vg'>You seem to have CSS turned off.
+Please don't fill out this field.</label><input id='XTjfCpMK_w5ANTCvCuMKsOMKiO8KeHElHLMO4Vg' name='XTzfCpMK_w5ANTMOjRsKvw4PCicKFfsOKw5PDizHCm8Oj' type="text" /></p>
+<p class='O9ca11391393c5cdd85cafdb0034582cb0660e778'><label for='XTjfCpMK_w5ANTCrCuMKsOMKiO8KeHElHLMO4Vg'>You seem to have CSS turned off.
+Please don't fill out this field.</label><input id='XTjfCpMK_w5ANTCrCuMKsOMKiO8KeHElHLMO4Vg' name='XTzfCpMK_w5ANTcOjRsKvw4PCicKFfsOKw5PDizHCm8Oj' type="text" /></p>
+ Briefly describe the problem (required):
+<input name="XQjvCrsKiw5YGFWs0w4NSMhbDs8KSw6pVDCU:" type="text" required>
 </div>
 </div>
 <div class="column small-12">
 <div class="upload-text">Upload screenshot of ad (required):</div>
 <div id='upload-it'>
-<a href="#" onclick="return false">Select a file</a>, or drag & drop file here.
+<a href="#" id="upload-select-file">Select a file</a>, or drag & drop file here.
 </div>
 <div id="upload-it-placeholder"></div>
 <div class="dropzone-previews" style="display: none"></div>
@@ -1931,16 +1893,16 @@ Right-click on the ad, choose "Copy Link", then paste here &rarr;<br>
 </div>
 <div class="column large-7 small-6">
 <p>Please provide the ad click URL, if possible:
-<input name="Xw4RHw5Ytw77CkMKuRjZ9YCHDvlhWwqTCrAnDhGQ" type="url">
+<input name="XQDzCp8K4w5YfI24yw4bDhVrDqwtCfws6aSg" type="url">
 </p>
-<textarea id="gpt-info" name="Xw4lAw5sww7wVGsKgw6PDt1_DvMKpw6jDp1rDgcOiw7fCkA"></textarea>
+<textarea id="gpt-info" name="XTTvCqsKlw5TCjHoewr5_VsOXwrMyw5xCwrXDpxfDjA"></textarea>
 <input class="button" type="submit" id="btn-blockthis-submit" value="Submit Report">
 </div>
 </div>
 </form>
 </div>
 </div>
-<script src="//a.fsdn.com/con/js/min/sf.sandiego-project.js?1674153297"></script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vaafb692b2aea4879b33c060e79fe94621666317369993" integrity="sha512-0ahDYl866UMhKuYcW078ScMalXqtFJggm7TmlUtp0UlD4eQk0Ixfnm5ykXKvGJNFjLMoortdseTfsRT8oCfgGA==" data-cf-beacon='{"rayId":"78e0965a7c8eb98f","token":"05ab2f27910c4db284f4fcdcd6948338","version":"2022.11.3","si":100}' crossorigin="anonymous"></script>
+<script src="//a.fsdn.com/con/js/min/sf.sandiego-project.js?1682692104"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v52afc6f149f6479b8c77fa569edb01181681764108816" integrity="sha512-jGCTpDpBAYDGNYR5ztKt4BQPGef1P0giN6ZGVUi835kFF88FOmmn8jBQWNgrNd8g/Yu421NdgWhwQoaOPFflDw==" data-cf-beacon='{"rayId":"7c06a46bf9fc1c7a","version":"2023.4.0","b":1,"token":"05ab2f27910c4db284f4fcdcd6948338","si":100}' crossorigin="anonymous"></script>
 </body>
 </html>
