@@ -188,11 +188,16 @@ public class ULPObservabilityListener extends AbstractTestElement
 		return getPropertyAsInt(ULPODefaultConfig.LOG_FREQUENCY_PROP, ULPODefaultConfig.logFrequency());
 	}
 	
-	public Integer getMicrometerExpiryTimeInSeconds() {
-        return getPropertyAsInt(ULPODefaultConfig.MICROMETER_EXPIRY_TIME_IN_SECONDS_PROP, ULPODefaultConfig.micrometerExpiryTimeInSeconds());
+	public int getMicrometerExpiryTimeInSecondsAsInt() {
+	    return Integer.parseInt(getMicrometerExpiryTimeInSeconds());
+	}
+
+	public String getMicrometerExpiryTimeInSeconds() {
+        return getPropertyAsString(ULPODefaultConfig.MICROMETER_EXPIRY_TIME_IN_SECONDS_PROP,
+                Integer.toString(ULPODefaultConfig.micrometerExpiryTimeInSeconds()));
     }
     
-    public void setMicrometerExpiryTimeInSeconds(Integer expiryTimeInSeconds) {
+    public void setMicrometerExpiryTimeInSeconds(String expiryTimeInSeconds) {
         setProperty(ULPODefaultConfig.MICROMETER_EXPIRY_TIME_IN_SECONDS_PROP, expiryTimeInSeconds);
     }
 
@@ -237,7 +242,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	public void init(ListenerClientData listenerClientData) {
 		listenerClientData.logger = new SampleLogger(getTotalLabel());
 		listenerClientData.registry = new MicrometerRegistry(getTotalLabel(), getPct1(), getPct2(), getPct3(),
-				getLogFreq(), listenerClientData.logger, getMicrometerExpiryTimeInSeconds());
+				getLogFreq(), listenerClientData.logger, getMicrometerExpiryTimeInSecondsAsInt());
 
 		listenerClientData.sampleQueue = new ArrayBlockingQueue<>(getBufferCapacity());
 

@@ -9,6 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
@@ -29,7 +31,7 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
  *
  */
 public class MicrometerRegistry {
-	
+    private static final Logger LOG = LoggerFactory.getLogger(MicrometerRegistry.class);
 	/**
 	 * Contains data of current interval
 	 */
@@ -57,8 +59,6 @@ public class MicrometerRegistry {
 	
 	private Map<String, Pair<Long,Long>> startAndEndDatesOfSamplers = new ConcurrentHashMap<>();
 	
-	private Integer micrometerExpiryTimeInSeconds;
-	
     /**
      * Creates new Micrometer registery
      * 
@@ -84,12 +84,14 @@ public class MicrometerRegistry {
 		this.totalLabel = Util.makeMicrometerName(totalLabel);
 		this.logFrequency = logFrequency;
 		this.logger = logger;
-        this.micrometerExpiryTimeInSeconds = micrometerExpiryTimeInSeconds;
 		this.intervalRegistry.config().meterFilter(createMeterFilter(pct1, pct2, pct3, 60));
+		LOG.info("Configuring summary registry with pct1:{}, pct2:{}, pct3:{}, expiry:{}", 
+		        pct1, pct2, pct3, micrometerExpiryTimeInSeconds);
 		this.summaryRegistry.config().meterFilter(createMeterFilter(pct1, pct2, pct3, micrometerExpiryTimeInSeconds));
 	}
 	
 	private MeterFilter createMeterFilter(Integer pct1, Integer pct2, Integer pct3, Integer expiry) {
+	    
 		return new MeterFilter() {
 			@Override
 			public DistributionStatisticConfig configure(

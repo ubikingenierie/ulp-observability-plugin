@@ -13,7 +13,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.visualizers.gui.AbstractListenerGui;
@@ -260,8 +259,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			observabilityListener.setPct1(validatePercentile(pct1.getText(), observabilityListener.getPct1(),"percentile 1"));
 			observabilityListener.setPct2(validatePercentile(pct2.getText(), observabilityListener.getPct2(),"percentile 2"));
 			observabilityListener.setPct3(validatePercentile(pct3.getText(), observabilityListener.getPct3(),"percentile 3"));
-			observabilityListener.setMicrometerExpiryTimeInSeconds(
-			        StringUtils.isNotEmpty(micrometerExpiryTime.getText()) ? Integer.valueOf(micrometerExpiryTime.getText().trim()) : null);
+			observabilityListener.setMicrometerExpiryTimeInSeconds(micrometerExpiryTime.getText());
 			observabilityListener.setLogFreq(validatePositiveNumeric(logFrequency.getText(), observabilityListener.getLogFreq(),"log frequency"));
 		}
 	}
@@ -285,7 +283,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			this.pct1.setText(Integer.toString(ulpObservabilityListener.getPct1()));
 			this.pct2.setText(Integer.toString(ulpObservabilityListener.getPct2()));
 			this.pct3.setText(Integer.toString(ulpObservabilityListener.getPct3()));
-			this.micrometerExpiryTime.setText(Integer.toString(ulpObservabilityListener.getMicrometerExpiryTimeInSeconds()));
+			this.micrometerExpiryTime.setText(ulpObservabilityListener.getMicrometerExpiryTimeInSeconds());
 			this.logFrequency.setText(Integer.toString(ulpObservabilityListener.getLogFreq()));
 			this.totalLabel.setText(ulpObservabilityListener.getTotalLabel());
 			this.regex.setText(ulpObservabilityListener.getRegex());
