@@ -132,4 +132,4 @@ See [our repository issues](https://github.com/ubikingenierie/ulp-observability-
 
 ### Want to contribute
 
-Read our [Contributor documentation](contributer-jumpstart.md)
+Read our [Contributor documentation](contributor-jumpstart.md)
