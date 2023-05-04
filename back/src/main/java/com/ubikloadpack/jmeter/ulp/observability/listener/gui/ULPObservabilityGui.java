@@ -2,8 +2,17 @@ package com.ubikloadpack.jmeter.ulp.observability.listener.gui;
 
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,8 +21,10 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.jmeter.gui.AbstractJMeterGuiComponent;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.visualizers.gui.AbstractListenerGui;
 import org.slf4j.Logger;
@@ -38,6 +49,8 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	 * Debug logger.
 	 */
 	private static final Logger LOG = LoggerFactory.getLogger(ULPObservabilityGui.class);
+
+    private static final String PLUGIN_WIKI_PAGE = "https://www.ubik-ingenierie.com/blog/ubik-load-pack-observability-plugin/";
 	
 	/**
 	 * Jetty server port
@@ -107,9 +120,8 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	    super.setBorder(makeBorder());
 	    super.add(makeTitlePanel(), BorderLayout.NORTH);
 	    super.add(createSamplerConfigPanel(),BorderLayout.CENTER);
+	    super.add(createHelpLinkPanel(PLUGIN_WIKI_PAGE), BorderLayout.SOUTH);
     }
-   
-    
     
     /**
      * Create new ULP Observability custom config panel
@@ -309,4 +321,80 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		this.totalLabel.setText(ULPODefaultConfig.totalLabel());
 		this.regex.setText(ULPODefaultConfig.regex());
 	}
+    
+    /**
+     * Create the Help link panel
+     *
+     * @param panel    - supposed to be result of makeTitlePanel()
+     * @param helpPage wiki page name, or full URL in case of external wiki
+     * @return original panel
+     * @see AbstractJMeterGuiComponent
+     */
+    public Component createHelpLinkPanel(String helpPage) {
+        JLabel icon = new JLabel();
+        icon.setIcon(new javax.swing.ImageIcon(ULPObservabilityGui.class.getResource("/com/ubikloadpack/jmeter/ulp/observability/information.png")));
+
+        JLabel link = new JLabel("Help me !");
+        link.setForeground(Color.blue);
+        link.setFont(link.getFont().deriveFont(Font.PLAIN));
+        link.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        link.addMouseListener(new URIOpener(helpPage));
+        Border border = BorderFactory.createMatteBorder(0, 0, 1, 0, java.awt.Color.blue);
+        link.setBorder(border);
+
+        JLabel version = new JLabel("");
+        version.setFont(version.getFont().deriveFont(Font.PLAIN).deriveFont(11F));
+        version.setForeground(Color.GRAY);
+
+        JPanel panelLink = new JPanel(new GridBagLayout());
+
+        GridBagConstraints gridBagConstraints;
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
+        panelLink.add(icon, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 3, 0);
+        panelLink.add(link, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
+        panelLink.add(version, gridBagConstraints);
+        return panelLink;
+    }
+    
+    private static class URIOpener extends MouseAdapter {
+
+        private final String uri;
+
+        public URIOpener(String aURI) {
+            uri = aURI;
+        }
+
+        public static void openInBrowser(String string) {
+            if (java.awt.Desktop.isDesktopSupported()) {
+                try {
+                    java.awt.Desktop.getDesktop().browse(java.net.URI.create(string));
+                } catch (IOException ignored) {
+                    LOG.debug("Failed to open in browser", ignored);
+                }
+            }
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.getButton() == MouseEvent.BUTTON1) {
+                openInBrowser(uri);
+            }
+        }
+    }
 }

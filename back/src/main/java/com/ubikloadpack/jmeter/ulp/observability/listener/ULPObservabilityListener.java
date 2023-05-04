@@ -360,7 +360,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 							TimeUnit.SECONDS, new LogTask(listenerClientData.registry, listenerClientData.sampleQueue));
 				}
 
-				System.out.printf("ULPO Listener will generate log each %d seconds%n", getLogFreq());
+				System.out.printf("UbikLoadPack Observability Plugin will generate log each %d seconds%n", getLogFreq());
 
 				for (int i = 0; i < this.getThreadSize(); i++) {
 					MicrometerTask task = new MicrometerTask(listenerClientData.registry,
@@ -372,7 +372,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 			}
 
 			if (!listenerClientData.myName.equals(getName())) {
-				throw new IllegalStateException("You have at least 2 ULP Observability Listerners in your Test plan : "
+				throw new IllegalStateException("You have at least 2 UbikLoadPack Observability Plugins in your Test plan : "
 						+ listenerClientData.myName + " and " + getName());
 			}
 
