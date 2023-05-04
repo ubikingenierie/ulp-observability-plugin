@@ -1,5 +1,7 @@
 package com.ubikloadpack.jmeter.ulp.observability.listener;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.time.Duration;
@@ -105,7 +107,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	/**
 	 * Optional regex. If empty, every samplers are processed.
 	 */
-	private Optional<Pattern> regex = Optional.empty();
+	private transient Optional<Pattern> regex = Optional.empty();
 	
 	public void setKeepJettyServerUpAfterTestEnd(Boolean bool) {
 		setProperty(ULPODefaultConfig.KEEP_JETTY_SERVER_UP_AFTER_TEST_END_PROP, bool);
@@ -452,4 +454,10 @@ public class ULPObservabilityListener extends AbstractTestElement
 		}
 	}
 
+    private void readObject(ObjectInputStream in)
+            throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        String regex = getRegex();
+        setRegex(regex);
+    }
 }
