@@ -71,7 +71,7 @@ public class ULPODefaultConfig {
 	/**
 	 * Default plugin name.
 	 */
-	private static final String PLUGIN_NAME = "ULP Observability";
+	private static final String PLUGIN_NAME = "UbikLoadPack Observability Plugin";
 
 	/**
 	 * Default Jetty server port.
