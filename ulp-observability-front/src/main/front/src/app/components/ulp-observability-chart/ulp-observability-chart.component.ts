@@ -124,15 +124,15 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
       let curveLabel = entry[0]
 
       const isNotTotalLabel = curveLabel !== this.totalLabel;
-      const isNotTotalThreadsLabel = curveLabel !== this.totalLabel + '_threads';
-      const hasSplPrefix = curveLabel.startsWith('spl_');
+      const hasSamplerPrefix = curveLabel.startsWith('spl_');
       const hasThreadsSuffix = curveLabel.endsWith('_threads');
-      const isSplWithoutThreads = hasSplPrefix && !hasThreadsSuffix;
-      const isNotSplWithThreads = !hasSplPrefix && hasThreadsSuffix;
+      const isThreadGroup = hasSamplerPrefix && hasThreadsSuffix;
 
-      if(isNotTotalLabel && isNotTotalThreadsLabel && (isSplWithoutThreads || isNotSplWithThreads)){
-
-        if(hasSplPrefix){
+      if(isNotTotalLabel && !isThreadGroup) {
+        const isTotalThreadsLabel = curveLabel === this.totalLabel + '_threads';
+        curveLabel = isTotalThreadsLabel ? "total" + "_threads" : curveLabel;
+ 
+        if(hasSamplerPrefix){
           curveLabel = curveLabel.slice(curveLabel.indexOf('_')+1,curveLabel.length);
         }
         
