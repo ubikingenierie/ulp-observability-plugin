@@ -144,7 +144,7 @@ public class MicrometerRegistry {
 		// Create micrometer tags to feed with data
 		String threadTag = Util.makeMicrometerName(result.getThreadGroupLabel());
 		String samplerTag = "spl_"+Util.makeMicrometerName(result.getSamplerLabel());
-		List<String> micrometerTags = Arrays.asList(new String[]{threadTag, samplerTag, this.totalLabel});
+		List<String> micrometerTags = Arrays.asList(new String[]{samplerTag, this.totalLabel});
 		
 		for(String microMeterTag : micrometerTags) {
 			// Save current period responses time
