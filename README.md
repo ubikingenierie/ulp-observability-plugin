@@ -75,6 +75,7 @@ It is easily installable through [JMeter-Plugins manager](<https://jmeter-plugin
 ### Configure Prometheus
 
 Inside the directory of your JMeter test plan, add the following prometheus.yml file :
+
 ```yml
 global:
   scrape_interval:     15s # By default, scrape targets every 15 seconds.
@@ -84,9 +85,8 @@ global:
   external_labels:
     monitor: 'codelab-monitor'
 
-### A Configuration containing Observability plugin endpoint to scrape:
+# A Configuration containing Observability plugin endpoint to scrape:
 
-```
 scrape_configs:
   - job_name: 'observability-plugin'
     scrape_interval: 5s
