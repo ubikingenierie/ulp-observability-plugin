@@ -11,6 +11,7 @@
 - Java 11 compatible code
 
 ## Technologies
+
 - [Java](https://www.java.com/) : Language used by JMeter
 - [Embedded Jetty](https://www.baeldung.com/jetty-embedded) : to expose the metrics collected by SamplerListener (specific to JMeter) and calculated by HDRHistogram offers a very light server implementation
 - [Micrometer](https://micrometer.io/) : to save samples and calculate more metrics
@@ -20,10 +21,12 @@
 - [Junit](https://www.jmdoudoux.fr/java/dej/chap-junit.htm) : Unit tests
 
 ## Default configuration
+
 The default properties we get when we create an ULP observability sampler are in the file ULPODefaultConfig.java.
 This class provides the defaults, and specify the keys to use if we want to override them in a JMeter property file.
 
 ## How it works
+
 - When a test is started, the method 'testStarted(String host)' from the ULPObservabilityListener class is triggered.
 - This method starts a jetty server using the configuration metioned earlier. This server exposes through 2 Servlets (ULPObservabilityConfigServlet, ULPObservabilityMetricsServlet) which are called by the frontend in order to get the data to render.
 - Then it creates X threads (X being equal to the Number of Processing Threads in the sampler GUI). These threads are instances of the class MicrometerTask.java.
@@ -44,20 +47,24 @@ Each Y seconds a cron job (LogTask.java) will reset the data which were used to 
 # Frontend
 
 ## Technologies
+
 - [TypeScript](https://www.typescriptlang.org/) : to take advantage of a strongly typed language for more rigor and data consistency 
-- [AngularJs](https://angularjs.org/): for the front and graphing part :
+- [Angular](https://angular.io/): for the front and graphing part :
          - States and hooks to facilitate data manipulation (Metrics)
          - npm repo for various dependencies
          - ChartJs available
          - Material UI for elegant rendering
-- [ChartJs](https://www.npmjs.com/package/chart.js?activeTab=readme) : Library used a lot, maintained (last update on 02/16/2022) and free
+- [ChartJs](https://www.npmjs.com/package/chart.js?activeTab=readme) : Popular Library, maintained and free
 
 ## How it works
-Angular application. It starts by asking the backend informations about the refresh rate of the graphs and the url to retrieve graphs datas on the first servlet.
+
+The Angular application starts by asking the backend informations about the refresh rate of the graphs and the url to retrieve graphs datas on the first servlet.
 After that, it asks the backend everything it needs to display on the graphs. Then, every Y seconds (see backend section), it asks the backend the newest interval datas and update its graphs with it.
 
 # Start developing
+
 ## Prior setup
+
 - First of all, you must install JMeter. We will need to have access to its /lib folder, where the jar of the plugins are installed.
 - Install the production plugin by following the instruction at https://www.ubik-ingenierie.com/blog/ubik-load-pack-observability-plugin/ in the Installation section.
 - Once you installed it the normal way, check its name inside the lib folder :
@@ -83,7 +90,9 @@ You can also see the front at localhost:9090/yourUlpListenerRoute, but you won't
 If you need to change the port on which the backend exposes the data, you must change the port in proxy.conf.json.
 
 ## Back
+
 ### Make JMeter use your current version of the plugin
+
 The backend is a little bit trickier to setup than the frontend. Each time you do a modification to the backend code, you must run the following command to re-build the jar.
 ```bash
 mvn clean install
@@ -96,7 +105,9 @@ mv PLUGIN_HOME/back/target/ulp-observability-listener-1.0.3-SNAPSHOT.jar JMETER_
 ```
 
 After that, your backend change is used by JMeter.
+
 ### Bash script 
+
  We will see now a way to make it faster + how to plug the eclipse debugger to your JMeter plugin code :
 - Add your jmeter/bin folder to your bashrc file so you can access the scripts inside it every time you open a command prompt.
 - In the bin folder of jmeter, duplicate the 'jmeter' file, and rename the copy 'jmeterDebug'
@@ -110,13 +121,16 @@ The 'address=127.0.0.1:7999' part is here to give a port on which we can listen 
 #! /bin/sh
 
 # Make the clean install from the plugin project root folder
+
 cd /PLUGIN_HOME
 mvn clean install
 
 # Move the generated jar in the JMeter libs, with the name of the previous jar
+
 mv /PLUGIN_HOME/back/target/ulp-observability-listener-1.0.3-SNAPSHOT.jar /JMETER_HOME/lib/ulp-observability-listener-1.0.2.jar
 
 # Start JMeter in debug mode
+
 # jmeterDebug
 ```
 You must change the paths to yours. You can uncomment the last line if you also want to start JMeter in GUI mode each time you make a change.
@@ -128,6 +142,7 @@ observabilityPluginSetup
 This way it will make the clean install, and move your jar to the correct location with the right name.
 
 ### Eclipse debug
+
 If you start JMeter with the above defined scripts (uncomment the last line of observabilityPluginSetup), then you can connect the eclipse debuguer to the running JMeter :
 Go to 'debug configurations', then create a new Remote Java Application like this. 'back' is the back folder inside the project.
 ![eclipseDebugConfiguration](screenshot/eclipseDebug.png).
