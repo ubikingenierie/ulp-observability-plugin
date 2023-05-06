@@ -1,5 +1,15 @@
 # Backend
 
+## Constraints:
+
+- Have the lightest possible memory / CPU footprint on JMeter performances
+- Ability to handle up to 1 million requests per minute
+- Rely on Javascript graphing library that is free and Open Source compatible
+- Develop the solution as a JMeter Plugin
+- Listener must not block the caller
+- Use a light server in terms of memory / CPU consumption (Embedded Jetty)
+- Java 11 compatible code
+
 ## Technologies
 - [Java](https://www.java.com/) : Language used by JMeter
 - [Embedded Jetty](https://www.baeldung.com/jetty-embedded) : to expose the metrics collected by SamplerListener (specific to JMeter) and calculated by HDRHistogram offers a very light server implementation
