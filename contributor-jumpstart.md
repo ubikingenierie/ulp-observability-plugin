@@ -1,6 +1,6 @@
 # Backend
 
-## Constraints:
+## Constraints
 
 - Have the lightest possible memory / CPU footprint on JMeter performances
 - Ability to handle up to 1 million requests per minute
