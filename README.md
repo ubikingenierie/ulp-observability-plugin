@@ -1,11 +1,16 @@
 # ULP OBSERVABILITY PLUGIN
 
-[UbikLoadPack](https://UbikLoadPack.com) observability plugin is an extension for Apache JMeter which allows you to monitor a performance test (Standalone or distributed) from your browser.
+[UbikLoadPack](https://UbikLoadPack.com) observability plugin is a free and OSS plugin for Apache JMeter which allows you to monitor a NON GUI/CLI performance test (Standalone or distributed) from your browser.
 
-It also exposes an Open Metrics endpoint so that Prometheus or similar tools can scrape it and make metrics of your performance test available
-in it.
+It also exposes an Open Metrics endpoint so that Prometheus or similar tools can scrape it and make metrics of your performance test available in those tools.
 
-It is easily installable through [JMeter-Plugins manager](<https://jmeter-plugins.org/?search=observability>)
+It is easily installable through [JMeter-Plugins manager](<https://jmeter-plugins.org/?search=observability>):
+
+```
+ ./PluginsManagerCMD.sh install ulp-observability-plugin
+```
+
+See in this [blog](https://www.ubik-ingenierie.com/blog/update-jmeter-plugins-in-ci-cd-pipeline/) the pre-requisites to install any plugin this way.
 
 ## Metrics displayed:
 
@@ -96,7 +101,7 @@ scrape_configs:
       - targets: ['localhost:9090']
 ```
 
-Change 'localhost:9090' to match the port you are using to host the plugin.
+Change 'localhost:9090' above to match the host:port where plugin is running and listening.
 
 ### Endpoint content exposed by the plugin
 
