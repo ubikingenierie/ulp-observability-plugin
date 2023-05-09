@@ -55,9 +55,9 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     private static final String PLUGIN_WIKI_PAGE = "https://www.ubik-ingenierie.com/blog/ubik-load-pack-observability-plugin/";
     
     /**
-     * The prefix of the resource bundle properties files (localized under /resources folder in /i18n folder)
+     * The base name of the resource bundle properties files (localized under /resources folder in /i18n folder)
      */
-    private static final String BUNDLE_BASE_NAME = "gui_labels";
+    private static final String BUNDLE_BASE_NAME = "com.ubikloadpack.jmeter.ulp.observability.i18n.guiLabels";
 	
 	/**
 	 * Jetty server port
