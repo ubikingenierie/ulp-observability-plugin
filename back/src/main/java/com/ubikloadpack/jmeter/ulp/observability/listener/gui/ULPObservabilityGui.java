@@ -15,6 +15,8 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -51,6 +53,11 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	private static final Logger LOG = LoggerFactory.getLogger(ULPObservabilityGui.class);
 
     private static final String PLUGIN_WIKI_PAGE = "https://www.ubik-ingenierie.com/blog/ubik-load-pack-observability-plugin/";
+    
+    /**
+     * The prefix of the resource bundle properties files (localized under /resources folder in /i18n folder)
+     */
+    private static final String BUNDLE_BASE_NAME = "gui_labels";
 	
 	/**
 	 * Jetty server port
@@ -105,6 +112,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	 */
 	private final JCheckBox keepJettyServerUpAfterTestEnd = new JCheckBox("Keep server up after test ended");
 	
+
     /**
      * Creates new ULP Observability GUI
      */
@@ -130,22 +138,22 @@ public class ULPObservabilityGui extends AbstractListenerGui{
      */
     private JPanel createSamplerConfigPanel() {
     	JPanel ulpObservabilityConfigPanel = new JPanel(new MigLayout("wrap 2", "[][fill,grow]0px"));
-    	ulpObservabilityConfigPanel.setBorder(BorderFactory.createTitledBorder("Config"));
+    	ulpObservabilityConfigPanel.setBorder(BorderFactory.createTitledBorder(this.getResourceBundleString("config")));
     	
     	List<Pair<JLabel, JTextField>> labelsAndFields = new ArrayList<>();
     	
-    	labelsAndFields.add(Pair.of(new JLabel("Web server Port"), this.jettyPort));
-    	labelsAndFields.add(Pair.of(new JLabel("Web application route"), this.webAppRoute));
-    	labelsAndFields.add(Pair.of(new JLabel("Percentiles 1"), this.pct1));
-    	labelsAndFields.add(Pair.of(new JLabel("Percentiles 2"), this.pct2));
-    	labelsAndFields.add(Pair.of(new JLabel("Percentiles 3"), this.pct3));
-    	labelsAndFields.add(Pair.of(new JLabel("Regex (filter samplers by their name)"), this.regex));
-    	labelsAndFields.add(Pair.of(new JLabel("OpenMetrics route"), this.metricsRoute));
-    	labelsAndFields.add(Pair.of(new JLabel("Number of Processing Threads"), this.threadSize));
-    	labelsAndFields.add(Pair.of(new JLabel("Sample Queue Buffer Capacity"), this.bufferCapacity));
-    	labelsAndFields.add(Pair.of(new JLabel("Test Duration in seconds"), this.micrometerExpiryTime));
-    	labelsAndFields.add(Pair.of(new JLabel("Log Frequency in seconds"), this.logFrequency));
-    	labelsAndFields.add(Pair.of(new JLabel("Total metrics label"), this.totalLabel));
+    	labelsAndFields.add(Pair.of(new JLabel(this.getResourceBundleString("webServerPort")), this.jettyPort));
+    	labelsAndFields.add(Pair.of(new JLabel(this.getResourceBundleString("WebRoute")), this.webAppRoute));
+    	labelsAndFields.add(Pair.of(new JLabel(this.getResourceBundleString("percentiles1")), this.pct1));
+    	labelsAndFields.add(Pair.of(new JLabel(this.getResourceBundleString("percentiles2")), this.pct2));
+    	labelsAndFields.add(Pair.of(new JLabel(this.getResourceBundleString("percentiles3")), this.pct3));
+    	labelsAndFields.add(Pair.of(new JLabel(this.getResourceBundleString("regexFilter")), this.regex));
+    	labelsAndFields.add(Pair.of(new JLabel(this.getResourceBundleString("openMetricsRoute")), this.metricsRoute));
+    	labelsAndFields.add(Pair.of(new JLabel(this.getResourceBundleString("numberrocessingThreads")), this.threadSize));
+    	labelsAndFields.add(Pair.of(new JLabel(this.getResourceBundleString("queueCapacity")), this.bufferCapacity));
+    	labelsAndFields.add(Pair.of(new JLabel(this.getResourceBundleString("testDuration")), this.micrometerExpiryTime));
+    	labelsAndFields.add(Pair.of(new JLabel(this.getResourceBundleString("logFrequency")), this.logFrequency));
+    	labelsAndFields.add(Pair.of(new JLabel(this.getResourceBundleString("totalMetricLabel")), this.totalLabel));
     	
     	for(Pair<JLabel, JTextField> labelAndField : labelsAndFields) {
     		JLabel label = labelAndField.getLeft();
@@ -334,7 +342,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
         JLabel icon = new JLabel();
         icon.setIcon(new javax.swing.ImageIcon(ULPObservabilityGui.class.getResource("/com/ubikloadpack/jmeter/ulp/observability/information.png")));
 
-        JLabel link = new JLabel("Help me !");
+        JLabel link = new JLabel(this.getResourceBundleString("helpMe"));
         link.setForeground(Color.blue);
         link.setFont(link.getFont().deriveFont(Font.PLAIN));
         link.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -396,5 +404,28 @@ public class ULPObservabilityGui extends AbstractListenerGui{
                 openInBrowser(uri);
             }
         }
+    }
+    
+    /**
+     * Get the value of the corresponding property in the bundle resources 
+     * prefixed with RESOURCE_BUNDLE_PREFIX. The property value is retrieved 
+     * based on the JVM's default locale.
+     * @param key the key of a resource bundle
+     * @return the value of the property.
+     */
+    private String getResourceBundleString(String key) {
+    	return this.getResourceBundleString(BUNDLE_BASE_NAME, Locale.getDefault(), key);
+    }
+    
+    /**
+     * Get the value of the corresponding property in the bundle resources.
+     * @param baseName The prefix of the resource bundle files.
+     * @param locale the locale in which the resource bundle will be returned.
+     * @param key the key of the resource bundle.
+     * @return the string for the given key from this resource bundle.
+     */
+    private String getResourceBundleString(String baseName, Locale locale, String key) {
+    	ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale);
+    	return bundle.getString(key);
     }
 }
