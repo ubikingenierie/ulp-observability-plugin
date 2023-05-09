@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>jmeter.plugins.ulbobservatory.sampler</groupId>
 		<artifactId>ulp-observability</artifactId>
-		<version>1.0.4</version>
+		<version>1.0.5-SNAPSHOT</version>
 	</parent>
 	
     <artifactId>ulp-observability-listener</artifactId>
