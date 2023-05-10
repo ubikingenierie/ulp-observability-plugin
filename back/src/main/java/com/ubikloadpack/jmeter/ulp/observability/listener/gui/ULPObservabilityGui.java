@@ -14,11 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -30,13 +26,13 @@ import javax.swing.border.Border;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jmeter.gui.AbstractJMeterGuiComponent;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.visualizers.gui.AbstractListenerGui;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ubikloadpack.jmeter.ulp.observability.config.ULPODefaultConfig;
 import com.ubikloadpack.jmeter.ulp.observability.listener.ULPObservabilityListener;
+import com.ubikloadpack.jmeter.ulp.observability.util.MessageUtils;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -113,11 +109,6 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	private static final Logger LOG = LoggerFactory.getLogger(ULPObservabilityGui.class);
 
     private static final String PLUGIN_WIKI_PAGE = "https://www.ubik-ingenierie.com/blog/ubik-load-pack-observability-plugin/";
-    
-    /**
-     * The base name of the resource bundle properties files (localized under /resources folder in /i18n folder)
-     */
-    private static final String BUNDLE_BASE_NAME = "com.ubikloadpack.jmeter.ulp.observability.i18n.guiLabels";
 	
 	/**
 	 * Jetty server port
@@ -170,7 +161,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	/**
 	 * Keep server running after test
 	 */
-	private final JCheckBox keepJettyServerUpAfterTestEnd = new JCheckBox(this.getResourceBundleString(KEEP_SERVER_UP_LABEL));
+	private final JCheckBox keepJettyServerUpAfterTestEnd = new JCheckBox(MessageUtils.getMessage(KEEP_SERVER_UP_LABEL));
 	
     /**
      * Creates new ULP Observability GUI
@@ -197,22 +188,22 @@ public class ULPObservabilityGui extends AbstractListenerGui{
      */
     private JPanel createSamplerConfigPanel() {
     	JPanel ulpObservabilityConfigPanel = new JPanel(new MigLayout("wrap 2", "[][fill,grow]0px"));
-    	ulpObservabilityConfigPanel.setBorder(BorderFactory.createTitledBorder(this.getResourceBundleString("config")));
+    	ulpObservabilityConfigPanel.setBorder(BorderFactory.createTitledBorder(MessageUtils.getMessage("config")));
     	
     	List<Pair<JLabel, JTextField>> labelsAndFields = new ArrayList<>();
     	
-    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(WEB_SERVER_PORT_LABEL)), this.jettyPort));
-    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(WEB_ROUTE_LABEL)), this.webAppRoute));
-    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(PERCENTILES_1_LABEL)), this.pct1));
-    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(PERCENTILES_2_LABEL)), this.pct2));
-    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(PERCENTILES_3_LABEL)), this.pct3));
-    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(REGEX_FILTER_LABEL)), this.regex));
-    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(OPEN_METRICS_ROUTE_LABEL)), this.metricsRoute));
-    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(NUMBER_PROCESSING_THREADS_LABEL)), this.threadSize));
-    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(QUEUR_CAPACITY_LABEL)), this.bufferCapacity));
-    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(TEST_DURATION_LABEL)), this.micrometerExpiryTime));
-    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(LOG_FREQUENCY_LABEL)), this.logFrequency));
-    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(TOTAL_METRIC_LABEL)), this.totalLabel));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(WEB_SERVER_PORT_LABEL)), this.jettyPort));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(WEB_ROUTE_LABEL)), this.webAppRoute));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(PERCENTILES_1_LABEL)), this.pct1));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(PERCENTILES_2_LABEL)), this.pct2));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(PERCENTILES_3_LABEL)), this.pct3));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(REGEX_FILTER_LABEL)), this.regex));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(OPEN_METRICS_ROUTE_LABEL)), this.metricsRoute));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(NUMBER_PROCESSING_THREADS_LABEL)), this.threadSize));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(QUEUR_CAPACITY_LABEL)), this.bufferCapacity));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(TEST_DURATION_LABEL)), this.micrometerExpiryTime));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(LOG_FREQUENCY_LABEL)), this.logFrequency));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(TOTAL_METRIC_LABEL)), this.totalLabel));	
     	
     	for(Pair<JLabel, JTextField> labelAndField : labelsAndFields) {
     		JLabel label = labelAndField.getLeft();
@@ -401,7 +392,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
         JLabel icon = new JLabel();
         icon.setIcon(new javax.swing.ImageIcon(ULPObservabilityGui.class.getResource("/com/ubikloadpack/jmeter/ulp/observability/information.png")));
 
-        JLabel link = new JLabel(getResourceBundleString(HELP_ME_LABEL));
+        JLabel link = new JLabel(MessageUtils.getMessage(HELP_ME_LABEL));
         link.setForeground(Color.blue);
         link.setFont(link.getFont().deriveFont(Font.PLAIN));
         link.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -463,18 +454,5 @@ public class ULPObservabilityGui extends AbstractListenerGui{
                 openInBrowser(uri);
             }
         }
-    }
-    
-    /**
-     * Get the corresponding key value in the bundle resource 
-     * whose base name is defined by the BUNDLE_BASE_NAME constant.
-     * The key value is retrieved based on the JMeter locale.
-     * @param key the key of a resource bundle
-     * @return the value of the key.
-     */
-    private String getResourceBundleString(String key) {
-    	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE_BASE_NAME, JMeterUtils.getLocale());
-    	return resourceBundle.getString(key);
-    }
-    
+    } 
 }
