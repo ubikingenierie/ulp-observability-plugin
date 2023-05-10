@@ -8,20 +8,23 @@
     <div  [ngSwitch]="status">
 
         <div class="info" *ngSwitchCase="0">
-            <mat-icon aria-hidden="false">settings</mat-icon>
-            <span class="icon-align">Retrieving plugin configuration</span>
+            <mat-icon aria-hidden="false">{{'dashboard.settings' | translate}}</mat-icon>
+            <span class="icon-align">{{'dashboard.config' | translate}}</span>
         </div>
 
         <div class="info" *ngSwitchCase="1">
-            <mat-icon aria-hidden="false">pending</mat-icon>
-            <span class="icon-align">Waiting for sample metrics</span>
+            <mat-icon aria-hidden="false">{{'dashboard.pending' | translate}}</mat-icon>
+            <span class="icon-align">{{'dashboard.waiting' | translate}}</span>
         </div>
 
         <div class="content" *ngSwitchCase="2">
 
             <form class="chart-form">
                 <mat-form-field class="form-full-width" appearance="fill">                   
-                    <mat-label><mat-icon >search</mat-icon>Graphs filters</mat-label>
+                    <mat-label>
+                        <mat-icon>{{'dashboard.searchBar' | translate}}</mat-icon>
+                        {{'dashboard.graphFilter' | translate}}
+                    </mat-label>
                     <input type="text" matInput [formControl]="control" [matAutocomplete]="auto">
                     <mat-autocomplete #auto="matAutocomplete">
                         <mat-option *ngFor="let chart of filteredCharts | async | keyvalue" [value]="chart.value">
@@ -57,13 +60,13 @@
         </div>
 
         <div class="info" *ngSwitchCase="3">
-            <mat-icon aria-hidden="false">error</mat-icon>
-            <span class="icon-align">Startup error, retrying...</span>
+            <mat-icon aria-hidden="false"  >{{'dashboard.error' | translate}}</mat-icon>
+            <span class="icon-align"  >{{'dashboard.retryOnError' | translate}}</span>
         </div>
 
         <div class="info" *ngSwitchDefault>
-            <mat-icon aria-hidden="false">help</mat-icon>
-            <span class="icon-align">Something went wrong</span>
+            <mat-icon aria-hidden="false"  >{{'dashboard.help' | translate}}</mat-icon>
+            <span class="icon-align"  >{{'dashboard.unknownError' | translate}}</span>
         </div>
 
     </div> 
@@ -71,11 +74,11 @@
 
     <mat-card *ngIf="showErrorMessage">
         <mat-card-content>
-            <mat-icon aria-hidden="false">error</mat-icon>
-            <span class="icon-align error-message">Error on retrieving metrics data</span>
-            <mat-icon class="close-icon" aria-hidden="false" (click)="closeError()">close</mat-icon>
-
-            
+            <mat-icon aria-hidden="false"  >{{'dashboard.error' | translate}}</mat-icon>
+            <span class="icon-align error-message"  >{{'dashboard.dataError' | translate}}</span>
+            <mat-icon class="close-icon" aria-hidden="false" (click)="closeError()"  >
+                {{'dashboard.close' | translate}}
+            </mat-icon>
         </mat-card-content>    
     </mat-card>
     

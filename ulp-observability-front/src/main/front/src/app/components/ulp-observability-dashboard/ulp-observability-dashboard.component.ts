@@ -7,6 +7,7 @@ import { Sample } from 'src/app/model/sample';
 import { ChartData, DatasetGroup, Datasets } from 'src/app/model/chart-data';
 import { map, Observable, startWith } from 'rxjs';
 import { FormControl } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 
 
 interface NamePostfix {
@@ -44,7 +45,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
   control = new FormControl('');
   filteredCharts!: Observable<string[]>;
   
-  constructor(private metricService: MetricsService) { }
+  constructor(private metricService: MetricsService, private translate: TranslateService) { }
 
   ngOnInit(): void {
     this.requestInfo();

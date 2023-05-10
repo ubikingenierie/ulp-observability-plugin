@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { DatasetGroup, Datasets } from 'src/app/model/chart-data';
 
 
@@ -30,7 +31,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
 
   cards : CardList = {
     'samplerCountEveryPeriods': {
-      label: 'Total Requests',
+      label: 'statistics.totalRequests',
       icon: 'summarize',
       data: {
         unit: '',
@@ -38,7 +39,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
       }
     },
     'avg': {
-      label: 'Avg Response Time',
+      label: 'statistics.avg',
       icon: 'schedule',
       data: {
         unit: 'ms',
@@ -46,7 +47,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
       }
     },
     'error': {
-      label: 'Error Percentage',
+      label: 'statistics.error',
       icon: 'warning',
       data: {
         unit: '%',
@@ -54,7 +55,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
       }
     },
     'max': {
-      label: 'Max Response Time',
+      label: 'statistics.max',
       icon: 'arrow_upward',
       data: {
         unit: 'ms',
@@ -62,7 +63,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
       }
     },
     'throughput': {
-      label: 'Throughput',
+      label: 'statistics.throughput',
       icon: 'rocket_launch',
       data: {
         unit: 'req/s',
@@ -70,7 +71,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
       }
     },
     'threads' :{
-      label: 'Threads',
+      label: 'statistics.threads',
       icon: 'memory',
       data: {
         unit: 'threads',
@@ -79,7 +80,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
     }
   }
 
-  constructor() { }
+  constructor(private translate: TranslateService) { }
 
   ngOnInit(): void {
     

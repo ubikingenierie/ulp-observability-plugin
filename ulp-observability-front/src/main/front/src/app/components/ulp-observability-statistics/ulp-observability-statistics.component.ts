@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
+import { TranslateService } from '@ngx-translate/core';
 import { DatasetGroup, Datasets } from 'src/app/model/chart-data';
 
 interface StatInfo{
@@ -35,7 +36,7 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
   columnsToDisplay !: Array<KeyAndLabel>;
   columnsKeys !: Array<string>;
   
-  constructor() { }
+  constructor(private translate: TranslateService) { }
 
   ngOnInit(): void {
     this.dataSource = new MatTableDataSource(this.statLine)
@@ -63,42 +64,42 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
 
           var stats : StatList = {
             'sampler':{
-              label:'Sampler Name',
+              label:'statistics.samplerName',
               data:{
                 unit:'',
                 value:'0'
               }
             },
             'samplerCountEveryPeriods': {
-              label: 'Total Requests',
+              label: 'statistics.totalRequests',
               data: {
                 unit: '',
                 value: '0'
               }
             },
             'avg': {
-              label: 'Avg Response Time',
+              label: 'statistics.avg',
               data: {
                 unit: 'ms',
                 value: '0'
               }
             },
             'error': {
-              label: 'Error Percentage',
+              label: 'statistics.error',
               data: {
                 unit: '%',
                 value: '0'
               }
             },
             'max': {
-              label: 'Max Response Time',
+              label: 'statistics.max',
               data: {
                 unit: 'ms',
                 value: '0'
               }
             },
             'throughput': {
-              label: 'Throughput',
+              label: 'statistics.throughput',
               data: {
                 unit: 'req/s',
                 value: '0'
@@ -116,7 +117,7 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
           Object.keys(this.datasets).filter(type => type.startsWith('pctEveryPeriods')).forEach(pct => {
             let percentileNumber = (pct.match(/\d/g) ?? ["0"]).join(""); // regex that get every numbers of a string
             stats['Percentile '+ percentileNumber + 'th'] = {
-              label: 'Percentile '+ percentileNumber + 'th',
+              label: this.translate.instant('statistics.percentile', {value: percentileNumber}),
                   data: {
                     unit: 'ms',
                     value: this.datasets[pct][samplerName][lastIndex].y
