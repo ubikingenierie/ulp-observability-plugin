@@ -48,33 +48,63 @@ import net.miginfocom.swing.MigLayout;
 public class ULPObservabilityGui extends AbstractListenerGui{
 	
 	private static final long serialVersionUID = 1808039838820473713L;
-
+	
+	
+	/*
+	 * The bundle resource key name of the "web server port" label
+	 */
 	private static final String WEB_SERVER_PORT_LABEL = "webServerPort";
-	
+	/*
+	 * The bundle resource key name of the "application web roote" label
+	 */
 	private static final String WEB_ROUTE_LABEL = "WebRoute";
-	
+	/*
+	 * The bundle resource key name of the "percentiles 1" label
+	 */
 	private static final String PERCENTILES_1_LABEL = "percentiles1";
-
+	/*
+	 * The bundle resource key name of the "percentiles 2" label
+	 */
 	private static final String PERCENTILES_2_LABEL = "percentiles2";
-	
+	/*
+	 * The bundle resource key name of the "percentiles 3" label
+	 */
 	private static final String PERCENTILES_3_LABEL = "percentiles3";
-	
+	/*
+	 * The bundle resource key name of the "regex filter" label
+	 */
 	private static final String REGEX_FILTER_LABEL = "regexFilter";
-	
+	/*
+	 * The bundle resource key name of the "openMetrics route" label
+	 */
 	private static final String OPEN_METRICS_ROUTE_LABEL = "openMetricsRoute";
-	
+	/*
+	 * The bundle resource key name of the "number processing threads" label
+	 */
 	private static final String NUMBER_PROCESSING_THREADS_LABEL = "numberProcessingThreads";
-	
+	/*
+	 * The bundle resource key name of the "queue buffer capacity" label
+	 */
 	private static final String QUEUR_CAPACITY_LABEL = "queueCapacity";
-	
+	/*
+	 * The bundle resource key name of the "test duration" label
+	 */
 	private static final String TEST_DURATION_LABEL = "testDuration";
-	
+	/*
+	 * The bundle resource key name of the "log frequency" label
+	 */
 	private static final String LOG_FREQUENCY_LABEL = "logFrequency";
-	
+	/*
+	 * The bundle resource key name of the "total metric label" label
+	 */
 	private static final String TOTAL_METRIC_LABEL = "totalMetricLabel";
-	
+	/*
+	 * The bundle resource key name of the "keep Server Up" label
+	 */
 	private static final String KEEP_SERVER_UP_LABEL = "keepServerUp";
-	
+	/*
+	 * The bundle resource key name of the "help Me" label
+	 */
 	private static final String HELP_ME_LABEL = "helpMe";
 		
 	/**
@@ -141,7 +171,9 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	 * Keep server running after test
 	 */
 	private final JCheckBox keepJettyServerUpAfterTestEnd = new JCheckBox(this.getResourceBundleString(KEEP_SERVER_UP_LABEL));
-			
+	/**
+	 * The labels declared in the JPanel config		
+	 */
     private Map<String, JLabel> guiLabels = new HashMap<>();
 	
     /**
@@ -452,20 +484,29 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     }
     
     /**
-     * Get the value of the corresponding property in the bundle resources 
-     * prefixed with RESOURCE_BUNDLE_PREFIX. The property value is retrieved 
-     * based on the JVM's default locale.
+     * Get the corresponding key value in the bundle resource 
+     * whose base name is defined by the BUNDLE_BASE_NAME constant.
+     * The key value is retrieved based on the JMeter locale.
      * @param key the key of a resource bundle
-     * @return the value of the property.
+     * @return the value of the key.
      */
     private String getResourceBundleString(String key) {
     	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE_BASE_NAME, JMeterUtils.getLocale());
     	return resourceBundle.getString(key);
     }
     
+    /**
+     * Create a JLabel which it's text is defined based on the value 
+     * of the given key of a resource bundle. 
+     * Adds the reference of the created JLabel to the set of guiLabels
+     * @param key the key of a resource bundle
+     * @return the JLabel with the text defined by the value of the given 
+     * key.
+     */
  	private JLabel createJLabelWithBundleKey(String key) {
  		JLabel label = new JLabel(this.getResourceBundleString(key));
         label.setName(key);
+        
         guiLabels.put(key, label);
         return label;
  	}
