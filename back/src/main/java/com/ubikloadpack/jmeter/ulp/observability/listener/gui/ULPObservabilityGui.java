@@ -171,10 +171,6 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	 * Keep server running after test
 	 */
 	private final JCheckBox keepJettyServerUpAfterTestEnd = new JCheckBox(this.getResourceBundleString(KEEP_SERVER_UP_LABEL));
-	/**
-	 * The labels declared in the JPanel config		
-	 */
-    private Map<String, JLabel> guiLabels = new HashMap<>();
 	
     /**
      * Creates new ULP Observability GUI
@@ -205,18 +201,18 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	
     	List<Pair<JLabel, JTextField>> labelsAndFields = new ArrayList<>();
     	
-    	labelsAndFields.add(Pair.of(createJLabelWithBundleKey(WEB_SERVER_PORT_LABEL), this.jettyPort));
-    	labelsAndFields.add(Pair.of(createJLabelWithBundleKey(WEB_ROUTE_LABEL), this.webAppRoute));
-    	labelsAndFields.add(Pair.of(createJLabelWithBundleKey(PERCENTILES_1_LABEL), this.pct1));
-    	labelsAndFields.add(Pair.of(createJLabelWithBundleKey(PERCENTILES_2_LABEL), this.pct2));
-    	labelsAndFields.add(Pair.of(createJLabelWithBundleKey(PERCENTILES_3_LABEL), this.pct3));
-    	labelsAndFields.add(Pair.of(createJLabelWithBundleKey(REGEX_FILTER_LABEL), this.regex));
-    	labelsAndFields.add(Pair.of(createJLabelWithBundleKey(OPEN_METRICS_ROUTE_LABEL), this.metricsRoute));
-    	labelsAndFields.add(Pair.of(createJLabelWithBundleKey(NUMBER_PROCESSING_THREADS_LABEL), this.threadSize));
-    	labelsAndFields.add(Pair.of(createJLabelWithBundleKey(QUEUR_CAPACITY_LABEL), this.bufferCapacity));
-    	labelsAndFields.add(Pair.of(createJLabelWithBundleKey(TEST_DURATION_LABEL), this.micrometerExpiryTime));
-    	labelsAndFields.add(Pair.of(createJLabelWithBundleKey(LOG_FREQUENCY_LABEL), this.logFrequency));
-    	labelsAndFields.add(Pair.of(createJLabelWithBundleKey(TOTAL_METRIC_LABEL), this.totalLabel));
+    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(WEB_SERVER_PORT_LABEL)), this.jettyPort));
+    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(WEB_ROUTE_LABEL)), this.webAppRoute));
+    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(PERCENTILES_1_LABEL)), this.pct1));
+    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(PERCENTILES_2_LABEL)), this.pct2));
+    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(PERCENTILES_3_LABEL)), this.pct3));
+    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(REGEX_FILTER_LABEL)), this.regex));
+    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(OPEN_METRICS_ROUTE_LABEL)), this.metricsRoute));
+    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(NUMBER_PROCESSING_THREADS_LABEL)), this.threadSize));
+    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(QUEUR_CAPACITY_LABEL)), this.bufferCapacity));
+    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(TEST_DURATION_LABEL)), this.micrometerExpiryTime));
+    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(LOG_FREQUENCY_LABEL)), this.logFrequency));
+    	labelsAndFields.add(Pair.of(new JLabel(getResourceBundleString(TOTAL_METRIC_LABEL)), this.totalLabel));
     	
     	for(Pair<JLabel, JTextField> labelAndField : labelsAndFields) {
     		JLabel label = labelAndField.getLeft();
@@ -391,8 +387,6 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		this.logFrequency.setText(Integer.toString(ULPODefaultConfig.logFrequency()));
 		this.totalLabel.setText(ULPODefaultConfig.totalLabel());
 		this.regex.setText(ULPODefaultConfig.regex());	
-		
-		this.updateGuiLabels();
 	} 
     
     /**
@@ -407,7 +401,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
         JLabel icon = new JLabel();
         icon.setIcon(new javax.swing.ImageIcon(ULPObservabilityGui.class.getResource("/com/ubikloadpack/jmeter/ulp/observability/information.png")));
 
-        JLabel link = createJLabelWithBundleKey(HELP_ME_LABEL);
+        JLabel link = new JLabel(getResourceBundleString(HELP_ME_LABEL));
         link.setForeground(Color.blue);
         link.setFont(link.getFont().deriveFont(Font.PLAIN));
         link.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -470,18 +464,6 @@ public class ULPObservabilityGui extends AbstractListenerGui{
             }
         }
     }
-
-    
-    /** 
-     * Update the labels of the Sample config panel
-     */
-    private void updateGuiLabels() {
-    	for (JLabel label : guiLabels.values()) {
-    		String key = label.getName();
-    	    label.setText(this.getResourceBundleString(key));
-    	}
-        keepJettyServerUpAfterTestEnd.setText(this.getResourceBundleString(KEEP_SERVER_UP_LABEL));
-    }
     
     /**
      * Get the corresponding key value in the bundle resource 
@@ -495,19 +477,4 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	return resourceBundle.getString(key);
     }
     
-    /**
-     * Create a JLabel which it's text is defined based on the value 
-     * of the given key of a resource bundle. 
-     * Adds the reference of the created JLabel to the set of guiLabels
-     * @param key the key of a resource bundle
-     * @return the JLabel with the text defined by the value of the given 
-     * key.
-     */
- 	private JLabel createJLabelWithBundleKey(String key) {
- 		JLabel label = new JLabel(this.getResourceBundleString(key));
-        label.setName(key);
-        
-        guiLabels.put(key, label);
-        return label;
- 	}
 }
