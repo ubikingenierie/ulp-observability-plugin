@@ -14,7 +14,7 @@
 		"close": "fermer"
     },
 	"statistics": {
-		"title": "Informations d'échantilloneurs",
+		"title": "Informations des échantillonneurs",
 		"samplerName": "Nom d'échantilloneur",
 		"totalRequests": "Total des requêtes",
 		"avg": "Moyenne des temps de réponse",
