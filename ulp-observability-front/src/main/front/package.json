@@ -29,6 +29,7 @@
     "moment": "^2.29.3",
     "ng2-charts": "^3.0.8",
     "rxjs": "~7.4.0",
+    "semver": "^7.5.0",
     "shallow-equal": "^1.2.1",
     "tslib": "^2.4.0",
     "zone.js": "~0.11.4"
