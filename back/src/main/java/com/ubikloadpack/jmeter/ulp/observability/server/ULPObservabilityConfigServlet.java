@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.apache.jmeter.util.JMeterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +44,8 @@ public class ULPObservabilityConfigServlet extends HttpServlet{
 							new PluginConfig(
 									metricsRoute,
 									logFrequeny,
-									totalLabel
+									totalLabel,
+									JMeterUtils.getLocale().getLanguage()
 									)
 							);
 		} catch (JsonProcessingException e) {
@@ -79,12 +81,14 @@ public class ULPObservabilityConfigServlet extends HttpServlet{
 		private final String metricsRoute;
 		private final Integer logFrequency;
 		private final String totalLabel;
+		private final String localeLang;
 
-		public PluginConfig(String metricsRoute, Integer logFrequency, String totalLabel) {
+		public PluginConfig(String metricsRoute, Integer logFrequency, String totalLabel, String localeLang) {
 			super();
 			this.metricsRoute = metricsRoute;
 			this.logFrequency = logFrequency;
 			this.totalLabel = totalLabel;
+			this.localeLang = localeLang;
 		}
 		
 		public String getMetricsRoute() {
@@ -101,7 +105,9 @@ public class ULPObservabilityConfigServlet extends HttpServlet{
 			return this.totalLabel;
 		}
 		
-		
+		public String getLocaleLang() {
+			return this.localeLang;
+		}
 	}
 
 }
