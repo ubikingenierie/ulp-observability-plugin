@@ -29,10 +29,10 @@
 		"error": "Error Percentage",
 		"max": "Max Response Time",
 		"throughput": "Throughput",
-		"percentile": "Percentile {{value}} th",
-		"threads": "threads"
+		"percentile": "Percentile {{value}}th",
+		"threads": "Threads"
 	},
-	"stats": {
+	"statistics": {
 		"title": "Sampler Info"
 	}
 }

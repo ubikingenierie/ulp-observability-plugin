@@ -179,7 +179,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
       if(sample.metrics[0] !== undefined) {
         const nameAndPostfix : NamePostfix = this.getNamePostfix(sample.name);
         const timestamp = new Date(+(sample.metrics[0].timestamp_ms ?? sample.metrics[0].created ?? 0));
-        const sampleHelp = "charts." + sample.help?.toLowerCase() ?? ''; // The title of a chart
+        const sampleHelp = "charts." + sample.help?.toLowerCase() ?? ''; // The title of a chart is retrieved from charts.<chartName> in assets/i18n 
 
         switch(nameAndPostfix.postfix){
           case('avg'):
