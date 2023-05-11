@@ -13,8 +13,16 @@
 		"help": "à l'aide",
 		"close": "fermer"
     },
-	"statistics": {
-		"title": "Informations des échantillonneurs",
+	"charts": {
+		"average response times": "Temps de réponse moyen",
+		"response count": "Erreur",
+		"max response times": "Temps de réponse maximum",
+		"response percentiles": "Réponse du ({{value}}ème) centile",
+		"responses per second": "Réponses par seconde",
+		"": ""
+	},
+	"metrics": {
+		"title": "Valeurs totales des métriques",
 		"samplerName": "Nom d'échantilloneur",
 		"totalRequests": "Total des requêtes",
 		"avg": "Moyenne des temps de réponse",
@@ -23,5 +31,8 @@
 		"throughput": "Débit",
 		"percentile": "{{value}}ème Centile",
 		"threads": "Total des threads"
+	},
+	"statistics": {
+		"title": "Informations des échantillonneurs"
 	}
 }

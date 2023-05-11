@@ -1,5 +1,6 @@
 export interface PluginConfig {
 	metricsRoute: string,
 	logFrequency: number,
-	totalLabel: string
+	totalLabel: string,
+	localeLang: string
 }

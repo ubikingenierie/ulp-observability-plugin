@@ -64,42 +64,42 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
 
           var stats : StatList = {
             'sampler':{
-              label:'statistics.samplerName',
+              label:'metrics.samplerName',
               data:{
                 unit:'',
                 value:'0'
               }
             },
             'samplerCountEveryPeriods': {
-              label: 'statistics.totalRequests',
+              label: 'metrics.totalRequests',
               data: {
                 unit: '',
                 value: '0'
               }
             },
             'avg': {
-              label: 'statistics.avg',
+              label: 'metrics.avg',
               data: {
                 unit: 'ms',
                 value: '0'
               }
             },
             'error': {
-              label: 'statistics.error',
+              label: 'metrics.error',
               data: {
                 unit: '%',
                 value: '0'
               }
             },
             'max': {
-              label: 'statistics.max',
+              label: 'metrics.max',
               data: {
                 unit: 'ms',
                 value: '0'
               }
             },
             'throughput': {
-              label: 'statistics.throughput',
+              label: 'metrics.throughput',
               data: {
                 unit: 'req/s',
                 value: '0'
@@ -117,7 +117,7 @@ export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
           Object.keys(this.datasets).filter(type => type.startsWith('pctEveryPeriods')).forEach(pct => {
             let percentileNumber = (pct.match(/\d/g) ?? ["0"]).join(""); // regex that get every numbers of a string
             stats['Percentile '+ percentileNumber + 'th'] = {
-              label: this.translate.instant('statistics.percentile', {value: percentileNumber}),
+              label: this.translate.instant('metrics.percentile', {value: percentileNumber}),
                   data: {
                     unit: 'ms',
                     value: this.datasets[pct][samplerName][lastIndex].y

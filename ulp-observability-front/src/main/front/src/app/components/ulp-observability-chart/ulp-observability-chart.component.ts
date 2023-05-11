@@ -5,6 +5,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import 'chartjs-adapter-moment';
 import { DatasetGroup } from 'src/app/model/chart-data';
 import * as moment from 'moment';
+import { TranslateService } from '@ngx-translate/core';
 
 
 @Component({
@@ -32,7 +33,7 @@ export class UlpObservabilityChartComponent implements OnChanges, OnInit {
 
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
       
-  constructor() { }
+  constructor(translate: TranslateService) { }
 
   ngOnInit(): void {
     let chartUnit = this.unit;

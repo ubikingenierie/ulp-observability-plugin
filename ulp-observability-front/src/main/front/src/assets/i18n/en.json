@@ -13,8 +13,16 @@
 		"help": "help",
 		"close": "close"
     },
-	"statistics": {
-		"title": "Sampler Info",
+	"charts": {
+		"average response times": "Average response time",
+		"response count": "Error",
+		"max response times": "Max response times",
+		"response percentiles": "Response percentiles ({{value}}th)",
+		"responses per second": "Responses per second",
+		"": ""
+	},
+	"metrics": {
+		"title": "Total Info",
 		"samplerName": "Sampler Name",
 		"totalRequests": "Total Requests",
 		"avg": "Avg Response Time",
@@ -23,5 +31,8 @@
 		"throughput": "Throughput",
 		"percentile": "Percentile {{value}} th",
 		"threads": "threads"
+	},
+	"stats": {
+		"title": "Sampler Info"
 	}
 }
