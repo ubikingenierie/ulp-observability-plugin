@@ -57,7 +57,7 @@ export class MaterialModule {};
     MaterialModule,
     FlexLayoutModule,
     TranslateModule.forRoot({
-      defaultLanguage: 'fr',
+      defaultLanguage: 'en',
       useDefaultLang: true,
       loader: {
         provide: TranslateLoader,
