@@ -8,14 +8,14 @@ import java.util.ResourceBundle;
 import org.apache.jmeter.util.JMeterUtils;
 
 /**
- * @author User
+ * Bundle resource utility class
  *
  */
 public class MessageUtils {
     /**
      * The base name of the resource bundle properties files (localized under /resources folder in /i18n folder)
      */
-    private static final String BUNDLE_BASE_NAME = "com.ubikloadpack.jmeter.ulp.observability.i18n.guiLabels";
+    private static final String BUNDLE_BASE_NAME = "com.ubikloadpack.jmeter.ulp.observability.i18n.messages";
 	
 	/**
      * Get the corresponding key value in the bundle resource 
@@ -25,7 +25,7 @@ public class MessageUtils {
      * @return the value of the key.
      */
     public static String getMessage(String key) {
-    	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE_BASE_NAME, JMeterUtils.getLocale());
+    	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE_BASE_NAME, JMeterUtils.getLocale(), Thread.currentThread().getContextClassLoader());
     	return resourceBundle.getString(key);
     }
 
