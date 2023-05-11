@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.ubikloadpack.jmeter.ulp.observability.config.ULPODefaultConfig;
 import com.ubikloadpack.jmeter.ulp.observability.listener.ULPObservabilityListener;
+import com.ubikloadpack.jmeter.ulp.observability.util.MessageUtils;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -41,10 +42,67 @@ import net.miginfocom.swing.MigLayout;
  *
  */
 public class ULPObservabilityGui extends AbstractListenerGui{
-
 	
 	private static final long serialVersionUID = 1808039838820473713L;
 	
+	
+	/*
+	 * The bundle resource key name of the "web server port" label
+	 */
+	private static final String WEB_SERVER_PORT_LABEL = "webServerPort";
+	/*
+	 * The bundle resource key name of the "application web roote" label
+	 */
+	private static final String WEB_ROUTE_LABEL = "WebRoute";
+	/*
+	 * The bundle resource key name of the "percentiles 1" label
+	 */
+	private static final String PERCENTILES_1_LABEL = "percentiles1";
+	/*
+	 * The bundle resource key name of the "percentiles 2" label
+	 */
+	private static final String PERCENTILES_2_LABEL = "percentiles2";
+	/*
+	 * The bundle resource key name of the "percentiles 3" label
+	 */
+	private static final String PERCENTILES_3_LABEL = "percentiles3";
+	/*
+	 * The bundle resource key name of the "regex filter" label
+	 */
+	private static final String REGEX_FILTER_LABEL = "regexFilter";
+	/*
+	 * The bundle resource key name of the "openMetrics route" label
+	 */
+	private static final String OPEN_METRICS_ROUTE_LABEL = "openMetricsRoute";
+	/*
+	 * The bundle resource key name of the "number processing threads" label
+	 */
+	private static final String NUMBER_PROCESSING_THREADS_LABEL = "numberProcessingThreads";
+	/*
+	 * The bundle resource key name of the "queue buffer capacity" label
+	 */
+	private static final String QUEUR_CAPACITY_LABEL = "queueCapacity";
+	/*
+	 * The bundle resource key name of the "test duration" label
+	 */
+	private static final String TEST_DURATION_LABEL = "testDuration";
+	/*
+	 * The bundle resource key name of the "log frequency" label
+	 */
+	private static final String LOG_FREQUENCY_LABEL = "logFrequency";
+	/*
+	 * The bundle resource key name of the "total metric label" label
+	 */
+	private static final String TOTAL_METRIC_LABEL = "totalMetricLabel";
+	/*
+	 * The bundle resource key name of the "keep Server Up" label
+	 */
+	private static final String KEEP_SERVER_UP_LABEL = "keepServerUp";
+	/*
+	 * The bundle resource key name of the "help Me" label
+	 */
+	private static final String HELP_ME_LABEL = "helpMe";
+		
 	/**
 	 * Debug logger.
 	 */
@@ -103,7 +161,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	/**
 	 * Keep server running after test
 	 */
-	private final JCheckBox keepJettyServerUpAfterTestEnd = new JCheckBox("Keep server up after test ended");
+	private final JCheckBox keepJettyServerUpAfterTestEnd = new JCheckBox(MessageUtils.getMessage(KEEP_SERVER_UP_LABEL));
 	
     /**
      * Creates new ULP Observability GUI
@@ -130,32 +188,32 @@ public class ULPObservabilityGui extends AbstractListenerGui{
      */
     private JPanel createSamplerConfigPanel() {
     	JPanel ulpObservabilityConfigPanel = new JPanel(new MigLayout("wrap 2", "[][fill,grow]0px"));
-    	ulpObservabilityConfigPanel.setBorder(BorderFactory.createTitledBorder("Config"));
+    	ulpObservabilityConfigPanel.setBorder(BorderFactory.createTitledBorder(MessageUtils.getMessage("config")));
     	
     	List<Pair<JLabel, JTextField>> labelsAndFields = new ArrayList<>();
     	
-    	labelsAndFields.add(Pair.of(new JLabel("Web server Port"), this.jettyPort));
-    	labelsAndFields.add(Pair.of(new JLabel("Web application route"), this.webAppRoute));
-    	labelsAndFields.add(Pair.of(new JLabel("Percentiles 1"), this.pct1));
-    	labelsAndFields.add(Pair.of(new JLabel("Percentiles 2"), this.pct2));
-    	labelsAndFields.add(Pair.of(new JLabel("Percentiles 3"), this.pct3));
-    	labelsAndFields.add(Pair.of(new JLabel("Regex (filter samplers by their name)"), this.regex));
-    	labelsAndFields.add(Pair.of(new JLabel("OpenMetrics route"), this.metricsRoute));
-    	labelsAndFields.add(Pair.of(new JLabel("Number of Processing Threads"), this.threadSize));
-    	labelsAndFields.add(Pair.of(new JLabel("Sample Queue Buffer Capacity"), this.bufferCapacity));
-    	labelsAndFields.add(Pair.of(new JLabel("Test Duration in seconds"), this.micrometerExpiryTime));
-    	labelsAndFields.add(Pair.of(new JLabel("Log Frequency in seconds"), this.logFrequency));
-    	labelsAndFields.add(Pair.of(new JLabel("Total metrics label"), this.totalLabel));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(WEB_SERVER_PORT_LABEL)), this.jettyPort));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(WEB_ROUTE_LABEL)), this.webAppRoute));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(PERCENTILES_1_LABEL)), this.pct1));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(PERCENTILES_2_LABEL)), this.pct2));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(PERCENTILES_3_LABEL)), this.pct3));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(REGEX_FILTER_LABEL)), this.regex));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(OPEN_METRICS_ROUTE_LABEL)), this.metricsRoute));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(NUMBER_PROCESSING_THREADS_LABEL)), this.threadSize));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(QUEUR_CAPACITY_LABEL)), this.bufferCapacity));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(TEST_DURATION_LABEL)), this.micrometerExpiryTime));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(LOG_FREQUENCY_LABEL)), this.logFrequency));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(TOTAL_METRIC_LABEL)), this.totalLabel));	
     	
     	for(Pair<JLabel, JTextField> labelAndField : labelsAndFields) {
     		JLabel label = labelAndField.getLeft();
     		JTextField textField = labelAndField.getRight();
+    		
     		label.setLabelFor(textField);
     		ulpObservabilityConfigPanel.add(label);
     		ulpObservabilityConfigPanel.add(textField);
     	}
-    	ulpObservabilityConfigPanel.add(this.keepJettyServerUpAfterTestEnd);
-    	
+    	ulpObservabilityConfigPanel.add(this.keepJettyServerUpAfterTestEnd);	
     	return ulpObservabilityConfigPanel;
     }
     
@@ -319,8 +377,8 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		this.micrometerExpiryTime.setText(Integer.toString(ULPODefaultConfig.micrometerExpiryTimeInSeconds()));
 		this.logFrequency.setText(Integer.toString(ULPODefaultConfig.logFrequency()));
 		this.totalLabel.setText(ULPODefaultConfig.totalLabel());
-		this.regex.setText(ULPODefaultConfig.regex());
-	}
+		this.regex.setText(ULPODefaultConfig.regex());	
+	} 
     
     /**
      * Create the Help link panel
@@ -334,7 +392,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
         JLabel icon = new JLabel();
         icon.setIcon(new javax.swing.ImageIcon(ULPObservabilityGui.class.getResource("/com/ubikloadpack/jmeter/ulp/observability/information.png")));
 
-        JLabel link = new JLabel("Help me !");
+        JLabel link = new JLabel(MessageUtils.getMessage(HELP_ME_LABEL));
         link.setForeground(Color.blue);
         link.setFont(link.getFont().deriveFont(Font.PLAIN));
         link.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -396,5 +454,5 @@ public class ULPObservabilityGui extends AbstractListenerGui{
                 openInBrowser(uri);
             }
         }
-    }
+    } 
 }

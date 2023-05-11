@@ -1,0 +1,38 @@
+{
+	"dashboard": {
+        "settings": "settings",
+		"config" : "Retrieving plugin configuration",
+		"pending": "pending",
+		"waiting": "Waiting for sample metrics",
+		"searchBar": "search",
+		"graphFilter": "Graphs filters",
+		"error": "error",
+		"unknownError": "Something went wrong",
+		"retryOnError": "Startup error, retrying...",
+		"dataError": "Error on retrieving metrics data",
+		"help": "help",
+		"close": "close"
+    },
+	"charts": {
+		"average response times": "Average response time",
+		"response count": "Error",
+		"max response times": "Max response times",
+		"response percentiles": "Response percentiles ({{value}}th)",
+		"responses per second": "Responses per second",
+		"": ""
+	},
+	"metrics": {
+		"title": "Total Info",
+		"samplerName": "Sampler Name",
+		"totalRequests": "Total Requests",
+		"avg": "Avg Response Time",
+		"error": "Error Percentage",
+		"max": "Max Response Time",
+		"throughput": "Throughput",
+		"percentile": "Percentile {{value}}th",
+		"threads": "Threads"
+	},
+	"statistics": {
+		"title": "Sampler Info"
+	}
+}

@@ -7,6 +7,7 @@ import { Sample } from 'src/app/model/sample';
 import { ChartData, DatasetGroup, Datasets } from 'src/app/model/chart-data';
 import { map, Observable, startWith } from 'rxjs';
 import { FormControl } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 
 
 interface NamePostfix {
@@ -44,7 +45,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
   control = new FormControl('');
   filteredCharts!: Observable<string[]>;
   
-  constructor(private metricService: MetricsService) { }
+  constructor(private metricService: MetricsService, private translate: TranslateService) { }
 
   ngOnInit(): void {
     this.requestInfo();
@@ -65,6 +66,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
         this.updateFrequencyS = info.logFrequency;
         this.totalLabel = info.totalLabel;
         this.metricService.setMetricsURL(info.metricsRoute);
+        this.translate.setDefaultLang(info.localeLang);
         this.status = MetricsStatus.EMPTY;
         this.requestMetrics();
       },
@@ -177,15 +179,16 @@ export class UlpObservabilityDashboardComponent implements OnInit{
       if(sample.metrics[0] !== undefined) {
         const nameAndPostfix : NamePostfix = this.getNamePostfix(sample.name);
         const timestamp = new Date(+(sample.metrics[0].timestamp_ms ?? sample.metrics[0].created ?? 0));
+        const sampleHelp = "charts." + sample.help?.toLowerCase() ?? ''; // The title of a chart is retrieved from charts.<chartName> in assets/i18n 
 
         switch(nameAndPostfix.postfix){
           case('avg'):
           case('max'):
-            this.addChart(nameAndPostfix.postfix,sample.help, 'ms');
+            this.addChart(nameAndPostfix.postfix, this.translate.instant(sampleHelp), 'ms');
             this.pushMetric(nameAndPostfix.postfix, nameAndPostfix.name, timestamp, sample.metrics[0].value);
             break;
           case('throughput'):
-            this.addChart(nameAndPostfix.postfix,sample.help, 'req/s');
+            this.addChart(nameAndPostfix.postfix, this.translate.instant(sampleHelp), 'req/s');
             this.pushMetric(nameAndPostfix.postfix, nameAndPostfix.name, timestamp, sample.metrics[0].value);
             break;
 
@@ -222,7 +225,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
               }
             });
 
-            this.addChart('errorP','Error %', '%');
+            this.addChart('errorP', this.translate.instant(sampleHelp) + " %", '%');
             this.pushMetric(
               'errorP', 
               nameAndPostfix.name, 
@@ -234,7 +237,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
           case('pct'):
             if(sample.metrics[0].quantiles !== undefined){
               Object.entries(sample.metrics[0].quantiles).forEach(quantile => {
-                this.addChart('pct'+quantile[0], sample.help+' ('+quantile[0]+'th)', 'ms');
+                this.addChart('pct'+quantile[0], this.translate.instant(sampleHelp, {value: quantile[0]}), 'ms');
                 this.pushMetric('pct'+quantile[0], nameAndPostfix.name, timestamp, quantile[1]);
               });
             }

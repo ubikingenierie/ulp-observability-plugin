@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { DatasetGroup, Datasets } from 'src/app/model/chart-data';
 
 
@@ -30,7 +31,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
 
   cards : CardList = {
     'samplerCountEveryPeriods': {
-      label: 'Total Requests',
+      label: 'metrics.totalRequests',
       icon: 'summarize',
       data: {
         unit: '',
@@ -38,7 +39,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
       }
     },
     'avg': {
-      label: 'Avg Response Time',
+      label: 'metrics.avg',
       icon: 'schedule',
       data: {
         unit: 'ms',
@@ -46,7 +47,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
       }
     },
     'error': {
-      label: 'Error Percentage',
+      label: 'metrics.error',
       icon: 'warning',
       data: {
         unit: '%',
@@ -54,7 +55,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
       }
     },
     'max': {
-      label: 'Max Response Time',
+      label: 'metrics.max',
       icon: 'arrow_upward',
       data: {
         unit: 'ms',
@@ -62,7 +63,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
       }
     },
     'throughput': {
-      label: 'Throughput',
+      label: 'metrics.throughput',
       icon: 'rocket_launch',
       data: {
         unit: 'req/s',
@@ -70,7 +71,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
       }
     },
     'threads' :{
-      label: 'Threads',
+      label: 'metrics.threads',
       icon: 'memory',
       data: {
         unit: 'threads',
@@ -79,7 +80,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
     }
   }
 
-  constructor() { }
+  constructor(private translate: TranslateService) { }
 
   ngOnInit(): void {
     
@@ -105,7 +106,7 @@ export class UlpObservabilityMetricsComponent implements OnChanges, OnInit {
       Object.keys(this.datasets).filter(type => type.startsWith('pctEveryPeriods')).forEach(pct => {
         let percentileNumber = (pct.match(/\d/g) ?? ["0"]).join(""); // regex that get every numbers of a string
         this.cards[pct] = {
-          label: 'Percentile '+ percentileNumber + 'th',
+          label: this.translate.instant('metrics.percentile', {value: percentileNumber}),
           icon: 'percent',
               data: {
                 unit: 'ms',
