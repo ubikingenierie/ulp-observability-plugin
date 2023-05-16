@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map.Entry;
 
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
 
@@ -92,6 +94,8 @@ public class SampleLog {
 	 */
 	private final Long errorTotal;
 	
+	private final List<Entry<String, Long>> topErrors;
+	
 	/**
 	 * Response throughput per seconds for every periods
 	 */
@@ -124,6 +128,7 @@ public class SampleLog {
 	 * @param maxTotal Max response time for every periods 
 	 * @param avgTotal Average response time for every periods 
 	 * @param errorTotal The total count of errors during every periods 
+	 * @param topErrors The top errors grouped by types
 	 * @param throughputTotal Response throughput per seconds for every periods 
 	 * @param pctTotal Response time percentiles for every periods
 	 * @param threadsTotal Virtual users count for every periods
@@ -143,6 +148,7 @@ public class SampleLog {
 		Long maxTotal,
 		Double avgTotal,
 		Long errorTotal,
+		List<Entry<String, Long>> topErrors, 
 		Double throughputTotal,
 		ValueAtPercentile[] pctTotal,
 		Long threadsTotal
@@ -161,6 +167,7 @@ public class SampleLog {
 		this.maxTotal = maxTotal;
 		this.avgTotal = avgTotal;
 		this.errorTotal = errorTotal;
+		this.topErrors = topErrors;
 		this.throughputTotal = throughputTotal;
 		this.pctTotal = pctTotal;
 		this.threadsTotal = threadsTotal;
@@ -383,6 +390,11 @@ public class SampleLog {
 	    BigDecimal bd = new BigDecimal(Double.toString(value));
 	    bd = bd.setScale(2, RoundingMode.HALF_UP);
 	    return bd.doubleValue();
+	}
+
+
+	public List<Entry<String, Long>> getTopErrors() {
+		return topErrors;
 	}
 	
 	
