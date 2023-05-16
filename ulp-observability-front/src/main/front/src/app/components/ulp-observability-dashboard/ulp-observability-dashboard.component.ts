@@ -204,23 +204,22 @@ export class UlpObservabilityDashboardComponent implements OnInit{
             let errorEveryPeriods = 0;
             sample.metrics.forEach(metric =>{
               if(metric.labels !== undefined){
-                switch(metric.labels['count']){
-                  case('sampler_count_every_periods'):
-                    this.pushMetric('samplerCountEveryPeriods', nameAndPostfix.name, timestamp, sample.metrics[0].value);
-                    break;
-                  case('error'):
-                    error = metric.value ?? 0;
-                    this.pushMetric('error', nameAndPostfix.name, new Date(timestamp), error);
-                    break;
-                  case('error_every_periods'):
-                    errorEveryPeriods = metric.value ?? 0;
-                    this.pushMetric('errorEveryPeriods', nameAndPostfix.name, new Date(timestamp), errorEveryPeriods);
-                    break;
-                  case('sampler_count'):
-                    count = metric.value ?? 0;
-                    this.pushMetric('samplerCount', nameAndPostfix.name, new Date(timestamp), count);
-                    break;
-                  default:
+                const countMetric = metric.labels['count'];
+                if (countMetric == 'sampler_count_every_periods') {
+                  this.pushMetric('samplerCountEveryPeriods', nameAndPostfix.name, timestamp, sample.metrics[0].value);
+                  return;
+                } else if (countMetric.startsWith('error')) {
+                  error = metric.value ?? 0;
+                  this.pushMetric(countMetric, nameAndPostfix.name, new Date(timestamp), error);
+                  return;
+                } else if (countMetric == 'error_every_periods') {
+                  errorEveryPeriods = metric.value ?? 0;
+                  this.pushMetric('errorEveryPeriods', nameAndPostfix.name, new Date(timestamp), errorEveryPeriods);
+                  return;
+                } else if (countMetric == 'sampler_count'){
+                  count = metric.value ?? 0;
+                  this.pushMetric('samplerCount', nameAndPostfix.name, new Date(timestamp), count);
+                  return;
                 }
               }
             });

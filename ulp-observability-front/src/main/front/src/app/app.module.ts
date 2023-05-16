@@ -23,6 +23,7 @@ import { UlpObservabilityMetricsComponent } from './components/ulp-observability
 import { UlpObservabilityStatisticsComponent } from './components/ulp-observability-statistics/ulp-observability-statistics.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import { UlpObservabilityTopErrorsComponent } from './components/ulp-observability-top-errors/ulp-observability-top-errors.component';
 
 const materialModules = [
   MatSelectModule,
@@ -47,7 +48,8 @@ export class MaterialModule {};
     UlpObservabilityChartComponent,
     UlpObservabilityDashboardComponent,
     UlpObservabilityMetricsComponent,
-    UlpObservabilityStatisticsComponent
+    UlpObservabilityStatisticsComponent,
+    UlpObservabilityTopErrorsComponent
   ],
   imports: [
     BrowserModule,
