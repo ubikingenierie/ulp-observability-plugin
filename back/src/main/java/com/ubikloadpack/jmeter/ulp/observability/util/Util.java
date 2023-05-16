@@ -5,6 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.report.utils.MetricUtils;
+import org.apache.jmeter.samplers.SampleSaveConfiguration;
+import org.apache.jmeter.util.JMeterUtils;
+
 /**
  * Set of static utility methods
  * 
@@ -16,6 +21,7 @@ public class Util {
 	private static final Pattern MATCH_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
 	private static final Pattern DELIMITER_PATTERN = Pattern.compile("[.]");
 	private static final Set<String> DELIMITERS = new HashSet<>(Arrays.asList("_",".", "-", " "));
+	private static final String UNKNOWN_ERROR_CODE = "Unknown";
 	
 	
 	/** 
@@ -69,6 +75,16 @@ public class Util {
      */
     public static long getResponseTime(long endTime, long startTime) {
     	  return endTime-startTime;
+    }
+    
+    public static String getErrorKey(String responseCode, String failureMessage) {
+         String key = responseCode.isEmpty() ? UNKNOWN_ERROR_CODE : responseCode;
+
+         if (MetricUtils.isSuccessCode(responseCode) ||
+                 (StringUtils.isEmpty(responseCode) && StringUtils.isNotBlank(failureMessage))) {
+             key = MetricUtils.ASSERTION_FAILED;
+         }
+         return key;
     }
 	    
 }
