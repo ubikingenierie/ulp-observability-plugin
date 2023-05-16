@@ -1,10 +1,13 @@
 package com.ubikloadpack.jmeter.ulp.observability.registry;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -51,6 +54,11 @@ public class MicrometerRegistry {
 	 * Log frequency.
 	 */
 	private Integer logFrequency;
+	
+	/**
+	 * Number of the top errors.
+	 */
+	private Integer topErrors;
 
 	/**
 	 * Sample record logger.
@@ -67,6 +75,7 @@ public class MicrometerRegistry {
      * @param pct2 Second percentile
      * @param pct3 Third percentile
      * @param logFrequency Log frequency 
+     * @param integer 
      * @param logger Metrics logger
      * @param micrometerExpiryTimeInSeconds Expiry value for micrometer
      */
@@ -76,6 +85,7 @@ public class MicrometerRegistry {
 			Integer pct2,
 			Integer pct3,
 			Integer logFrequency,
+			Integer topErrors, 
 			SampleLogger logger,
 			Integer micrometerExpiryTimeInSeconds
 			) {
@@ -83,6 +93,7 @@ public class MicrometerRegistry {
 		this.summaryRegistry = new SimpleMeterRegistry();
 		this.totalLabel = Util.makeMicrometerName(totalLabel);
 		this.logFrequency = logFrequency;
+		this.topErrors = topErrors;
 		this.logger = logger;
 		this.intervalRegistry.config().meterFilter(createMeterFilter(pct1, pct2, pct3, 60));
 		LOG.info("Configuring summary registry with pct1:{}, pct2:{}, pct3:{}, expiry:{}", 
@@ -174,7 +185,7 @@ public class MicrometerRegistry {
 			// Increment error counters if there is one
 			if(result.hasError()) {
 				this.intervalRegistry.counter("count.error", "sample", microMeterTag).increment();
-				this.summaryRegistry.counter("count.error", "sample", microMeterTag).increment();
+				this.summaryRegistry.counter("count.error", "sample", microMeterTag, "type", result.getErrorCode()).increment();
 			}
 			
 			// Accumulate responses time to calculate average responses time with a good precision without being heavy for the memory
@@ -233,6 +244,7 @@ public class MicrometerRegistry {
 				(long) everyPeriodsSummary.max(),
 				averageTotalResponseTime,
 				(long) summaryRegistry.counter("count.error","sample",name).count(), // total error count
+				collectTopErrors(),
 				totalThroughput,
 				everyPeriodsSummary.takeSnapshot().percentileValues(), // total percentiles
 				(long) summaryRegistry.counter("count.threads","sample",name).count()
@@ -287,5 +299,36 @@ public class MicrometerRegistry {
 				.stream().map(summary -> summary.getId().getTag("sample"))
 				.collect(Collectors.toList());
 	}
+	
+	private List<Map.Entry<String, Long>> collectTopErrors() {
+		// Retrieve all error types and their counts
+		Set<String> errorTypes = summaryRegistry.get("count.error").counters()
+			    								.stream()
+											    .map(counter -> counter.getId().getTag("type"))
+											    .collect(Collectors.toSet());
+		Map<String, Long> errorCounts = new HashMap<>();
+		for (String errorType : errorTypes) {
+		    long totalErrors = getTotalErrorsForType(errorType);
+		    errorCounts.put(errorType, totalErrors);
+		}
+
+		// Sort error types by number, in descending order
+		List<Map.Entry<String, Long>> sortedErrorCounts = new ArrayList<>(errorCounts.entrySet());
+		sortedErrorCounts.sort(Map.Entry.<String, Long>comparingByValue().reversed());
+
+		// Take the first X errors
+		int X = 10;
+		List<Map.Entry<String, Long>> topXErrors = sortedErrorCounts.subList(0, Math.min(X, sortedErrorCounts.size()));
+		return topXErrors;
+	}
+	
+	private long getTotalErrorsForType(String errorType) {
+	    return this.summaryRegistry.find("count.error").tags("type", errorType)
+	    		   .counters()
+				   .stream()
+				   .mapToLong(counter -> (long) counter.count())
+				   .sum();
+	}
+
 	
 }
