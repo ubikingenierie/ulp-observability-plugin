@@ -54,6 +54,13 @@ public class ULPODefaultConfig {
 	 */
 	public static final String LOG_FREQUENCY_PROP =
 			"ULPObservability.LogFrequency";
+	
+	/**
+	 * JMeter property key for log frequency.
+	 */
+	public static final String TOP_ERRORS_PROP =
+			"ULPObservability.TopErrors";
+	
 	/**
 	 * JMeter property key for total label.
 	 */
@@ -118,6 +125,11 @@ public class ULPODefaultConfig {
 	 * Default logging frequency in seconds.
 	 */
 	private static final Integer LOG_FREQUENCY = 30;
+	
+	/**
+	 * Default number of the top errors
+	 */
+	private static final Integer TOP_ERRORS = 5;
 
 	/**
 	 * Default OpenMetrics name to denote total metrics.
@@ -257,6 +269,16 @@ public class ULPODefaultConfig {
 	public static Integer logFrequency() {
 		return JMeterUtils
 				.getPropDefault(LOG_FREQUENCY_PROP, LOG_FREQUENCY);
+	}
+	
+	/**
+	 * Get default top errors value from JMeter properties file;
+	 *  if it not exists, retrieve hardcoded default value instead.
+	 * @return Default top errors
+	 */
+	public static Integer topErrors() {
+		return JMeterUtils
+				.getPropDefault(TOP_ERRORS_PROP, TOP_ERRORS);
 	}
 
 	public static Boolean keepJettyServerUpAfterTestEnd() {
