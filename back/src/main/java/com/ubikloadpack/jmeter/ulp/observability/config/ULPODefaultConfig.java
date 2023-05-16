@@ -56,7 +56,7 @@ public class ULPODefaultConfig {
 			"ULPObservability.LogFrequency";
 	
 	/**
-	 * JMeter property key for log frequency.
+	 * JMeter property key for top errors.
 	 */
 	public static final String TOP_ERRORS_PROP =
 			"ULPObservability.TopErrors";
