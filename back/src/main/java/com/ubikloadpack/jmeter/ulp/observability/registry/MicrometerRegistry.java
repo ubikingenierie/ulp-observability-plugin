@@ -317,8 +317,7 @@ public class MicrometerRegistry {
 		sortedErrorCounts.sort(Map.Entry.<String, Long>comparingByValue().reversed());
 
 		// Take the first X errors
-		int X = 10;
-		List<Map.Entry<String, Long>> topXErrors = sortedErrorCounts.subList(0, Math.min(X, sortedErrorCounts.size()));
+		List<Map.Entry<String, Long>> topXErrors = sortedErrorCounts.subList(0, Math.min(this.topErrors, sortedErrorCounts.size()));
 		return topXErrors;
 	}
 	

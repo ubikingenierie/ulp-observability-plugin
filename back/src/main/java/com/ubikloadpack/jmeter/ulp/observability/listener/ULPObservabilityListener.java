@@ -190,6 +190,14 @@ public class ULPObservabilityListener extends AbstractTestElement
 		return getPropertyAsInt(ULPODefaultConfig.LOG_FREQUENCY_PROP, ULPODefaultConfig.logFrequency());
 	}
 	
+	public Integer getTopErrors() {
+		return getPropertyAsInt(ULPODefaultConfig.TOP_ERRORS_PROP, ULPODefaultConfig.topErrors());
+	}
+	
+	public void setTopErrors(Integer topErrors) {
+	 	setProperty(ULPODefaultConfig.TOP_ERRORS_PROP, topErrors);
+	}
+	
 	public int getMicrometerExpiryTimeInSecondsAsInt() {
 	    return Integer.parseInt(getMicrometerExpiryTimeInSeconds());
 	}
@@ -244,7 +252,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	public void init(ListenerClientData listenerClientData) {
 		listenerClientData.logger = new SampleLogger(getTotalLabel());
 		listenerClientData.registry = new MicrometerRegistry(getTotalLabel(), getPct1(), getPct2(), getPct3(),
-				getLogFreq(), listenerClientData.logger, getMicrometerExpiryTimeInSecondsAsInt());
+				getLogFreq(), getTopErrors(), listenerClientData.logger, getMicrometerExpiryTimeInSecondsAsInt());
 
 		listenerClientData.sampleQueue = new ArrayBlockingQueue<>(getBufferCapacity());
 
@@ -265,11 +273,16 @@ public class ULPObservabilityListener extends AbstractTestElement
 			try {
 				SampleResult sample = sampleEvent.getResult();
 				boolean hasError = !sample.isSuccessful();
+				String errorCode = "";
 				String sampleLabel = sample.getSampleLabel();
 				
+				if (hasError) {
+					errorCode = Util.getErrorKey(sample.getResponseCode(), sample.getFirstAssertionFailureMessage());
+				}
+					
 				if(isStringMatchingRegex(sampleLabel)) {
 					if (!listenerClientData.sampleQueue.offer(new ResponseResult(sampleEvent.getThreadGroup(),
-							Util.getResponseTime(sample.getEndTime(), sample.getStartTime()), hasError,
+							Util.getResponseTime(sample.getEndTime(), sample.getStartTime()), hasError, errorCode,
 							sample.getGroupThreads(), sample.getAllThreads(), sample.getSampleLabel(), sample.getStartTime(),
 							sample.getEndTime()), 1000, TimeUnit.MILLISECONDS)) {
 						LOG.error("Sample queue overflow. Sample dropped: {}", sampleEvent.getThreadGroup());
