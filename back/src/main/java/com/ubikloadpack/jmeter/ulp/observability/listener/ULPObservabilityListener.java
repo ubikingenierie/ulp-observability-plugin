@@ -354,7 +354,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 				init(listenerClientData);
 				try {
 					listenerClientData.ulpObservabilityServer = new ULPObservabilityServer(getJettyPort(),
-							getMetricsRoute(), getWebAppRoute(), getLogFreq(), getTotalLabel(),
+							getMetricsRoute(), getWebAppRoute(), getLogFreq(), getTopErrors(), getTotalLabel(),
 							listenerClientData.logger);
 					listenerClientData.ulpObservabilityServer.start();
 					LOG.info("Webapp Endpoint started\n" + "Port: {}\n" + "Metrics route: {}\n" + "Web app route: {}",

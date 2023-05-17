@@ -36,7 +36,7 @@ public class ULPObservabilityConfigServlet extends HttpServlet{
 	private final String pluginConfigJson;
 	
 	
-	public ULPObservabilityConfigServlet(String metricsRoute, Integer logFrequeny, String totalLabel) {
+	public ULPObservabilityConfigServlet(String metricsRoute, Integer logFrequeny, Integer topErrors, String totalLabel) {
 		String json = "{}";
 		try {
 			json = new ObjectMapper()
@@ -44,6 +44,7 @@ public class ULPObservabilityConfigServlet extends HttpServlet{
 							new PluginConfig(
 									metricsRoute,
 									logFrequeny,
+									topErrors,
 									totalLabel,
 									JMeterUtils.getLocale().getLanguage()
 									)
@@ -80,13 +81,15 @@ public class ULPObservabilityConfigServlet extends HttpServlet{
 		
 		private final String metricsRoute;
 		private final Integer logFrequency;
+		private final Integer topErrors;
 		private final String totalLabel;
 		private final String localeLang;
 
-		public PluginConfig(String metricsRoute, Integer logFrequency, String totalLabel, String localeLang) {
+		public PluginConfig(String metricsRoute, Integer logFrequency, Integer topErrors, String totalLabel, String localeLang) {
 			super();
 			this.metricsRoute = metricsRoute;
 			this.logFrequency = logFrequency;
+			this.topErrors = topErrors;
 			this.totalLabel = totalLabel;
 			this.localeLang = localeLang;
 		}
@@ -107,6 +110,10 @@ public class ULPObservabilityConfigServlet extends HttpServlet{
 		
 		public String getLocaleLang() {
 			return this.localeLang;
+		}
+
+		public Integer getTopErrors() {
+			return topErrors;
 		}
 	}
 
