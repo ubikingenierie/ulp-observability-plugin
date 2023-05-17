@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
 
 
@@ -94,7 +96,7 @@ public class SampleLog {
 	 */
 	private final Long errorTotal;
 	
-	private final List<Entry<String, Long>> topErrors;
+	private final List<Pair<String, Long>> topErrors;
 	
 	/**
 	 * Response throughput per seconds for every periods
@@ -148,7 +150,7 @@ public class SampleLog {
 		Long maxTotal,
 		Double avgTotal,
 		Long errorTotal,
-		List<Entry<String, Long>> topErrors, 
+		List<Pair<String, Long>> topErrors, 
 		Double throughputTotal,
 		ValueAtPercentile[] pctTotal,
 		Long threadsTotal
@@ -259,6 +261,7 @@ public class SampleLog {
 		str.append(this.sampleName+"_total{count=\"sampler_count_every_periods\"} "+ this.samplerCountTotal + " " + this.timeStamp.getTime() +"\n")	
 		.append(this.sampleName+"_total{count=\"sampler_count\"} "+ this.samplerCount + " " + this.timeStamp.getTime() +"\n")	
 		.append(this.sampleName+"_total{count=\"error\"} "+ this.error + " " + this.timeStamp.getTime() +"\n")
+		.append(errorPerType())
 		.append(this.sampleName+"_total{count=\"error_every_periods\"} "+ this.errorTotal + " " + this.timeStamp.getTime() +"\n");
 		
 		// Throughput
@@ -360,6 +363,7 @@ public class SampleLog {
 	}
 	
 	@Override
+
 	public String toString() {
 		StringBuilder s = new StringBuilder();
 		s.append("SampleLog [sampleName=" + this.sampleName 
@@ -391,9 +395,19 @@ public class SampleLog {
 	    bd = bd.setScale(2, RoundingMode.HALF_UP);
 	    return bd.doubleValue();
 	}
+	
+	private String errorPerType() {
+		StringBuilder str = new StringBuilder();
+		
+		this.topErrors.forEach(p -> {
+			String sampleName = String.format("%s_total{count=\"error_every_periods\", type=\"%s\"", this.sampleName, p.getKey());
+			str.append(sampleName + p.getValue() + " " + this.timeStamp.getTime() +"\n");
+		});
+		return str.toString();
+	}
 
 
-	public List<Entry<String, Long>> getTopErrors() {
+	public List<Pair<String, Long>> getTopErrors() {
 		return topErrors;
 	}
 	

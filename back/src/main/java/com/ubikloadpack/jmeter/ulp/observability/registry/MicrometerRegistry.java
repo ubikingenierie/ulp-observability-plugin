@@ -1,8 +1,10 @@
 package com.ubikloadpack.jmeter.ulp.observability.registry;
 
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +22,7 @@ import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.Meter.Type;
@@ -187,7 +190,6 @@ public class MicrometerRegistry {
 				this.intervalRegistry.counter("count.error", "sample", microMeterTag).increment();
 				this.summaryRegistry.counter("count.error", "sample", microMeterTag, "type", result.getErrorCode()).increment();
 			}
-			
 			// Accumulate responses time to calculate average responses time with a good precision without being heavy for the memory
 			this.summaryRegistry.counter("accumulate.response", "sample", microMeterTag).increment(result.getResponseTime());
 			
@@ -244,7 +246,7 @@ public class MicrometerRegistry {
 				(long) everyPeriodsSummary.max(),
 				averageTotalResponseTime,
 				(long) summaryRegistry.counter("count.error","sample",name).count(), // total error count
-				collectTopErrors(),
+				collectTopErrors(name),
 				totalThroughput,
 				everyPeriodsSummary.takeSnapshot().percentileValues(), // total percentiles
 				(long) summaryRegistry.counter("count.threads","sample",name).count()
@@ -300,29 +302,30 @@ public class MicrometerRegistry {
 				.collect(Collectors.toList());
 	}
 	
-	private List<Map.Entry<String, Long>> collectTopErrors() {
+	// TODO: correct the algorithm because getTotalErrorsForType() returns null
+	private List<Pair<String, Long>> collectTopErrors(String sampleName) {
+		Collection<Counter> counters = summaryRegistry.find("count.error").tag("sample", sampleName).tagKeys("type").counters();
 		// Retrieve all error types and their counts
-		Set<String> errorTypes = summaryRegistry.get("count.error").counters()
+		List<String> errorTypes = counters
 			    								.stream()
 											    .map(counter -> counter.getId().getTag("type"))
-											    .collect(Collectors.toSet());
+											    .collect(Collectors.toList());
 		Map<String, Long> errorCounts = new HashMap<>();
 		for (String errorType : errorTypes) {
 		    long totalErrors = getTotalErrorsForType(errorType);
 		    errorCounts.put(errorType, totalErrors);
 		}
-
-		// Sort error types by number, in descending order
-		List<Map.Entry<String, Long>> sortedErrorCounts = new ArrayList<>(errorCounts.entrySet());
-		sortedErrorCounts.sort(Map.Entry.<String, Long>comparingByValue().reversed());
-
-		// Take the first X errors
-		List<Map.Entry<String, Long>> topXErrors = sortedErrorCounts.subList(0, Math.min(this.topErrors, sortedErrorCounts.size()));
-		return topXErrors;
+		
+		List<Pair<String, Long>> countPerError = errorCounts.entrySet().stream()
+											        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+											        .limit(this.topErrors)
+											        .map(e -> Pair.of(e.getKey(), e.getValue()))
+											        .collect(Collectors.toList());
+		return countPerError;
 	}
 	
 	private long getTotalErrorsForType(String errorType) {
-	    return this.summaryRegistry.find("count.error").tags("type", errorType)
+	    return this.summaryRegistry.find("count.error").tag("type", errorType)
 	    		   .counters()
 				   .stream()
 				   .mapToLong(counter -> (long) counter.count())
