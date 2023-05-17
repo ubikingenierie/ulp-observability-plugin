@@ -42,7 +42,7 @@ export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
           const lastIndex = value.length - 1;
           var samplerName = key.slice(0, key.lastIndexOf('_'))
 
-          Object.keys(this.datasets).filter(type => type.startsWith('error_')).forEach(errorType => {
+          Object.keys(this.datasets).filter(type => type.startsWith('errorEveryPeriods_')).forEach(errorType => {
             var raisedError: RaisedError = {
               code: errorType.slice(errorType.lastIndexOf("_"), errorType.length),
               count: this.datasets[errorType][samplerName][lastIndex].y
