@@ -304,12 +304,11 @@ public class MicrometerRegistry {
 	
 	// TODO: correct the algorithm because getTotalErrorsForType() returns null
 	private List<Pair<String, Long>> collectTopErrors(String sampleName) {
-		Collection<Counter> counters = summaryRegistry.find("count.error").tag("sample", sampleName).tagKeys("type").counters();
+		Collection<Counter> counters = summaryRegistry.find("count.error").tagKeys("type").counters();
 		// Retrieve all error types and their counts
-		List<String> errorTypes = counters
-			    								.stream()
-											    .map(counter -> counter.getId().getTag("type"))
-											    .collect(Collectors.toList());
+		List<String> errorTypes = counters.stream()
+									      .map(counter -> counter.getId().getTag("type"))
+									      .collect(Collectors.toList());
 		Map<String, Long> errorCounts = new HashMap<>();
 		for (String errorType : errorTypes) {
 		    long totalErrors = getTotalErrorsForType(errorType);
