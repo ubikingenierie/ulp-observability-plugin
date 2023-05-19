@@ -48,6 +48,8 @@ public class MicrometerRegistry {
 	 */
 	private MeterRegistry summaryRegistry = new SimpleMeterRegistry();
 	
+	private Map<String, Long> errorsPerCount = new HashMap<>();
+	
 	/**
 	 * Total metrics label.
 	 */
@@ -154,6 +156,11 @@ public class MicrometerRegistry {
 		if(this.intervalRegistry.isClosed() || this.summaryRegistry.isClosed()) {
 			return;
 		}
+		
+		if (result.hasError()) {
+			System.out.println(result.getSamplerLabel());
+			addErrorTypeAndCount(result.getErrorCode());
+		}
 
 		// Create micrometer tags to feed with data
 		String threadTag = Util.makeMicrometerName(result.getThreadGroupLabel());
@@ -246,7 +253,7 @@ public class MicrometerRegistry {
 				(long) everyPeriodsSummary.max(),
 				averageTotalResponseTime,
 				(long) summaryRegistry.counter("count.error","sample",name).count(), // total error count
-				collectTopErrors(name),
+				collectTopXErrors(),
 				totalThroughput,
 				everyPeriodsSummary.takeSnapshot().percentileValues(), // total percentiles
 				(long) summaryRegistry.counter("count.threads","sample",name).count()
@@ -302,20 +309,9 @@ public class MicrometerRegistry {
 				.collect(Collectors.toList());
 	}
 	
-	// TODO: correct the algorithm because getTotalErrorsForType() returns null
-	private List<Pair<String, Long>> collectTopErrors(String sampleName) {
-		Collection<Counter> counters = summaryRegistry.find("count.error").tag("sample", this.totalLabel).tagKeys("type").counters();
-		// Retrieve all error types and their counts
-		Set<String> errorTypes = counters.stream()
-									      .map(counter -> counter.getId().getTag("type"))
-									      .collect(Collectors.toSet());
-		Map<String, Long> errorCounts = new HashMap<>();
-		for (String errorType : errorTypes) {
-		    long totalErrors = getTotalErrorsForType(errorType, this.totalLabel);
-		    errorCounts.put(errorType, totalErrors);
-		}
-		
-		List<Pair<String, Long>> countPerError = errorCounts.entrySet().stream()
+	private List<Pair<String, Long>> collectTopXErrors() {
+		List<Pair<String, Long>> countPerError = this.errorsPerCount.entrySet()
+													.stream()
 											        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
 											        .limit(this.topErrors)
 											        .map(e -> Pair.of(e.getKey(), e.getValue()))
@@ -323,12 +319,9 @@ public class MicrometerRegistry {
 		return countPerError;
 	}
 	
-	private long getTotalErrorsForType(String errorType, String samplerName) {
-	    return this.summaryRegistry.find("count.error").tag("sample", samplerName).tag("type", errorType)
-	    		   .counters()
-				   .stream()
-				   .mapToLong(counter -> (long) counter.count())
-				   .sum();
+	private void addErrorTypeAndCount(String errorType) {
+		Long count = this.errorsPerCount.get(errorType) == null ? 1L : this.errorsPerCount.get(errorType)+1;
+		this.errorsPerCount.put(errorType, count);
 	}
 
 	
