@@ -1,11 +1,17 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
 import { Datasets, DatasetGroup } from 'src/app/model/chart-data';
 
 
-export interface RaisedError {
+interface RaisedError {
   code?: string,
   count: string
+}
+
+interface KeyAndLabel {
+  key: string,
+  label: string
 }
 
 @Component({
@@ -18,14 +24,16 @@ export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
   @Input() threads : DatasetGroup = {};
   @Input() totalLabel = 'total_info';
   @Input() numberTopErrors = 10;
+  numberTopErrorsI18n = {value: this.numberTopErrors};
 
-  topErrorsI18n = {value: this.numberTopErrors};
-
-  topErrors!: Array<RaisedError>;
+  topErrors: RaisedError[] = [];
+  displayedColumns: string[] = ['code', 'count'];
+  errorsData!: MatTableDataSource<RaisedError>;
   
   constructor(private translate: TranslateService) { }
 
   ngOnInit(): void {
+    this.errorsData = new MatTableDataSource(this.topErrors);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -52,8 +60,11 @@ export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
             }
             this.topErrors.push(raisedError);
           })
+        }
       }
     }
-  }}
 
+    this.errorsData.data = this.topErrors;
+  }
 }
+
