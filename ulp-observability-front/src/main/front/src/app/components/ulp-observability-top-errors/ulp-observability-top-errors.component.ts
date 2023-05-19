@@ -6,7 +6,8 @@ import { Datasets, DatasetGroup } from 'src/app/model/chart-data';
 
 interface RaisedError {
   code?: string,
-  count: string
+  count: string,
+  perThreads: number,
 }
 
 interface KeyAndLabel {
@@ -27,7 +28,7 @@ export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
   numberTopErrorsI18n = {value: this.numberTopErrors};
 
   topErrors: RaisedError[] = [];
-  displayedColumns: string[] = ['code', 'count'];
+  displayedColumns: string[] = ['code', 'count', 'perThreads'];
   errorsData!: MatTableDataSource<RaisedError>;
   
   constructor(private translate: TranslateService) { }
@@ -47,6 +48,7 @@ export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
     this.topErrors = [];
 
     if(this.threads !== undefined) {
+      const threadsNo = this.totalNumberThreads();
       for (const [key, value] of Object.entries({...this.threads})) {
         // The top errors are passed to the total label sampler
         if (key.startsWith(this.totalLabel)) {
@@ -56,7 +58,8 @@ export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
           Object.keys(this.datasets).filter(type => type.startsWith('errorEveryPeriods_')).forEach(errorType => {
             var raisedError: RaisedError = {
               code: errorType.slice(errorType.lastIndexOf("_")+1, errorType.length),
-              count: this.datasets[errorType][samplerName][lastIndex].y
+              count: this.datasets[errorType][samplerName][lastIndex].y,
+              perThreads: Number.parseInt(this.datasets[errorType][samplerName][lastIndex].y) / threadsNo * 100
             }
             this.topErrors.push(raisedError);
           })
@@ -65,6 +68,15 @@ export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
     }
 
     this.errorsData.data = this.topErrors;
+  }
+
+  totalNumberThreads() {
+    let totalThreads = 0;
+    for (const [_, values] of Object.entries({...this.threads})) {
+      const lastIndex = values.length - 1;
+      totalThreads += Number.parseInt(values[lastIndex].y);
+    }
+    return totalThreads
   }
 }
 
