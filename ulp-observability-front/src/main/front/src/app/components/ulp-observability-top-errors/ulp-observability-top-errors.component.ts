@@ -72,9 +72,11 @@ export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
 
   totalNumberThreads() {
     let totalThreads = 0;
-    for (const [_, values] of Object.entries({...this.threads})) {
-      const lastIndex = values.length - 1;
-      totalThreads += Number.parseInt(values[lastIndex].y);
+    for (const [key, values] of Object.entries({...this.threads})) {
+      if (key.startsWith(this.totalLabel)) {
+        const lastIndex = values.length - 1;
+        totalThreads += Number.parseInt(values[lastIndex].y);
+      }
     }
     return totalThreads
   }
