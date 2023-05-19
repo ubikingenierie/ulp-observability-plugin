@@ -14,6 +14,11 @@
             <mat-cell *matCellDef="let error">{{error.count}}</mat-cell>
         </ng-container>
 
+        <ng-container matColumnDef="perThreads">
+            <mat-header-cell *matHeaderCellDef>{{"topErrors.column3" | translate}}</mat-header-cell>
+            <mat-cell *matCellDef="let error">{{error.perThreads}} %</mat-cell>
+        </ng-container>
+
         <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
         <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
     </mat-table>
