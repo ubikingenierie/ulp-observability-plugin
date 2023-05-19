@@ -400,8 +400,8 @@ public class SampleLog {
 		StringBuilder str = new StringBuilder();
 		
 		this.topErrors.forEach(p -> {
-			String sampleName = String.format("%s_total{count=\"error_every_periods\", type=\"%s\"", this.sampleName, p.getKey());
-			str.append(sampleName + p.getValue() + " " + this.timeStamp.getTime() +"\n");
+			String sampleName = String.format("%s_total{count=\"error_every_periods\",type=\"%s\"}", this.sampleName, p.getKey());
+			str.append(sampleName + " " + p.getValue() + " " + this.timeStamp.getTime() +"\n");
 		});
 		return str.toString();
 	}
