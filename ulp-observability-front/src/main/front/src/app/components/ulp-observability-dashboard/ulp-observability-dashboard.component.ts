@@ -32,6 +32,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
   private acceptedPostfixs = ['total', 'avg', 'avg_every_periods', 'max', 'max_every_periods', 'throughput', 'throughput_every_periods', 'threads', 'threads_every_periods', 'pct'];
   private updateFrequencyS = 60;  
   
+  numberTopErrors = 10;
   totalLabel = 'total_info';
   chartData : ChartData = {};
   datasets: Datasets = {};
@@ -64,6 +65,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
     this.metricService.getMetricsServerInfo().subscribe({
       next: (info) => {
         this.updateFrequencyS = info.logFrequency;
+        this.numberTopErrors = info.topErrors;
         this.totalLabel = info.totalLabel;
         this.metricService.setMetricsURL(info.metricsRoute);
         this.translate.setDefaultLang(info.localeLang);
