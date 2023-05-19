@@ -17,6 +17,9 @@ export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
   @Input() datasets : Datasets = {};
   @Input() threads : DatasetGroup = {};
   @Input() totalLabel = 'total_info';
+  @Input() numberTopErrors = 10;
+
+  topErrorsI18n = {value: this.numberTopErrors};
 
   topErrors!: Array<RaisedError>;
   
@@ -44,7 +47,7 @@ export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
 
           Object.keys(this.datasets).filter(type => type.startsWith('errorEveryPeriods_')).forEach(errorType => {
             var raisedError: RaisedError = {
-              code: errorType.slice(errorType.lastIndexOf("_"), errorType.length),
+              code: errorType.slice(errorType.lastIndexOf("_")+1, errorType.length),
               count: this.datasets[errorType][samplerName][lastIndex].y
             }
             this.topErrors.push(raisedError);
