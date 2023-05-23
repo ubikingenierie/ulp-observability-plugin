@@ -12,8 +12,16 @@ public class ErrorsMap {
 	private ConcurrentHashMap<String, ErrorTypeInfo> errorsPerType;
 	
 	public ErrorsMap() {
-		this.errorsPerType = new ConcurrentHashMap<>();
+		this(new ConcurrentHashMap<>());
 	}
+
+
+	public ErrorsMap(ConcurrentHashMap<String, ErrorTypeInfo> errorsPerType) {
+		super();
+		this.errorsPerType = errorsPerType;
+	}
+
+
 
 	/**
 	 * Add an error type and increment it's occurrence.
@@ -66,9 +74,7 @@ public class ErrorsMap {
 										           .limit(maxErrors)
 										           .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-	    ErrorsMap result = new ErrorsMap();
-	    result.errorsPerType = new ConcurrentHashMap<>(topErrors);
-	    return result;
+	    return new ErrorsMap(new ConcurrentHashMap<>(topErrors));
 	}
 	
 	/**
