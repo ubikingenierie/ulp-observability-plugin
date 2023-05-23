@@ -265,7 +265,7 @@ public class SampleLog {
 		str.append(this.sampleName+"_total{count=\"sampler_count_every_periods\"} "+ this.samplerCountTotal + " " + this.timeStamp.getTime() +"\n")	
 		.append(this.sampleName+"_total{count=\"sampler_count\"} "+ this.samplerCount + " " + this.timeStamp.getTime() +"\n")	
 		.append(this.sampleName+"_total{count=\"error\"} "+ this.error + " " + this.timeStamp.getTime() +"\n")
-		.append(this.topErrors.toOpenMetric(this.sampleName, this.threadsTotal, this.errorTotal, this.timeStamp.getTime()))
+		.append(this.topErrors.toOpenMetric(this.sampleName, this.samplerCountTotal, this.errorTotal, this.timeStamp.getTime()))
 		.append(this.sampleName+"_total{count=\"error_every_periods\"} "+ this.errorTotal + " " + this.timeStamp.getTime() +"\n");
 		
 		// Throughput
