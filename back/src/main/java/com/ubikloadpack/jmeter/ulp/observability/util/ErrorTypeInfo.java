@@ -1,10 +1,10 @@
 package com.ubikloadpack.jmeter.ulp.observability.util;
 
 /**
- * ErrorTypeInfo holds the type of the occurred error and it's occurrences.
+ * ErrorTypeInfo holds the type of an error and it's occurrences.
  * It defines the method like {@link #computeErrorTypeFrequency} to get the frequency 
  * of that error type. Also you can get the rate error by calling 
- * the {@link #computeErrorRateForType} method.
+ * the {@link #computeErrorRate} method.
  */
 public class ErrorTypeInfo implements Comparable<ErrorTypeInfo> {
 	

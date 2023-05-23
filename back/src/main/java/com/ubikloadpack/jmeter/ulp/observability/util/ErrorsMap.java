@@ -4,15 +4,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+/**
+ * The ErrorsMap stores for each error type it's occurrences.
+ * The occurrences of an error type is handled by {@link ErrorTypeInfo}
+ *
+ */
 public class ErrorsMap {
 	private ConcurrentHashMap<String, ErrorTypeInfo> errorsPerType;
-	private Long totalThreads;
-	private Long totalErrors;
 	
 	public ErrorsMap() {
 		this.errorsPerType = new ConcurrentHashMap<>();
-		this.totalErrors = 0L;
-		this.totalThreads = 0L;
 	}
 
 	/**
@@ -97,22 +98,5 @@ public class ErrorsMap {
 	 */
 	public ConcurrentHashMap<String, ErrorTypeInfo> getErrorPerType() {
 		return errorsPerType;
-	}
-	
-	public Long getTotalThreads() {
-		return totalThreads;
-	}
-	
-
-	public void setTotalThreads(Long totalThreads) {
-		this.totalThreads = totalThreads;
-	}
-
-	public Long getTotalErrors() {
-		return totalErrors;
-	}
-
-	public void setTotalErrors(Long totalErrors) {
-		this.totalErrors = totalErrors;
 	}
 }
