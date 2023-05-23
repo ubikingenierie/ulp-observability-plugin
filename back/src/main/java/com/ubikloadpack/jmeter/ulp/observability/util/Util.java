@@ -77,9 +77,21 @@ public class Util {
     	  return endTime-startTime;
     }
     
+    
+    /**
+     * Get the key error from the response code. The returned key error is by 
+     * default the response code. If the response code is a success code or if the response
+     * code is empty but the the failure message exists, so the key error
+     * will be marked as {@link MetricUtils#ASSERTION_FAILED ASSERTION_FAILED}. 
+     * 
+     * @param responseCode the response code of a sample.
+     * @param failureMessage the failure message of a sample.
+     * @return The key error from the response code.
+     */
     public static String getErrorKey(String responseCode, String failureMessage) {
-         String key = responseCode.isEmpty() ? UNKNOWN_ERROR_CODE : responseCode;
-
+         String key = responseCode;
+         
+         // 
          if (MetricUtils.isSuccessCode(responseCode) ||
                  (StringUtils.isEmpty(responseCode) && StringUtils.isNotBlank(failureMessage))) {
              key = MetricUtils.ASSERTION_FAILED;
