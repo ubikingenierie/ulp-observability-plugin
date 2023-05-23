@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -100,7 +101,7 @@ public class SampleLog {
 	private final Long errorTotal;
 	
 	
-	private final ErrorsMap topErrors;
+	private final Optional<ErrorsMap> topErrors;
 	
 	/**
 	 * Response throughput per seconds for every periods
@@ -154,7 +155,7 @@ public class SampleLog {
 		Long maxTotal,
 		Double avgTotal,
 		Long errorTotal,
-		ErrorsMap topErrors, 
+		Optional<ErrorsMap> topErrors, 
 		Double throughputTotal,
 		ValueAtPercentile[] pctTotal,
 		Long threadsTotal
@@ -173,7 +174,7 @@ public class SampleLog {
 		this.maxTotal = maxTotal;
 		this.avgTotal = avgTotal;
 		this.errorTotal = errorTotal;
-		this.topErrors = topErrors == null ? new ErrorsMap() : topErrors;
+		this.topErrors = topErrors;
 		this.throughputTotal = throughputTotal;
 		this.pctTotal = pctTotal;
 		this.threadsTotal = threadsTotal;
@@ -265,9 +266,9 @@ public class SampleLog {
 		str.append(this.sampleName+"_total{count=\"sampler_count_every_periods\"} "+ this.samplerCountTotal + " " + this.timeStamp.getTime() +"\n")	
 		.append(this.sampleName+"_total{count=\"sampler_count\"} "+ this.samplerCount + " " + this.timeStamp.getTime() +"\n")	
 		.append(this.sampleName+"_total{count=\"error\"} "+ this.error + " " + this.timeStamp.getTime() +"\n")
-		.append(this.topErrors.toOpenMetric(this.sampleName, this.samplerCountTotal, this.errorTotal, this.timeStamp.getTime()))
 		.append(this.sampleName+"_total{count=\"error_every_periods\"} "+ this.errorTotal + " " + this.timeStamp.getTime() +"\n");
-		
+		this.topErrors.ifPresent(e -> str.append(e.toOpenMetric(this.sampleName, this.samplerCountTotal, this.errorTotal, this.timeStamp.getTime())));
+
 		// Throughput
 		addOpenMetricTypeHelpToStr(str, this.sampleName + "_throughput", "gauge", "Responses per second");
 		str.append(this.sampleName+"_throughput "+ roundValueTo2DigitsAfterDecimalPoint(this.throughput)
@@ -400,7 +401,7 @@ public class SampleLog {
 	    return bd.doubleValue();
 	}
 
-	public ErrorsMap getTopErrors() {
+	public Optional<ErrorsMap> getTopErrors() {
 		return topErrors;
 	}
 

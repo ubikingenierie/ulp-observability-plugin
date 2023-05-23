@@ -1,7 +1,6 @@
 package com.ubikloadpack.jmeter.ulp.observability.util;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -26,7 +25,8 @@ public class ErrorsMap {
 
 
 	/**
-	 * Add an error type and increment it's occurrence.
+	 * Add an error type and increment it's occurrence. If the error type already exists
+	 * so it's occurrence will be incremented.
 	 * @param errorType the error type to add.
 	 * @return The information of the added error type.
 	 */
@@ -82,19 +82,20 @@ public class ErrorsMap {
 	/**
 	 * Get the openMetric format of the error types.
 	 * @param sampleName the name of the sample (should be total_label)
-	 * @param totalThreads the number of the total threads
-	 * @param totalErrors
+	 * @param requestsTotal the number of the total threads
+	 * @param errorsTotal
 	 * @param timeStamp 
 	 * @return
 	 */
-	public String toOpenMetric(String sampleName, Long totalThreads, Long totalErrors, Long timeStamp) {
+	public String toOpenMetric(String sampleName, Long requestsTotal, Long errorsTotal, Long timeStamp) {
 		StringBuilder str = new StringBuilder();
 		
 		this.errorsPerType.forEach((errorType, errorInfo) -> {
-			Double errorFrequency = errorInfo.computeErrorRateAmongErrors(totalErrors);
-			Double errorRate = errorInfo.computeErrorRateAmongRequests(totalThreads);
+			Double errorFrequency = errorInfo.computeErrorRateAmongErrors(errorsTotal);
+			Double errorRate = errorInfo.computeErrorRateAmongRequests(requestsTotal);
 			
-			String metric = String.format("%s_total{count=\"error_every_periods\",errorType=\"%s\",errorRate=\"%s\",freq=\"%s\"}", sampleName, errorType, errorRate, errorFrequency);
+			String metric = String.format("%s_total{count=\"error_every_periods\",errorType=\"%s\",errorRate=\"%s\",freq=\"%s\"}", 
+										  sampleName, errorType, errorRate, errorFrequency);
 			str.append(metric + " " + errorInfo.getOccurence() + " " + timeStamp +"\n");
 		});
 		return str.toString();

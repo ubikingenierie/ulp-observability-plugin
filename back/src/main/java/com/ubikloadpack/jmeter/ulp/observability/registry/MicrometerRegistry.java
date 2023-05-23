@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -242,7 +243,7 @@ public class MicrometerRegistry {
 		Double totalThroughput = this.summaryRegistry.counter("count.total","sample",name).count() / (timeSinceFirstSampleCallInSeconds);
 		
 		// the top errors should be reported only with the total_label metrics. The top errors are not related to a specific sample.
-		ErrorsMap topErrors = name.equals(this.totalLabel) ? this.errorsMap.collectTopXErrors(this.topErrors) : null;
+		Optional<ErrorsMap> topErrors = name.equals(this.totalLabel) ? Optional.of(this.errorsMap.collectTopXErrors(this.topErrors)) : Optional.empty();
 		
 		return currentPeriodSummary == null ? null : new SampleLog(
 				Util.micrometerToOpenMetrics(name),
