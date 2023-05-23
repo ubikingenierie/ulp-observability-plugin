@@ -1,6 +1,8 @@
 package com.ubikloadpack.jmeter.ulp.observability.util;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -38,28 +40,28 @@ public class ErrorsMap {
 	 * Compute the frequency of that error type.
 	 * @param errorType the type of error for which the frequency will be calculated
 	 * @param errorsTotal the total errors. Should get it's value from the Micrometer registry.
-	 * @return Percentage of occurrences of a specific error type out of the total number of errors.
-	 * Returns null if no errorType key was found.
+	 * @return an optional that contains the percentage of occurrences of a specific error type 
+	 * out of the total number of errors. Returns an empty optional if no errorType key was found.
 	 */
-	public Double computeErrorTypeFrequency(String errorType, Long errorsTotal) {
+	public OptionalDouble computeErrorTypeFrequency(String errorType, Long errorsTotal) {
 		if (this.errorsPerType.contains(errorType)) {
-			return errorsPerType.get(errorType).computeErrorRateAmongErrors(errorsTotal);
+			return OptionalDouble.of(errorsPerType.get(errorType).computeErrorRateAmongErrors(errorsTotal));
 		}
-		return null;
+		return OptionalDouble.empty();
 	}
 	
 	/**
 	 * Compute error rate of that error type.
 	 * @param errorType the type of error for which the error rate will be calculated.
 	 * @param requestsTotal the total requests. Should get it's value from the Micrometer registry.
-	 * @return percentage of queries that raised an error of this type. Returns null if no errorType 
-	 * key was found.
+	 * @return an optional that contains the percentage of queries that raised an error of this type. 
+	 * Returns an empty optional if no errorType key was found.
 	 */
-	public Double computeErrorRateForType(String errorType, Long requestsTotal) {
+	public OptionalDouble computeErrorRateForType(String errorType, Long requestsTotal) {
 		if (this.errorsPerType.contains(errorType)) {
-			return errorsPerType.get(errorType).computeErrorRateAmongRequests(requestsTotal);
+			return OptionalDouble.of(errorsPerType.get(errorType).computeErrorRateAmongRequests(requestsTotal));
 		}
-		return null;
+		return OptionalDouble.empty();
 	}
 	
 	/**
