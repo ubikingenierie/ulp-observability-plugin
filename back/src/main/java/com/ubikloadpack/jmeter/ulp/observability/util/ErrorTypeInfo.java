@@ -9,7 +9,7 @@ package com.ubikloadpack.jmeter.ulp.observability.util;
 public class ErrorTypeInfo implements Comparable<ErrorTypeInfo> {
 	
 	private String errorType;
-	private Long occurence;
+	private long occurence;
 	
 	public ErrorTypeInfo(String errorType) {
 		this(errorType, 0L);
@@ -30,23 +30,28 @@ public class ErrorTypeInfo implements Comparable<ErrorTypeInfo> {
 	
 	/**
 	 * Compute the frequency of that error type.
-	 * @param totalErrors the total errors. Should get it's value from the Micrometer registry.
+	 * @param errorsTotal the total errors. Should get it's value from the Micrometer registry.
 	 * @return Percentage of occurrences of a specific error 
 	 * type out of the total number of errors.
 	 */
-	public double computeErrorTypeFrequency(Long totalErrors) {
-		return  totalErrors > 0 ? (double) (getOccurence() / totalErrors) : 0;
+	public double computeErrorRateAmongErrors(Long errorsTotal) {
+		return  errorsTotal > 0 ? (double) getOccurence() / (double) errorsTotal : 0;
 	}
 	
 	/**
 	 * Compute error rate of that error type.
-	 * @param totalRequests the total requests. Should get it's value from the Micrometer registry.
+	 * @param requestsTotal the total requests. Should get it's value from the Micrometer registry.
 	 * @return percentage of queries that raised an error of this type.
 	 */
-	public double computeErrorRate(Long totalRequests) {
-		return totalRequests > 0 ? (double) (getOccurence() / totalRequests) : 0;
+	public double computeErrorRateAmongRequests(Long requestsTotal) {
+		return requestsTotal > 0 ? (double) getOccurence() / (double) requestsTotal : 0;
 	}
 
+	@Override
+	public int compareTo(ErrorTypeInfo o) {
+		// For descending order reverse the places of other and this
+		return Long.compare(o.occurence, this.occurence);
+	}
 	
 	public String getErrorType() {
 		return errorType;
@@ -54,11 +59,5 @@ public class ErrorTypeInfo implements Comparable<ErrorTypeInfo> {
 	
 	public Long getOccurence() {
 		return occurence;
-	}
-
-	@Override
-	public int compareTo(ErrorTypeInfo o) {
-		// For descending order reverse the places of other and this
-		return o.occurence.compareTo(this.occurence);
 	}
 }
