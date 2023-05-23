@@ -5,9 +5,12 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.tuple.Pair;
+
+import com.ubikloadpack.jmeter.ulp.observability.util.ErrorsMap;
 
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
 
@@ -96,7 +99,8 @@ public class SampleLog {
 	 */
 	private final Long errorTotal;
 	
-	private final List<Pair<String, Long>> topErrors;
+	
+	private final ErrorsMap topErrors;
 	
 	/**
 	 * Response throughput per seconds for every periods
@@ -150,7 +154,7 @@ public class SampleLog {
 		Long maxTotal,
 		Double avgTotal,
 		Long errorTotal,
-		List<Pair<String, Long>> topErrors, 
+		ErrorsMap topErrors, 
 		Double throughputTotal,
 		ValueAtPercentile[] pctTotal,
 		Long threadsTotal
@@ -169,7 +173,7 @@ public class SampleLog {
 		this.maxTotal = maxTotal;
 		this.avgTotal = avgTotal;
 		this.errorTotal = errorTotal;
-		this.topErrors = topErrors;
+		this.topErrors = topErrors == null ? new ErrorsMap() : topErrors;
 		this.throughputTotal = throughputTotal;
 		this.pctTotal = pctTotal;
 		this.threadsTotal = threadsTotal;
@@ -261,7 +265,7 @@ public class SampleLog {
 		str.append(this.sampleName+"_total{count=\"sampler_count_every_periods\"} "+ this.samplerCountTotal + " " + this.timeStamp.getTime() +"\n")	
 		.append(this.sampleName+"_total{count=\"sampler_count\"} "+ this.samplerCount + " " + this.timeStamp.getTime() +"\n")	
 		.append(this.sampleName+"_total{count=\"error\"} "+ this.error + " " + this.timeStamp.getTime() +"\n")
-		.append(errorPerType())
+		.append(this.topErrors.toOpenMetric(this.sampleName, this.threadsTotal, this.errorTotal, this.timeStamp.getTime()))
 		.append(this.sampleName+"_total{count=\"error_every_periods\"} "+ this.errorTotal + " " + this.timeStamp.getTime() +"\n");
 		
 		// Throughput
@@ -395,21 +399,10 @@ public class SampleLog {
 	    bd = bd.setScale(2, RoundingMode.HALF_UP);
 	    return bd.doubleValue();
 	}
-	
-	private String errorPerType() {
-		StringBuilder str = new StringBuilder();
-		
-		this.topErrors.forEach(p -> {
-			String sampleName = String.format("%s_total{count=\"error_every_periods\",type=\"%s\"}", this.sampleName, p.getKey());
-			str.append(sampleName + " " + p.getValue() + " " + this.timeStamp.getTime() +"\n");
-		});
-		return str.toString();
-	}
 
-
-	public List<Pair<String, Long>> getTopErrors() {
+	public ErrorsMap getTopErrors() {
 		return topErrors;
 	}
-	
+
 	
 }

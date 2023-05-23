@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
+import com.ubikloadpack.jmeter.ulp.observability.util.ErrorTypeInfo;
+import com.ubikloadpack.jmeter.ulp.observability.util.ErrorsMap;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 import io.micrometer.core.instrument.Counter;
@@ -48,8 +50,11 @@ public class MicrometerRegistry {
 	 */
 	private MeterRegistry summaryRegistry = new SimpleMeterRegistry();
 	
-	private Map<String, Long> errorsPerCount = new HashMap<>();
-	
+	/**
+	 * Contains for each error type its occurrences
+	 */
+	private ErrorsMap errorsMap = new ErrorsMap();
+
 	/**
 	 * Total metrics label.
 	 */
@@ -80,7 +85,7 @@ public class MicrometerRegistry {
      * @param pct2 Second percentile
      * @param pct3 Third percentile
      * @param logFrequency Log frequency 
-     * @param integer 
+     * @param topErrors The number of the top occurred errors
      * @param logger Metrics logger
      * @param micrometerExpiryTimeInSeconds Expiry value for micrometer
      */
@@ -157,11 +162,11 @@ public class MicrometerRegistry {
 			return;
 		}
 		
-		if (result.hasError()) {
-			System.out.println(result.getSamplerLabel());
-			addErrorTypeAndCount(result.getErrorCode());
+		// The occurrences of the type errors are counted for all samplers and for every periods.
+		if(result.hasError()) {
+			this.errorsMap.addErrorTypeAndCount(result.getErrorCode());
 		}
-
+		
 		// Create micrometer tags to feed with data
 		String threadTag = Util.makeMicrometerName(result.getThreadGroupLabel());
 		String samplerTag = "spl_"+Util.makeMicrometerName(result.getSamplerLabel());
@@ -195,7 +200,7 @@ public class MicrometerRegistry {
 			// Increment error counters if there is one
 			if(result.hasError()) {
 				this.intervalRegistry.counter("count.error", "sample", microMeterTag).increment();
-				this.summaryRegistry.counter("count.error", "sample", microMeterTag, "type", result.getErrorCode()).increment();
+				this.summaryRegistry.counter("count.error", "sample", microMeterTag).increment();
 			}
 			// Accumulate responses time to calculate average responses time with a good precision without being heavy for the memory
 			this.summaryRegistry.counter("accumulate.response", "sample", microMeterTag).increment(result.getResponseTime());
@@ -236,6 +241,9 @@ public class MicrometerRegistry {
 		double timeSinceFirstSampleCallInSeconds = (startAndEndDatesOfSamplers.get(name).getRight() - startAndEndDatesOfSamplers.get(name).getLeft()) / 1000d; 
 		Double totalThroughput = this.summaryRegistry.counter("count.total","sample",name).count() / (timeSinceFirstSampleCallInSeconds);
 		
+		// the top errors should be reported only with the total_label metrics. The top errors are not related to a specific sample.
+		ErrorsMap topErrors = name.equals(this.totalLabel) ? this.errorsMap.collectTopXErrors(this.topErrors) : null;
+		
 		return currentPeriodSummary == null ? null : new SampleLog(
 				Util.micrometerToOpenMetrics(name),
 				timestamp,
@@ -253,7 +261,7 @@ public class MicrometerRegistry {
 				(long) everyPeriodsSummary.max(),
 				averageTotalResponseTime,
 				(long) summaryRegistry.counter("count.error","sample",name).count(), // total error count
-				collectTopXErrors(),
+				topErrors, 
 				totalThroughput,
 				everyPeriodsSummary.takeSnapshot().percentileValues(), // total percentiles
 				(long) summaryRegistry.counter("count.threads","sample",name).count()
@@ -309,20 +317,12 @@ public class MicrometerRegistry {
 				.collect(Collectors.toList());
 	}
 	
-	private List<Pair<String, Long>> collectTopXErrors() {
-		List<Pair<String, Long>> countPerError = this.errorsPerCount.entrySet()
-													.stream()
-											        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-											        .limit(this.topErrors)
-											        .map(e -> Pair.of(e.getKey(), e.getValue()))
-											        .collect(Collectors.toList());
-		return countPerError;
+	/**
+	 * @return a map of the number of errors for each type of error.
+	 */
+	public ErrorsMap getErrorsMap() {
+		return errorsMap;
 	}
 	
-	private void addErrorTypeAndCount(String errorType) {
-		Long count = this.errorsPerCount.get(errorType) == null ? 1L : this.errorsPerCount.get(errorType)+1;
-		this.errorsPerCount.put(errorType, count);
-	}
 
-	
 }
