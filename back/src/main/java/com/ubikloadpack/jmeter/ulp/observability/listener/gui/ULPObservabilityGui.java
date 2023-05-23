@@ -340,7 +340,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			observabilityListener.setPct3(validatePercentile(pct3.getText(), observabilityListener.getPct3(),"percentile 3"));
 			observabilityListener.setMicrometerExpiryTimeInSeconds(micrometerExpiryTime.getText());
 			observabilityListener.setLogFreq(validatePositiveNumeric(logFrequency.getText(), observabilityListener.getLogFreq(),"log frequency"));
-			observabilityListener.setLogFreq(validatePositiveNumeric(topErrors.getText(), observabilityListener.getTopErrors(),"number of top errors"));
+			observabilityListener.setTopErrors(validatePositiveNumeric(topErrors.getText(), observabilityListener.getTopErrors(),"number of top errors"));
 		}
 	}
     
