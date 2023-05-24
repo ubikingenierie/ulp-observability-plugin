@@ -85,7 +85,7 @@ export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
         this.topErrors.push(currentErrorTypeInfo);
       }
     }
-    this.errorsData.data = this.topErrors;
+    this.errorsData = new MatTableDataSource(this.topErrors);
   }
 
 }

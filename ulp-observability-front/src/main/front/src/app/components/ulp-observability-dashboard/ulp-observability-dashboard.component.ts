@@ -149,11 +149,17 @@ export class UlpObservabilityDashboardComponent implements OnInit{
   }
 
   private clearData(){
+    // Create a new reference of dataset with the same keys. 
+    // This is needed because the ngOnChanges() doesn't recognize that 
+    // the ``datasets`` is changed through the child componenents. 
+    const nextDataset: Datasets = {} 
     Object.keys(this.datasets).forEach(key => {
-      this.datasets[key] = {};
+      nextDataset[key] = {}; //
+      // this.datasets[key] = {};
     });
     this.threads = {};
     this.threadsEveryPeriods = {};
+    this.datasets = nextDataset;
   }
 
   private fillSamplerList(sampleName: string) : void{
@@ -217,8 +223,8 @@ export class UlpObservabilityDashboardComponent implements OnInit{
                   case('error_every_periods'):
                     if (metric.labels['errorType']) { // If the errorType label is found, so we should have other labels like `errorRate` and `errorFreq`
                       let errorOccurence = metric.value ?? 0;
-                      let errorRate = Number.parseFloat(metric.labels['errorRate']) * 100;
-                      let errorFreq = Number.parseFloat(metric.labels['errorFreq']) * 100;
+                      let errorRate = Math.round(Number.parseFloat(metric.labels['errorRate']) * 100);
+                      let errorFreq = Math.round(Number.parseFloat(metric.labels['errorFreq']) * 100);
                       this.pushMetric('errorEveryPeriods_' + metric.labels['errorType'] + "_occurrence", nameAndPostfix.name, new Date(timestamp), errorOccurence);
                       this.pushMetric('errorEveryPeriods_' + metric.labels['errorType'] + "_errorRate", nameAndPostfix.name, new Date(timestamp), errorRate);
                       this.pushMetric('errorEveryPeriods_' + metric.labels['errorType'] + "_errorFreq", nameAndPostfix.name, new Date(timestamp), errorFreq);
