@@ -215,10 +215,15 @@ export class UlpObservabilityDashboardComponent implements OnInit{
                     this.pushMetric('error', nameAndPostfix.name, new Date(timestamp), error);
                     break;
                   case('error_every_periods'):
-                    errorEveryPeriods = metric.value ?? 0;
-                    if (metric.labels['type']) {
-                      this.pushMetric('errorEveryPeriods_' + metric.labels['type'], nameAndPostfix.name, new Date(timestamp), errorEveryPeriods);
+                    if (metric.labels['errorType']) { // If the errorType label is found, so we should have other labels like `errorRate` and `errorFreq`
+                      let errorOccurence = metric.value ?? 0;
+                      let errorRate = Number.parseFloat(metric.labels['errorRate']) * 100;
+                      let errorFreq = Number.parseFloat(metric.labels['errorFreq']) * 100;
+                      this.pushMetric('errorEveryPeriods_' + metric.labels['errorType'] + "_occurrence", nameAndPostfix.name, new Date(timestamp), errorOccurence);
+                      this.pushMetric('errorEveryPeriods_' + metric.labels['errorType'] + "_errorRate", nameAndPostfix.name, new Date(timestamp), errorRate);
+                      this.pushMetric('errorEveryPeriods_' + metric.labels['errorType'] + "_errorFreq", nameAndPostfix.name, new Date(timestamp), errorFreq);
                     } else {
+                      errorEveryPeriods = metric.value ?? 0;
                       this.pushMetric('errorEveryPeriods', nameAndPostfix.name, new Date(timestamp), errorEveryPeriods);
                     }
                     break;
