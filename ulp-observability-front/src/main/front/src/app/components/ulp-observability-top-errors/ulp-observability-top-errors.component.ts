@@ -41,51 +41,52 @@ export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
    */
   refreshTopErrors() {
     this.topErrors = [];
-    
     if (this.datasets !== undefined) {
-      // The top errors are passed to the total label sampler
-      let currentErrorType = "";
-      let occurrence = 0;
-      let errorFreq = 0;
-      let errorRate = 0;
+      let currentErrorTypeInfo: ErrorTypeInfo = {
+        type: "",
+        occurrence: 0,
+        errorRate: 0,
+        errorFrequency: 0
+      };
 
       Object.keys(this.datasets).filter(metricType => metricType.startsWith('errorEveryPeriods_')).forEach(metric => {
-        let indexLastValue =  this.datasets[metric][this.totalLabel].length - 1;
+        let indexLastValue = this.datasets[metric][this.totalLabel].length - 1;
         let errorType = metric.slice(metric.indexOf("_")+1, metric.lastIndexOf("_"));
+        let metricProperty = metric.slice(metric.lastIndexOf("_")+1);
 
-        var errorTypeInfo: ErrorTypeInfo = {
-          type: currentErrorType,
-          occurrence: occurrence,
-          errorRate: errorRate, 
-          errorFrequency: errorFreq
+        if (currentErrorTypeInfo.type !== errorType) {
+          if (currentErrorTypeInfo.type !== "") {
+            this.topErrors.push(currentErrorTypeInfo);
+          }
+          // The ErrorTypeInfo object is only created once for each error type
+          currentErrorTypeInfo = {
+            type: errorType,
+            occurrence: 0,
+            errorRate: 0,
+            errorFrequency: 0
+          };
         }
 
-        if (currentErrorType !== errorType) {
-          if (currentErrorType !== "") {
-            this.topErrors.push(errorTypeInfo);
-          }
-
-          if (metric.endsWith("occurrence")) {
-            occurrence = this.datasets[metric][this.totalLabel][indexLastValue].y;
-          } else if (metric.endsWith("errorRate")) {
-            errorRate = this.datasets[metric][this.totalLabel][indexLastValue].y;
-          } else if (metric.endsWith("errorFreq")) {
-            errorFreq = this.datasets[metric][this.totalLabel][indexLastValue].y;
-          }
-
-          currentErrorType = errorType;
-        } else {
-          if (metric.endsWith("occurrence")) {
-            occurrence = this.datasets[metric][this.totalLabel][indexLastValue].y;
-          } else if (metric.endsWith("errorRate")) {
-            errorRate = this.datasets[metric][this.totalLabel][indexLastValue].y;
-          } else if (metric.endsWith("errorFreq")) {
-            errorFreq = this.datasets[metric][this.totalLabel][indexLastValue].y;
-          }
-        }   
+        switch(metricProperty) {
+          case "occurrence":
+            currentErrorTypeInfo.occurrence = this.datasets[metric][this.totalLabel][indexLastValue].y;
+            break;
+          case "errorRate":
+            currentErrorTypeInfo.errorRate = this.datasets[metric][this.totalLabel][indexLastValue].y;
+            break;
+          case "errorFreq":
+            currentErrorTypeInfo.errorFrequency = this.datasets[metric][this.totalLabel][indexLastValue].y;
+            break;
+        }
       })
+
+      // push the last ErrorTypeInfo object if it was not pushed before the loop ended
+      if (currentErrorTypeInfo.type !== "") {
+        this.topErrors.push(currentErrorTypeInfo);
+      }
     }
     this.errorsData.data = this.topErrors;
   }
+
 }
 
