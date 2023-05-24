@@ -4,15 +4,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { Datasets, DatasetGroup } from 'src/app/model/chart-data';
 
 
-interface RaisedError {
-  code?: string,
-  count: string,
-  perThreads: number,
-}
-
-interface KeyAndLabel {
-  key: string,
-  label: string
+interface ErrorTypeInfo {
+  type: string,
+  occurrence: number,
+  errorRate: number,
+  errorFrequency: number
 }
 
 @Component({
@@ -22,14 +18,13 @@ interface KeyAndLabel {
 })
 export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
   @Input() datasets : Datasets = {};
-  @Input() threads : DatasetGroup = {};
-  @Input() totalLabel = 'total_info';
+  @Input() totalLabel : string = "total_info";
   @Input() numberTopErrors = 10;
   numberTopErrorsI18n = {value: this.numberTopErrors};
 
-  topErrors: RaisedError[] = [];
-  displayedColumns: string[] = ['code', 'count', 'perThreads'];
-  errorsData!: MatTableDataSource<RaisedError>;
+  topErrors: ErrorTypeInfo[] = [];
+  displayedColumns: string[] = ['type', 'occurrence', 'errorRate', 'errorFreq'];
+  errorsData!: MatTableDataSource<ErrorTypeInfo>;
   
   constructor(private translate: TranslateService) { }
 
@@ -46,39 +41,51 @@ export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
    */
   refreshTopErrors() {
     this.topErrors = [];
+    
+    if (this.datasets !== undefined) {
+      // The top errors are passed to the total label sampler
+      let currentErrorType = "";
+      let occurrence = 0;
+      let errorFreq = 0;
+      let errorRate = 0;
 
-    if(this.threads !== undefined) {
-      const threadsNo = this.totalNumberThreads();
-      for (const [key, value] of Object.entries({...this.threads})) {
-        // The top errors are passed to the total label sampler
-        if (key.startsWith(this.totalLabel)) {
-          const lastIndex = value.length - 1;
-          var samplerName = key.slice(0, key.lastIndexOf('_'))
+      Object.keys(this.datasets).filter(metricType => metricType.startsWith('errorEveryPeriods_')).forEach(metric => {
+        let indexLastValue =  this.datasets[metric][this.totalLabel].length - 1;
+        let errorType = metric.slice(metric.indexOf("_")+1, metric.lastIndexOf("_"));
 
-          Object.keys(this.datasets).filter(type => type.startsWith('errorEveryPeriods_')).forEach(errorType => {
-            var raisedError: RaisedError = {
-              code: errorType.slice(errorType.lastIndexOf("_")+1, errorType.length),
-              count: this.datasets[errorType][samplerName][lastIndex].y,
-              perThreads: Number.parseInt(this.datasets[errorType][samplerName][lastIndex].y) / threadsNo * 100
-            }
-            this.topErrors.push(raisedError);
-          })
+        var errorTypeInfo: ErrorTypeInfo = {
+          type: currentErrorType,
+          occurrence: occurrence,
+          errorRate: errorRate, 
+          errorFrequency: errorFreq
         }
-      }
-    }
 
+        if (currentErrorType !== errorType) {
+          if (currentErrorType !== "") {
+            this.topErrors.push(errorTypeInfo);
+          }
+
+          if (metric.endsWith("occurrence")) {
+            occurrence = this.datasets[metric][this.totalLabel][indexLastValue].y;
+          } else if (metric.endsWith("errorRate")) {
+            errorRate = this.datasets[metric][this.totalLabel][indexLastValue].y;
+          } else if (metric.endsWith("errorFreq")) {
+            errorFreq = this.datasets[metric][this.totalLabel][indexLastValue].y;
+          }
+
+          currentErrorType = errorType;
+        } else {
+          if (metric.endsWith("occurrence")) {
+            occurrence = this.datasets[metric][this.totalLabel][indexLastValue].y;
+          } else if (metric.endsWith("errorRate")) {
+            errorRate = this.datasets[metric][this.totalLabel][indexLastValue].y;
+          } else if (metric.endsWith("errorFreq")) {
+            errorFreq = this.datasets[metric][this.totalLabel][indexLastValue].y;
+          }
+        }   
+      })
+    }
     this.errorsData.data = this.topErrors;
-  }
-
-  totalNumberThreads() {
-    let totalThreads = 0;
-    for (const [key, values] of Object.entries({...this.threads})) {
-      if (key.startsWith(this.totalLabel)) {
-        const lastIndex = values.length - 1;
-        totalThreads += Number.parseInt(values[lastIndex].y);
-      }
-    }
-    return totalThreads
   }
 }
 
