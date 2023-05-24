@@ -39,6 +39,7 @@
 		"title": "Top {{value}} errors",
 		"column1": "Error code",
 		"column2": "Number of errors",
-		"column3": "Error rate (Number of errors/Number of requests)"
+		"column3": "Error rate among requests",
+		"column4": "Error rate among errors"
 	}
 }
