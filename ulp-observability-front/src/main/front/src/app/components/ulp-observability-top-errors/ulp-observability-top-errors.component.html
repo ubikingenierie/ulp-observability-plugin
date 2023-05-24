@@ -3,20 +3,27 @@
     <mat-table [dataSource]="errorsData" class="mat-elevation-z8">
 
         <!-- Error Code Column -->
-        <ng-container matColumnDef="code">
+        <ng-container matColumnDef="type">
             <mat-header-cell *matHeaderCellDef>{{"topErrors.column1" | translate}}</mat-header-cell>
-            <mat-cell *matCellDef="let error">{{error.code}}</mat-cell>
+            <mat-cell *matCellDef="let error">{{error.type}}</mat-cell>
         </ng-container>
 
-        <!-- Count Column -->
-        <ng-container matColumnDef="count">
+        <!-- Occurrence Column -->
+        <ng-container matColumnDef="occurrence">
             <mat-header-cell *matHeaderCellDef>{{"topErrors.column2" | translate}}</mat-header-cell>
-            <mat-cell *matCellDef="let error">{{error.count}}</mat-cell>
+            <mat-cell *matCellDef="let error">{{error.occurrence}}</mat-cell>
         </ng-container>
 
-        <ng-container matColumnDef="perThreads">
+        <!-- Error rate amoung requests Column -->
+        <ng-container matColumnDef="errorRate">
             <mat-header-cell *matHeaderCellDef>{{"topErrors.column3" | translate}}</mat-header-cell>
-            <mat-cell *matCellDef="let error">{{error.perThreads}} %</mat-cell>
+            <mat-cell *matCellDef="let error">{{error.errorRate}} %</mat-cell>
+        </ng-container>
+
+        <!-- Error rate amoung errors Column -->
+        <ng-container matColumnDef="errorFreq">
+            <mat-header-cell *matHeaderCellDef>{{"topErrors.column4" | translate}}</mat-header-cell>
+            <mat-cell *matCellDef="let error">{{error.errorFrequency}} %</mat-cell>
         </ng-container>
 
         <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
