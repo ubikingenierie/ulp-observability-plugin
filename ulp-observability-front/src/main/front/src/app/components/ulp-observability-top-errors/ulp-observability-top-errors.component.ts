@@ -18,18 +18,19 @@ interface ErrorTypeInfo {
 })
 export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
   @Input() datasets : Datasets = {};
-  @Input() totalLabel : string = "total_info";
-  @Input() numberTopErrors = 10;
-  numberTopErrorsI18n = {value: this.numberTopErrors};
+  @Input() totalLabel! : string;
+  @Input() numberTopErrors!: number;
+  numberTopErrorsI18n = {value: 10};
 
   topErrors: ErrorTypeInfo[] = [];
   displayedColumns: string[] = ['type', 'occurrence', 'errorRate', 'errorFreq'];
   errorsData!: MatTableDataSource<ErrorTypeInfo>;
   
-  constructor(private translate: TranslateService) { }
+  constructor() { }
 
   ngOnInit(): void {
     this.errorsData = new MatTableDataSource(this.topErrors);
+    this.numberTopErrorsI18n = {value: this.numberTopErrors};
   }
 
   ngOnChanges(changes: SimpleChanges): void {

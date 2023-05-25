@@ -74,6 +74,7 @@ public class ErrorsMap {
 										           .stream()
 										           .sorted(Map.Entry.<String, ErrorTypeInfo>comparingByValue().reversed())
 										           .limit(maxErrors)
+										           // we should create new references for ErrorTypeInfo so that the threads will not affect the ErrorTypeInfo stored in the new Map
 										           .collect(Collectors.toMap(Map.Entry::getKey, e -> new ErrorTypeInfo(e.getValue().getErrorType(), e.getValue().getOccurence())));
 
 	    return new ErrorsMap(new ConcurrentHashMap<>(topErrors));
