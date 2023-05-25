@@ -275,7 +275,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 				String sampleLabel = sample.getSampleLabel();
 				
 				if (hasError) {
-					errorCode = Util.getErrorKey(sample.getResponseCode(), sample.getFirstAssertionFailureMessage());
+					errorCode = Util.getErrorKey(sample.getResponseCode(), sample.getResponseMessage());
 				}
 					
 				if(isStringMatchingRegex(sampleLabel)) {
