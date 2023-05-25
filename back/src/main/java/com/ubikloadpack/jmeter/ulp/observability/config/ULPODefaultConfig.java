@@ -129,7 +129,7 @@ public class ULPODefaultConfig {
 	/**
 	 * Default number of the top errors
 	 */
-	private static final Integer TOP_ERRORS = 10;
+	private static final Integer TOP_ERRORS = 5;
 
 	/**
 	 * Default OpenMetrics name to denote total metrics.
