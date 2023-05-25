@@ -69,7 +69,7 @@ public class MicrometerRegistry {
 	/**
 	 * Number of the top errors.
 	 */
-	private Integer topErrors;
+	private Integer numberTopErrors;
 
 	/**
 	 * Sample record logger.
@@ -104,7 +104,7 @@ public class MicrometerRegistry {
 		this.summaryRegistry = new SimpleMeterRegistry();
 		this.totalLabel = Util.makeMicrometerName(totalLabel);
 		this.logFrequency = logFrequency;
-		this.topErrors = topErrors;
+		this.numberTopErrors = topErrors;
 		this.logger = logger;
 		this.intervalRegistry.config().meterFilter(createMeterFilter(pct1, pct2, pct3, 60));
 		LOG.info("Configuring summary registry with pct1:{}, pct2:{}, pct3:{}, expiry:{}", 
@@ -243,7 +243,7 @@ public class MicrometerRegistry {
 		Double totalThroughput = this.summaryRegistry.counter("count.total","sample",name).count() / (timeSinceFirstSampleCallInSeconds);
 		
 		// the top errors should be reported only with the total_label metrics. The top errors are not related to a specific sample.
-		Optional<ErrorsMap> topErrors = name.equals(this.totalLabel) ? Optional.of(this.errorsMap.collectTopXErrors(this.topErrors)) : Optional.empty();
+		Optional<ErrorsMap> topErrors = name.equals(this.totalLabel) ? Optional.of(this.errorsMap.collectTopXErrors(this.numberTopErrors)) : Optional.empty();
 		
 		return currentPeriodSummary == null ? null : new SampleLog(
 				Util.makeOpenMetricsName(name),
