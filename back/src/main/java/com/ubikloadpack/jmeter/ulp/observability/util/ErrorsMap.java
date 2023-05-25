@@ -67,14 +67,14 @@ public class ErrorsMap {
 	/**
 	 * Build an ErrorsMap that contains the X top Errors.
 	 * @param maxErrors The maximum type errors to keep.
-	 * @return a new ErrorMap with only the top X Errors.
+	 * @return a new ErrorsMap with only the top X Errors.
 	 */
 	public ErrorsMap collectTopXErrors(int maxErrors) {
 	    Map<String, ErrorTypeInfo> topErrors = this.errorsPerType.entrySet()
 										           .stream()
 										           .sorted(Map.Entry.<String, ErrorTypeInfo>comparingByValue().reversed())
 										           .limit(maxErrors)
-										           .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+										           .collect(Collectors.toMap(Map.Entry::getKey, e -> new ErrorTypeInfo(e.getValue().getErrorType(), e.getValue().getOccurence())));
 
 	    return new ErrorsMap(new ConcurrentHashMap<>(topErrors));
 	}
@@ -94,7 +94,7 @@ public class ErrorsMap {
 			Double errorFrequency = errorInfo.computeErrorRateAmongErrors(errorsTotal);
 			Double errorRate = errorInfo.computeErrorRateAmongRequests(requestsTotal);
 			
-			String metric = String.format("%s_total{count=\"error_every_periods\",errorType=\"%s\",errorRate=\"%s\",freq=\"%s\"}", 
+			String metric = String.format("%s_total{count=\"error_every_periods\",errorType=\"%s\",errorRate=\"%s\",errorFreq=\"%s\"}", 
 										  sampleName, errorType, errorRate, errorFrequency);
 			str.append(metric + " " + errorInfo.getOccurence() + " " + timeStamp +"\n");
 		});
@@ -107,4 +107,12 @@ public class ErrorsMap {
 	public ConcurrentHashMap<String, ErrorTypeInfo> getErrorPerType() {
 		return errorsPerType;
 	}
+
+
+	@Override
+	public String toString() {
+		return "ErrorsMap {" + errorsPerType + "}";
+	}
+	
+	
 }
