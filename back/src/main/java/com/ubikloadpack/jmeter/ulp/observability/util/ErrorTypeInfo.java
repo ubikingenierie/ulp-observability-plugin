@@ -15,7 +15,7 @@ public class ErrorTypeInfo implements Comparable<ErrorTypeInfo> {
 		this(errorType, 0L);
 	}
 	
-	public ErrorTypeInfo(String errorType, Long occurence) {
+	public ErrorTypeInfo(String errorType, long occurence) {
 		super();
 		this.errorType = errorType;
 		this.occurence = occurence;
@@ -59,5 +59,10 @@ public class ErrorTypeInfo implements Comparable<ErrorTypeInfo> {
 	
 	public Long getOccurence() {
 		return occurence;
+	}
+
+	@Override
+	public String toString() {
+		return "ErrorTypeInfo {errorType=" + errorType + ", occurence=" + occurence + "}";
 	}
 }

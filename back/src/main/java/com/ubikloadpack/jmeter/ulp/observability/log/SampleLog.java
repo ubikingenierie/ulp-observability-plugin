@@ -100,7 +100,9 @@ public class SampleLog {
 	 */
 	private final Long errorTotal;
 	
-	
+	/**
+	 * A map containing the top errors that occurred in the samples.
+	 */
 	private final Optional<ErrorsMap> topErrors;
 	
 	/**
@@ -347,7 +349,9 @@ public class SampleLog {
 		.append("/")
 		.append(this.samplerCountTotal)
 		.append(")")
-		.append("\n         Average: ")
+		.append("\n");
+		this.topErrors.ifPresent(e -> str.append(e.toOpenMetric(this.sampleName, this.samplerCountTotal, this.errorTotal, this.timeStamp.getTime())));
+		str.append("\n         Average: ")
 		.append(this.avgTotal)
 		.append("ms\n         Percentiles:");
 		for(ValueAtPercentile pc : this.pctTotal) {
