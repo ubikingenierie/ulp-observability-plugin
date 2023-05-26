@@ -36,7 +36,7 @@
 		"title": "Informations des échantillonneurs"
 	},
 	"topErrors": {
-		"title": "{{value}} premières erreurs",
+		"title": "Top des {{value}} erreurs",
 		"column1": "Code d'erreur",
 		"column2": "Nombre d'erreurs",
 		"column3": "Taux d'erreur parmi les requêtes",
