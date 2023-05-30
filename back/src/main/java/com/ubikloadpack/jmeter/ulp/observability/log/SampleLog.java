@@ -349,9 +349,7 @@ public class SampleLog {
 		.append("/")
 		.append(this.samplerCountTotal)
 		.append(")")
-		.append("\n");
-		this.topErrors.ifPresent(e -> str.append(e.toOpenMetric(this.sampleName, this.samplerCountTotal, this.errorTotal, this.timeStamp.getTime())));
-		str.append("\n         Average: ")
+		.append("\n         Average: ")
 		.append(this.avgTotal)
 		.append("ms\n         Percentiles:");
 		for(ValueAtPercentile pc : this.pctTotal) {
