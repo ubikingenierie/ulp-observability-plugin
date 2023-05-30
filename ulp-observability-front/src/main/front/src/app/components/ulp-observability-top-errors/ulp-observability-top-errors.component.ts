@@ -20,7 +20,7 @@ export class UlpObservabilityTopErrorsComponent implements OnChanges, OnInit {
   @Input() datasets : Datasets = {};
   @Input() totalLabel! : string;
   @Input() numberTopErrors!: number;
-  numberTopErrorsI18n = {value: 10};
+  numberTopErrorsI18n = {value: 5};
 
   topErrors: ErrorTypeInfo[] = [];
   displayedColumns: string[] = ['type', 'occurrence', 'errorRate', 'errorFreq'];
