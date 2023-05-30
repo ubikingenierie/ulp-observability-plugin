@@ -62,7 +62,6 @@ public class Util {
     public static String makeMicrometerName(String name) {
     	return MATCH_PATTERN.matcher(name.trim().toLowerCase()).replaceAll(match -> micrometerDelimeter(match.group()));
     }
-
     
     /**
      * Get sample response time
