@@ -20,9 +20,7 @@ public class Util {
 	
 	private static final Pattern MATCH_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
 	private static final Pattern DELIMITER_PATTERN = Pattern.compile("[.]");
-	private static final Set<String> DELIMITERS = new HashSet<>(Arrays.asList("_",".", "-", " "));
-	private static final String UNKNOWN_ERROR_CODE = "Unknown";
-	
+	private static final Set<String> DELIMITERS = new HashSet<>(Arrays.asList("_",".", "-", " "));	
 	
 	/** 
 	 * Convert valid delimiter to OpenMetrics delimiter
