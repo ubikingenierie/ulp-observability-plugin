@@ -232,7 +232,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 	}
 
 	public String getTotalLabel() {
-		return getPropertyAsString(ULPODefaultConfig.TOTAL_LABEL_PROP, ULPODefaultConfig.totalLabel());
+		return Util.makeOpenMetricsName(getPropertyAsString(ULPODefaultConfig.TOTAL_LABEL_PROP, ULPODefaultConfig.totalLabel()));
 	}
 	
 	public String getRegex() {
