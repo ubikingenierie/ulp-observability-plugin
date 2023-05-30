@@ -32,7 +32,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
   private acceptedPostfixs = ['total', 'avg', 'avg_every_periods', 'max', 'max_every_periods', 'throughput', 'throughput_every_periods', 'threads', 'threads_every_periods', 'pct'];
   private updateFrequencyS = 60;  
   
-  numberTopErrors = 10;
+  numberTopErrors = 5;
   totalLabel = 'total_info';
   chartData : ChartData = {};
   datasets: Datasets = {};
@@ -154,8 +154,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
     // the ``datasets`` is changed through the child componenents. 
     const nextDataset: Datasets = {} 
     Object.keys(this.datasets).forEach(key => {
-      nextDataset[key] = {}; //
-      // this.datasets[key] = {};
+      nextDataset[key] = {}; 
     });
     this.threads = {};
     this.threadsEveryPeriods = {};
