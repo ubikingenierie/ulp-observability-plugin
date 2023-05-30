@@ -244,9 +244,8 @@ public class MicrometerRegistry {
 		
 		// the top errors should be reported only with the total_label metrics. The top errors are not related to a specific sample.
 		Optional<ErrorsMap> topErrors = name.equals(this.totalLabel) ? Optional.of(this.errorsMap.collectTopXErrors(this.numberTopErrors)) : Optional.empty();
-		
 		return currentPeriodSummary == null ? null : new SampleLog(
-				Util.micrometerToOpenMetrics(name),
+				Util.makeOpenMetricsName(name),
 				timestamp,
 				// Current period data
 				(long) currentPeriodSummary.count(),
