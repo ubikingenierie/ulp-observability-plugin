@@ -64,17 +64,6 @@ public class Util {
     }
     
     /**
-     * Convert name from micrometer to OpenMetrics format
-     * 
-     * @param name Name to format
-     * @return Name in OpenMetrics format
-     */
-    public static String micrometerToOpenMetrics(String name) {
-    	return DELIMITER_PATTERN.matcher(name).replaceAll("_");
-    }
-    
-    
-    /**
      * Get sample response time
      * 
      * @param endTime End response time stamp
