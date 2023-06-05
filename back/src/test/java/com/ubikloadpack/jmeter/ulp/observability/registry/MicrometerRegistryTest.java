@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
-import com.ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
@@ -147,6 +146,7 @@ public class MicrometerRegistryTest {
 		micrometerRegistry.addResponse(responseResult2);
 		Date creationDate2 = new Date(); // the new timestamp for the second log
 		SampleLog sampleLog2 = micrometerRegistry.makeLog("spl_sample", creationDate2);
+		SampleLog totalLabelLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), creationDate2);
 		
 		// check the metrics for the log period.
 		long expectedSum2 = responseTime2, expectedAvg2 = responseTime2, expectedMax2 = responseTime2;
@@ -161,6 +161,7 @@ public class MicrometerRegistryTest {
 		expectedThroughputTotal = groupThreadsTotal / millisToSeconds(endTime2); // startTime is equal to zero so endTime - startTime = endTime
 		
 		assertEveryPeriodsMetricsForSampleLog(sampleLog2, creationDate2, samplerCountTotal, expectedAvgTotal, expectedMaxTotal, 0, expectedThroughputTotal, groupThreads);
+		assertEveryPeriodsMetricsForSampleLog(totalLabelLog, creationDate2, samplerCountTotal, expectedAvgTotal, expectedMaxTotal, 0, expectedThroughputTotal, groupThreadsTotal);
 	}
 	
 	
