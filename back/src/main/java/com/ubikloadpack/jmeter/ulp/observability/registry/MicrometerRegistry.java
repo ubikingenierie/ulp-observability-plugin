@@ -288,4 +288,8 @@ public class MicrometerRegistry {
 				.collect(Collectors.toList());
 	}
 	
+	void clearIntervalRegistry() {
+		this.intervalRegistry.clear();
+	}
+	
 }
