@@ -162,7 +162,9 @@ public class SampleLogger {
 				total = sampleLog;
 			}
 		};
-		str.append(total.toLog());
+		if (total != null) {
+			str.append(total.toLog());
+		}
 		
 		return str.toString();
 	}
