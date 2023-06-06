@@ -213,7 +213,11 @@ public class MicrometerRegistry {
 		
 		Double averageTotalResponseTime = summaryRegistry.counter("accumulate.response", "sample", name).count() /
 				summaryRegistry.counter("count.total", "sample", name).count();
-		double timeSinceFirstSampleCallInSeconds = (startAndEndDatesOfSamplers.get(name).getRight() - startAndEndDatesOfSamplers.get(name).getLeft()) / 1000d; 
+		
+		double timeSinceFirstSampleCallInSeconds = 0;
+		if (startAndEndDatesOfSamplers.containsKey(name)) {
+			timeSinceFirstSampleCallInSeconds =  (startAndEndDatesOfSamplers.get(name).getRight() - startAndEndDatesOfSamplers.get(name).getLeft()) / 1000d; 
+		}
 		Double totalThroughput = this.summaryRegistry.counter("count.total","sample",name).count() / (timeSinceFirstSampleCallInSeconds);
 		
 		return currentPeriodSummary == null ? null : new SampleLog(
