@@ -57,8 +57,7 @@ public abstract class AbstractConfigTest {
 	
 	@AfterEach
 	public void tearDown() throws Exception {
-		listener.stopJettyServer();
-        listener.testEnded();
+        listener.testEnded("localhost");
 	}
 	
 	protected HttpResponse sendHttpRequest(String uri) throws MalformedURLException, IOException, UnsupportedEncodingException {
