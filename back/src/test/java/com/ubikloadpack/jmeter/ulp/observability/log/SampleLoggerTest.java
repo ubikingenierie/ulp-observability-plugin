@@ -1,6 +1,6 @@
 package com.ubikloadpack.jmeter.ulp.observability.log;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
@@ -54,8 +54,29 @@ public class SampleLoggerTest {
 		String samplelogMetrics = generateExpectedString(sampleLog);
 		String totalLabellogMetrics = generateExpectedString(totalLabelLog);
 		
-		assertTrue(openMetrics.contains(samplelogMetrics));
-		assertTrue(openMetrics.contains(totalLabellogMetrics));
+		assertTrue(openMetrics.contains(samplelogMetrics)); // assert that the metrics of the sample are included in the generated openMetrics 
+		assertTrue(openMetrics.contains(totalLabellogMetrics)); // assert that the metrics of the totalLabel are included in the generated openMetrics 
+	}
+	
+	@Test
+	public void testOpenMetrics_when_sampleNameIsNotCorrect() {
+		int groupThreads = 1;
+		long startTime = 0; // millisecond
+		long endTime = 1000; // millisecond
+		long responseTime = endTime - startTime; 
+		ResponseResult responseResult = new ResponseResult("groupe1", responseTime, false, groupThreads, groupThreads, "sample", startTime, endTime);
+		
+		micrometerRegistry.addResponse(responseResult);
+		Date creationDate = new Date();
+		
+		// we try to make a log of the sample when the given name is not correct. 
+		// Remember the label of a sample should be prefixed by "spl_"
+		SampleLog sampleLog = micrometerRegistry.makeLog(responseResult.getSamplerLabel(), creationDate);
+		assertNull(sampleLog);
+		
+		// when the total label is not formatted as Micrometer name
+		SampleLog totalLabel = micrometerRegistry.makeLog(TOTAL_lABEL, creationDate);
+		assertNull(totalLabel);
 	}
 
 	private String generateExpectedString(SampleLog sampleLog) {
