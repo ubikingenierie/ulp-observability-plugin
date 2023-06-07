@@ -46,7 +46,7 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 		
 		String actualMetrics = httpResponse.getResponse();
 		assertFalse(actualMetrics.isEmpty());
-		System.out.println(actualMetrics);
+		
 		String totalLabelOpenMetric = Util.makeOpenMetricsName(TOTAL_LABEL);
 		String sampleNameOpenMetric = Util.makeOpenMetricsName(sampleName);
 		
