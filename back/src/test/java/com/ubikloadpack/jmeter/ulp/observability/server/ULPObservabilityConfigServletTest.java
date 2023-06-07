@@ -25,8 +25,6 @@ public class ULPObservabilityConfigServletTest extends AbstractConfigTest {
         String expectedConfig = "{\"metricsRoute\":\"/ulp-o-metrics\",\"logFrequency\":1,\"totalLabel\":\"total_info\",\"localeLang\":\"en\"}";
         
         assertEquals(receivedConfig, expectedConfig);
-        
-        listener.stopJettyServer();
-        listener.testEnded();
+
 	}
 }
