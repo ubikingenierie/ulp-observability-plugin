@@ -82,51 +82,93 @@ public class MicrometerRegistryTest {
 		assertEveryPeriodsMetricsForSampleLog(totalLabelLog, creationDate, 1, responseTime, responseTime, 0, expectedThroughput, groupThreads);	
 	}
 	
+	/**
+	 * This test verifies the case when we have several requests of a sample. There's two samples and we should check that the metrics of 
+	 * the totalLabel aggregate the results for the two samples. 
+	 */
 	@Test
 	public void testSeveralRequestsOfASingleSample() {
 		int groupThreads = 10;
 		
-		long startTime = 0, endTime = 0, responseTime = 0, expectedSum = 0; 
-		// generate 10 samples with theses response times: {500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000};
-		for (int i = 0; i < groupThreads; i++) {	// we add the response of 10 sequential queries of a sample.	
+		long startTime = 0, endTime = 0, responseTime = 0, expectedSumSample1 = 0, expectedSumSample2 = 0; 
+		
+		// generate 10 requests for "sample1" which there response times are : {500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000};
+		// and 10 requests for "sample2" which there response times are : {250, 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500};
+		for (int i = 0; i < groupThreads; i++) {		
 			startTime = i;
-			endTime = startTime + 500 * (i + 1); // endTime is increased by 1000 milliseconds
+			endTime = startTime + 500 * (i + 1); // endTime is increased by 500 milliseconds
 			responseTime = endTime - startTime;
-			expectedSum += responseTime;
+			expectedSumSample1 += responseTime;
+			ResponseResult responseResult1 = new ResponseResult("groupe1", responseTime, false, groupThreads, groupThreads, "sample1", startTime, endTime);
+			micrometerRegistry.addResponse(responseResult1);
 			
-			ResponseResult responseResult = new ResponseResult("groupe1", responseTime, false, groupThreads, groupThreads, "sample", startTime, endTime);
-			micrometerRegistry.addResponse(responseResult);
+			endTime = startTime + 250 * (i + 1); // we compute an other end time for the second sample
+			responseTime = endTime - startTime;
+			expectedSumSample2 += responseTime;
+			ResponseResult responseResult2 = new ResponseResult("groupe1", responseTime, false, groupThreads, groupThreads, "sample2", startTime, endTime);	
+			micrometerRegistry.addResponse(responseResult2);
 		}
 		
 		Date creationDate = new Date();
 		// ### Testing ###
-		// making two logs, one for the sample and the other one for the totalLabel
-		SampleLog sampleLog = micrometerRegistry.makeLog("spl_sample", creationDate);
+		// making the sampleLogs for each sample
+		SampleLog sampleLog1 = micrometerRegistry.makeLog("spl_sample1", creationDate);
+		SampleLog sampleLog2 = micrometerRegistry.makeLog("spl_sample2", creationDate);
 		SampleLog totalLabelLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), creationDate);
 		
-		// ### Assertions ###
-		// Only one sample was recorded so the value of different percentiles are the same as the value of the response time
-		double expectedThroughput = (double) groupThreads/LOG_FREQUENCY; // we have 10 threads 
-		double expectedAvg = 2750D; // the mean of {500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000}
-		
+		// ### Assertions ###		
 		// Assert the value of metrics for a log period
-		assertTrue(sampleLog.getPct()[0].value() >= 2500 && sampleLog.getPct()[0].value() <= 3000); // 50th percentile
-		assertTrue(sampleLog.getPct()[1].value() >= 4500 && sampleLog.getPct()[0].value() < 5000); // 90th percentile
-		assertTrue(sampleLog.getPct()[2].value() >= 5000); // 95th percentile
+		assertTrue(sampleLog1.getPct()[0].value() >= 2500 && sampleLog1.getPct()[0].value() <= 3000); // 50th percentile
+		assertTrue(sampleLog1.getPct()[1].value() >= 4500 && sampleLog1.getPct()[1].value() < 5000); // 90th percentile
+		assertTrue(sampleLog1.getPct()[2].value() >= 5000); // 95th percentile
 		
-		assertPeriodMetricsForSampleLog(sampleLog, creationDate, groupThreads, expectedSum, expectedAvg, responseTime, 0, expectedThroughput, groupThreads);
-		assertPeriodMetricsForSampleLog(totalLabelLog, creationDate, groupThreads, expectedSum, expectedAvg, responseTime, 0, expectedThroughput, groupThreads);	
+		assertTrue(sampleLog2.getPct()[0].value() >= 1250 && sampleLog2.getPct()[0].value() <= 1500); // 50th percentile
+		assertTrue(sampleLog2.getPct()[1].value() >= 2250 && sampleLog2.getPct()[1].value() < 2500); // 90th percentile
+		assertTrue(sampleLog2.getPct()[2].value() >= 2500); // 95th percentile
+		// totalLabel responseTimes are : [250, 500, 500, 750, 1000, 1000, 1250, 1500, 1500, 1750, 2000, 2000, 2250, 2500, 2500, 3000, 3500, 4000, 4500, 5000]
+		assertTrue(totalLabelLog.getPct()[0].value() >= 1750 && totalLabelLog.getPct()[0].value() <= 2000); // 50th percentile
+		assertTrue(totalLabelLog.getPct()[1].value() >= 4000 && totalLabelLog.getPct()[1].value() < 4500); // 90th percentile
+		assertTrue(totalLabelLog.getPct()[2].value() >= 4500); // 95th percentile
 		
-		// Assert the value of metrics for a every periods
-		assertTrue(sampleLog.getPctTotal()[0].value() >= 2500 && sampleLog.getPct()[0].value() <= 3000); // 50th percentile
-		assertTrue(sampleLog.getPctTotal()[1].value() >= 4500 && sampleLog.getPct()[0].value() < 5000); // 90th percentile
-		assertTrue(sampleLog.getPctTotal()[2].value() >= 5000); // 95th percentile
+		double expectedThroughput = (double) groupThreads/LOG_FREQUENCY; // 10 threads per the LOG_FREQUENCY is the expected throughput
+		double expectedAvg1 = (double) expectedSumSample1 / groupThreads; // the mean of {500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000}
+		assertPeriodMetricsForSampleLog(sampleLog1, creationDate, groupThreads, expectedSumSample1, expectedAvg1, 5000, 0, expectedThroughput, groupThreads);
 		
-		expectedThroughput = groupThreads / millisToSeconds(endTime); // startTime is equal to zero so endTime - startTime = endTime
-		assertEveryPeriodsMetricsForSampleLog(sampleLog, creationDate, groupThreads,  expectedAvg, responseTime, 0, expectedThroughput, groupThreads);
-		assertEveryPeriodsMetricsForSampleLog(totalLabelLog, creationDate, groupThreads, expectedAvg, responseTime, 0, expectedThroughput, groupThreads);	
+		double expectedAvg2 = (double) expectedSumSample2 / groupThreads; // the mean of {250, 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500}
+		assertPeriodMetricsForSampleLog(sampleLog2, creationDate, groupThreads, expectedSumSample2, expectedAvg2, 2500, 0, expectedThroughput, groupThreads);
+		
+		long expectedSumTotal = expectedSumSample1 + expectedSumSample2;
+		double expectedAvgTotal = (double) expectedSumTotal / (groupThreads*2);
+		expectedThroughput = (double) (groupThreads*2)/LOG_FREQUENCY;
+		assertPeriodMetricsForSampleLog(totalLabelLog, creationDate, groupThreads*2, expectedSumTotal, expectedAvgTotal, 5000, 0, expectedThroughput, groupThreads);	
+		
+		// Assert the value of metrics for every periods
+		assertTrue(sampleLog1.getPctTotal()[0].value() >= 2500 && sampleLog1.getPctTotal()[0].value() <= 3000); // 50th percentile
+		assertTrue(sampleLog1.getPctTotal()[1].value() >= 4500 && sampleLog1.getPctTotal()[1].value() < 5000); // 90th percentile
+		assertTrue(sampleLog1.getPctTotal()[2].value() >= 5000); // 95th percentile
+		
+		assertTrue(sampleLog2.getPctTotal()[0].value() >= 1250 && sampleLog2.getPctTotal()[0].value() <= 1500); // 50th percentile
+		assertTrue(sampleLog2.getPctTotal()[1].value() >= 2250 && sampleLog2.getPctTotal()[1].value() < 2500); // 90th percentile
+		assertTrue(sampleLog2.getPctTotal()[2].value() >= 2500); // 95th percentile
+		// totalLabel responseTimes are : [250, 500, 500, 750, 1000, 1000, 1250, 1500, 1500, 1750, 2000, 2000, 2250, 2500, 2500, 3000, 3500, 4000, 4500, 5000]
+		assertTrue(totalLabelLog.getPctTotal()[0].value() >= 1750 && totalLabelLog.getPctTotal()[0].value() <= 2000); // 50th percentile
+		assertTrue(totalLabelLog.getPctTotal()[1].value() >= 4000 && totalLabelLog.getPctTotal()[1].value() < 4500); // 90th percentile
+		assertTrue(totalLabelLog.getPctTotal()[2].value() >= 4500); // 95th percentile
+		
+		expectedThroughput = groupThreads / millisToSeconds(5009); // startTime is equal to zero so endTime - startTime = endTime
+		assertEveryPeriodsMetricsForSampleLog(sampleLog1, creationDate, groupThreads, expectedAvg1, 5000, 0, expectedThroughput, groupThreads);
+		expectedThroughput = groupThreads / millisToSeconds(2509);
+		assertEveryPeriodsMetricsForSampleLog(sampleLog2, creationDate, groupThreads, expectedAvg2, 2500, 0, expectedThroughput, groupThreads);
+		expectedThroughput = (groupThreads*2) / millisToSeconds(5009);
+		assertEveryPeriodsMetricsForSampleLog(totalLabelLog, creationDate, groupThreads*2, expectedAvgTotal, 5000, 0, expectedThroughput, groupThreads);	
 	}
 	
+	/**
+	 * This test verifies the value of the metrics registered on the micrometer registries. 
+	 * Especially, the test consider two periods of the log, for each one we make a sampleLog and 
+	 * then check the metrics for the current period and for every periods. For simplicity, 
+	 * we make only one sampleLog for each period.
+	 */
 	@Test
 	public void testTwoRequestsOfASingleSample_on_severalLogPeriods() {
 		int groupThreads = 1;
