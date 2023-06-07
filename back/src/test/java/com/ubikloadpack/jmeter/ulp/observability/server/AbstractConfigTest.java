@@ -24,6 +24,7 @@ import com.ubikloadpack.jmeter.ulp.observability.listener.ULPObservabilityListen
 
 public abstract class AbstractConfigTest {
 	protected static final Integer PORT = 9595;
+	protected static final String HOST = "localhost";
 	protected static final String METRICS_ROUTE = "/ulp-o-metrics";
 	protected static final String WEB_APP_ROUTE = "/ulp-observability";
 	protected static final Integer LOG_FREQUENCY = 1;
@@ -34,7 +35,7 @@ public abstract class AbstractConfigTest {
 	
 	@BeforeEach
 	public void setUp() throws Exception {
-		this.endpoint =  new URL("http://localhost:" + PORT);
+		this.endpoint =  new URL("http://" + HOST + ":" + PORT);
 		
 		listener = new ULPObservabilityListener();
 		listener.setJettyPort(PORT);
@@ -48,23 +49,19 @@ public abstract class AbstractConfigTest {
 		listener.setMicrometerExpiryTimeInSeconds("3600");
 		listener.setLogFreq(LOG_FREQUENCY);
 		listener.setTotalLabel(TOTAL_LABEL);
-		try (MockedStatic<JMeterUtils> utilitites = Mockito.mockStatic(JMeterUtils.class)) {
-			utilitites.when(() -> JMeterUtils.getLocale()).thenReturn(new Locale(Locale.ENGLISH.getLanguage()));
-			
-			listener.testStarted("localhost");
-		}
+		this.testStarted(HOST);
 	}
 	
 	@AfterEach
 	public void tearDown() throws Exception {
-        listener.testEnded("localhost");
+        listener.testEnded(HOST);
 	}
 	
-	protected HttpResponse sendHttpRequest(String uri) throws MalformedURLException, IOException, UnsupportedEncodingException {
-		return this.sendHttpRequest(uri, null);
+	protected HttpResponse sendGetRequest(String uri) throws MalformedURLException, IOException, UnsupportedEncodingException {
+		return this.sendGetRequest(uri, null);
 	}
 	
-	protected HttpResponse sendHttpRequest(String uri, Map<String, String> paramsMap) throws MalformedURLException, IOException, UnsupportedEncodingException {
+	protected HttpResponse sendGetRequest(String uri, Map<String, String> paramsMap) throws MalformedURLException, IOException, UnsupportedEncodingException {
 		StringBuilder url = new StringBuilder();
 		url.append(uri);
 		url.append(this.formatURLParams(paramsMap));
@@ -115,6 +112,14 @@ public abstract class AbstractConfigTest {
 			paramsStr.append(params);
 		}
 		return paramsStr.toString();
+	}
+	
+	protected void testStarted(String host) {
+		try (MockedStatic<JMeterUtils> utilitites = Mockito.mockStatic(JMeterUtils.class)) {
+			utilitites.when(() -> JMeterUtils.getLocale()).thenReturn(new Locale(Locale.ENGLISH.getLanguage()));
+			
+			listener.testStarted(host);
+		}
 	}
 	
 	protected class HttpResponse {
