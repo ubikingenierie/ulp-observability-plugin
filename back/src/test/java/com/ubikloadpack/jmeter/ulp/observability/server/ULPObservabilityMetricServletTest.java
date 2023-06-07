@@ -125,8 +125,6 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 		// *** Checks if the metrics of the second log is changed ***
 		assertSamplersCount(actualMetrics, totalLabelOpenMetric, 1, sampleNameOpenMetric, 1); 
 		assertSamplersCountEveryPeriods(actualMetrics, totalLabelOpenMetric, 2, sampleNameOpenMetric, 1); // totalLabel's count becomes 2
-		
-		this.listener.testEnded(HOST);
 	}
 	
 	/**
