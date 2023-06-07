@@ -4,6 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -12,62 +16,117 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
+import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 	
 	@Test
 	public void testDoGet() throws Exception {	
-		HttpResponse httpResponse = this.sendHttpRequest(METRICS_ROUTE);
+		HttpResponse httpResponse = this.sendGetRequest(METRICS_ROUTE);
+		
 		assertEquals(httpResponse.getResponseCode(), HttpStatus.OK_200);
 		assertEquals(httpResponse.getContentType(), "text/plain; version=0.0.4; charset=utf-8");
+		assertTrue(httpResponse.getResponse().isEmpty());
 	}
 	
 	@Test
 	public void testDoGet_and_checkTheOpenMetricsSentFromServer() throws Exception {	
-		int groupThreads = 5, allThreads = groupThreads;
+		int groupThreads = 5, allThreads = 10;
 		String sampleName = "sampleTest";
 		long responseTime = 1000;
 		SampleEvent sampleEvent = this.createSampleEvent(sampleName, "groupe1", true, groupThreads, allThreads, responseTime);
 		this.listener.sampleOccurred(sampleEvent);
 		
 		Thread.sleep(1000); // should wait at least one second before generating the next log.
-		HttpResponse httpResponse = this.sendHttpRequest(METRICS_ROUTE);
+		HttpResponse httpResponse = this.sendGetRequest(METRICS_ROUTE);
 		
 		assertEquals(httpResponse.getResponseCode(), HttpStatus.OK_200);
 		assertEquals(httpResponse.getContentType(), "text/plain; version=0.0.4; charset=utf-8");
 		
-		String openMetrics = httpResponse.getResponse();
-		assertFalse(openMetrics.isBlank());
+		String actualMetrics = httpResponse.getResponse();
+		assertFalse(actualMetrics.isEmpty());
+		System.out.println(actualMetrics);
+		String totalLabelOpenMetric = Util.makeOpenMetricsName(TOTAL_LABEL);
+		String sampleNameOpenMetric = Util.makeOpenMetricsName(sampleName);
 		
-		// assert percentiles for one period
+		// assert percentiles for one period : the value of the percentiles are the same as the value of the response time.
 		Map<Integer, Long> pcts = Map.of(this.listener.getPct1(), responseTime, this.listener.getPct2(), responseTime, this.listener.getPct3(), responseTime);
-		for(Entry<Integer, Long> entry: pcts.entrySet()) {
-			String totalLabelPct = String.format("%s_pct{quantile=\"%s\"} %s", Util.makeOpenMetricsName(TOTAL_LABEL), entry.getKey(), entry.getValue());
-			String samplePct = String.format("%s_pct{quantile=\"%s\"} %s", Util.makeOpenMetricsName(sampleName), entry.getKey(), entry.getValue());
-			assertTrue(openMetrics.contains(totalLabelPct));
-			assertTrue(openMetrics.contains(samplePct));
-		}
-		
-		// assert percentiles for every period
-		for(Entry<Integer, Long> entry: pcts.entrySet()) {
-			String totalLabelPct = String.format("%s_pct{quantile_every_periods=\"%s\"} %s", Util.makeOpenMetricsName(TOTAL_LABEL), entry.getKey(), entry.getValue());
-			String samplePct = String.format("%s_pct{quantile_every_periods=\"%s\"} %s", Util.makeOpenMetricsName(sampleName), entry.getKey(), entry.getValue());
-			assertTrue(openMetrics.contains(totalLabelPct));
-			assertTrue(openMetrics.contains(samplePct));
-		}
-		
+		assertPercentilesOfOnePeriod(actualMetrics, totalLabelOpenMetric, pcts, sampleNameOpenMetric, pcts);
+		assertPercentilesOfEveryPeriods(actualMetrics, totalLabelOpenMetric, pcts, sampleNameOpenMetric, pcts);
+		// assert max response times
+		assertMaxResponseTime(actualMetrics, totalLabelOpenMetric, responseTime, sampleNameOpenMetric, responseTime);
+		assertMaxEveryPeriods(actualMetrics, totalLabelOpenMetric, responseTime, sampleNameOpenMetric, responseTime);
 		// assert average
-		assertTrue(openMetrics.contains(Util.makeOpenMetricsName(TOTAL_LABEL) + "_avg " + responseTime));
-		assertTrue(openMetrics.contains(Util.makeOpenMetricsName(TOTAL_LABEL) + "_avg_every_periods " + responseTime));
-		assertTrue(openMetrics.contains("spl_" + Util.makeOpenMetricsName(sampleName) + "_avg " + responseTime));
-		assertTrue(openMetrics.contains("spl_" + Util.makeOpenMetricsName(sampleName) + "_avg_every_periods " + responseTime));
-		
+		assertAverage(actualMetrics, totalLabelOpenMetric, responseTime, sampleNameOpenMetric, responseTime);
+		assertAvgEveryPeriods(actualMetrics, totalLabelOpenMetric, responseTime, sampleNameOpenMetric, responseTime);
+		// assert sampler count
+		assertSamplersCount(actualMetrics, totalLabelOpenMetric, 1, sampleNameOpenMetric, 1); // there was only one sample event, so the count = 1.
+		assertSamplersCountEveryPeriods(actualMetrics, totalLabelOpenMetric, 1, sampleNameOpenMetric, 1);
+		// assert error count
+		assertErrorsCount(actualMetrics, totalLabelOpenMetric, 0, sampleNameOpenMetric, 0);
+		assertErrorsCountEveryPeriods(actualMetrics, totalLabelOpenMetric, 0, sampleNameOpenMetric, 0);
+		// assert throughput
+		assertThroughput(actualMetrics, totalLabelOpenMetric, 1, sampleNameOpenMetric, 1);
+		assertThroughputEveryPeriods(actualMetrics, totalLabelOpenMetric, 1, sampleNameOpenMetric, 1);
 		// assert threads count
-		assertTrue(openMetrics.contains(Util.makeOpenMetricsName(TOTAL_LABEL) + "_threads " + groupThreads));
-		assertTrue(openMetrics.contains(Util.makeOpenMetricsName(TOTAL_LABEL) + "_threads_every_periods " + allThreads));
-		assertTrue(openMetrics.contains("spl_" + Util.makeOpenMetricsName(sampleName) + "_threads " + groupThreads));
-		assertTrue(openMetrics.contains("spl_" + Util.makeOpenMetricsName(sampleName) + "_threads_every_periods " + allThreads));
+		assertThreadsCount(actualMetrics, totalLabelOpenMetric, allThreads, sampleNameOpenMetric, groupThreads);
+		assertThreadsCountEveryPeriods(actualMetrics, totalLabelOpenMetric, allThreads, sampleNameOpenMetric, groupThreads);
+	}
+	
+	/**
+	 * The following test verifies if the value of the totalLabel contains spaces we should always have the logs.
+	 * This test is needed because there was an issue when the totalLabel contains spaces. Indeed, the SampleLogger#guiLog() 
+	 * raises a silent NullPöinterException and the current thread making the log is stopped. So no log was made. 
+	 * 
+	 * So this test guarantee that despite the value of the totalLabel we should always receive the logs.
+	 */
+	@Test
+	public void testDoGet_when_totalLabelCouldContainsSpaces() throws Exception { 
+		// *** setUp to change the total label set on the Listener ***
+		this.listener.testEnded(HOST);
+		String totalLabel = "total label";
+		this.listener.setTotalLabel(totalLabel); // label contains spaces: 
+		this.testStarted(HOST);
+		
+		// *** create and send a first sampleEvent ***
+		String sampleName = "sampleTest";
+		SampleEvent sampleEvent1 = this.createSampleEvent(sampleName, "groupe1", true, 1, 1, 500);
+		this.listener.sampleOccurred(sampleEvent1);
+		
+		Thread.sleep(1000); // should wait at least one second before generating the next log.
+		HttpResponse httpResponse1 = this.sendGetRequest(METRICS_ROUTE); // send a GET REQUEST
+		
+		// *** Checks the response of the server ***
+		assertEquals(httpResponse1.getResponseCode(), HttpStatus.OK_200);
+		assertEquals(httpResponse1.getContentType(), "text/plain; version=0.0.4; charset=utf-8");
+		
+		String actualMetrics = httpResponse1.getResponse();
+		assertFalse(actualMetrics.isEmpty()); // assert that we go an answer from the server
+		
+		// *** Checks if the metrics of the first log is changed ***
+		String totalLabelOpenMetric = Util.makeOpenMetricsName(totalLabel);
+		String sampleNameOpenMetric = Util.makeOpenMetricsName(sampleName);
+		
+		assertSamplersCount(actualMetrics, totalLabelOpenMetric, 1, sampleNameOpenMetric, 1); // there was only one sample event, so the count = 1.
+		assertSamplersCountEveryPeriods(actualMetrics, totalLabelOpenMetric, 1, sampleNameOpenMetric, 1);
+		
+		// *** create and send a second sampleEvent ***
+		SampleEvent sampleEvent2 = this.createSampleEvent("sample", "groupe1", true, 1, 1, 500);
+		this.listener.sampleOccurred(sampleEvent2);
+		
+		Thread.sleep(1000); // should wait the next log
+		HttpResponse httpResponse2 = this.sendGetRequest(METRICS_ROUTE); // send a second GET REQUEST
+		assertEquals(httpResponse2.getResponseCode(), HttpStatus.OK_200);
+		assertEquals(httpResponse2.getContentType(), "text/plain; version=0.0.4; charset=utf-8");
+		actualMetrics = httpResponse2.getResponse();
+		assertFalse(actualMetrics.isEmpty()); 
+		
+		// *** Checks if the metrics of the second log is changed ***
+		assertSamplersCount(actualMetrics, totalLabelOpenMetric, 1, sampleNameOpenMetric, 1); 
+		assertSamplersCountEveryPeriods(actualMetrics, totalLabelOpenMetric, 2, sampleNameOpenMetric, 1); // totalLabel's count becomes 2
+		
+		this.listener.testEnded(HOST);
 	}
 	
 	/**
@@ -90,5 +149,93 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 		sampleResult.setEndTime(sampleResult.getStartTime() + responseTime);
 		
 		return new SampleEvent(sampleResult, threadGroupName);
+	}
+	
+	private void assertPercentilesOfOnePeriod(String actualOpenMetrics, String totalLabelOpenMetric, Map<Integer, Long> totalPcts,
+											  String sampleNameOpenMetric, Map<Integer, Long> samplePcts) 
+	{
+		totalPcts.forEach((pct, value) -> {
+			String totalLabelPct = String.format("%s_pct{quantile=\"%s\"} %s", totalLabelOpenMetric, pct, value);
+			assertTrue(actualOpenMetrics.contains(totalLabelPct));
+		});
+		
+		samplePcts.forEach((pct, value) -> {
+			String samplePct = String.format("%s_pct{quantile=\"%s\"} %s", sampleNameOpenMetric, pct, value);
+			assertTrue(actualOpenMetrics.contains(samplePct));
+		});
+	}
+	
+	private void assertPercentilesOfEveryPeriods(String actualOpenMetrics, String totalLabelOpenMetric, Map<Integer, Long> totalPcts,
+												 String sampleNameOpenMetric, Map<Integer, Long> samplePcts) 
+	{
+		totalPcts.forEach((pct, value) -> {
+			String totalLabelPct = String.format("%s_pct{quantile_every_periods=\"%s\"} %s", totalLabelOpenMetric, pct, value);
+			assertTrue(actualOpenMetrics.contains(totalLabelPct));
+		});
+		
+		samplePcts.forEach((pct, value) -> {
+			String samplePct = String.format("%s_pct{quantile_every_periods=\"%s\"} %s", sampleNameOpenMetric, pct, value);
+			assertTrue(actualOpenMetrics.contains(samplePct));
+		});
+	}
+	
+	private void assertMaxResponseTime(String actualOpenMetrics, String totalLabelOpenMetric, long totalMax, String sampleNameOpenMetric, long sampleMax) {
+		assertTrue(actualOpenMetrics.contains(totalLabelOpenMetric + "_max " + totalMax));
+		assertTrue(actualOpenMetrics.contains("spl_" + sampleNameOpenMetric + "_max " + sampleMax));
+	}
+	
+	private void assertMaxEveryPeriods(String actualOpenMetrics, String totalLabelOpenMetric, long totalMax, String sampleNameOpenMetric, long sampleMax) {
+		assertTrue(actualOpenMetrics.contains(totalLabelOpenMetric + "_max_every_periods " + totalMax));
+		assertTrue(actualOpenMetrics.contains("spl_" + sampleNameOpenMetric + "_max_every_periods " + sampleMax));
+	}
+	
+	private void assertAverage(String actualOpenMetrics, String totalLabelOpenMetric, long totalAvg, String sampleNameOpenMetric, long sampleAvg) {
+		assertTrue(actualOpenMetrics.contains(totalLabelOpenMetric + "_avg " + totalAvg)); 
+		assertTrue(actualOpenMetrics.contains("spl_" + sampleNameOpenMetric + "_avg " + sampleAvg));
+	}
+	
+	private void assertAvgEveryPeriods(String actualOpenMetrics, String totalLabelOpenMetric, long totalAvg, String sampleNameOpenMetric, long sampleAvg) {
+		assertTrue(actualOpenMetrics.contains(totalLabelOpenMetric + "_avg_every_periods " + totalAvg));
+		assertTrue(actualOpenMetrics.contains("spl_" + sampleNameOpenMetric + "_avg_every_periods " + sampleAvg));
+	}
+
+	private void assertSamplersCount(String actualOpenMetrics, String totalLabelOpenMetric, long totalCount, String sampleNameOpenMetric, long sampleCount) {
+		assertTrue(actualOpenMetrics.contains(String.format("%s_total{count=\"sampler_count\"} %s", totalLabelOpenMetric, totalCount)));
+		assertTrue(actualOpenMetrics.contains(String.format("%s_total{count=\"sampler_count\"} %s", sampleNameOpenMetric, sampleCount)));
+	}
+	
+	private void assertSamplersCountEveryPeriods(String actualOpenMetrics, String totalLabelOpenMetric, long totalCount, String sampleNameOpenMetric, long sampleCount) {
+		assertTrue(actualOpenMetrics.contains(String.format("%s_total{count=\"sampler_count_every_periods\"} %s", totalLabelOpenMetric, totalCount)));
+		assertTrue(actualOpenMetrics.contains(String.format("%s_total{count=\"sampler_count_every_periods\"} %s", sampleNameOpenMetric, sampleCount)));
+	}
+	
+	private void assertErrorsCount(String actualOpenMetrics, String totalLabelOpenMetric,  long totalCount, String sampleNameOpenMetric, long sampleCount) {
+		assertTrue(actualOpenMetrics.contains(String.format("%s_total{count=\"error\"} %s", totalLabelOpenMetric, totalCount)));
+		assertTrue(actualOpenMetrics.contains(String.format("%s_total{count=\"error\"} %s", sampleNameOpenMetric, sampleCount)));
+	}
+	
+	private void assertErrorsCountEveryPeriods(String actualOpenMetrics, String totalLabelOpenMetric,  long totalCount, String sampleNameOpenMetric, long sampleCount) {
+		assertTrue(actualOpenMetrics.contains(String.format("%s_total{count=\"error_every_periods\"} %s", totalLabelOpenMetric, totalCount)));
+		assertTrue(actualOpenMetrics.contains(String.format("%s_total{count=\"error_every_periods\"} %s", sampleNameOpenMetric, sampleCount)));
+	}
+	
+	private void assertThroughput(String actualOpenMetrics, String totalLabelOpenMetric, long totalThrouput, String sampleNameOpenMetric, long sampleThroughput) {
+		assertTrue(actualOpenMetrics.contains(totalLabelOpenMetric + "_throughput " + totalThrouput));
+		assertTrue(actualOpenMetrics.contains("spl_" + sampleNameOpenMetric + "_throughput " + sampleThroughput));
+	}
+	
+	private void assertThroughputEveryPeriods(String actualOpenMetrics, String totalLabelOpenMetric, long totalThrouput, String sampleNameOpenMetric, long sampleThroughput) {
+		assertTrue(actualOpenMetrics.contains(totalLabelOpenMetric + "_throughput_every_periods " + totalThrouput));
+		assertTrue(actualOpenMetrics.contains("spl_" + sampleNameOpenMetric + "_throughput_every_periods " + sampleThroughput));
+	}
+	
+	private void assertThreadsCount(String actualOpenMetrics, String totalLabelOpenMetric, long totalThreads, String sampleNameOpenMetric, long sampleThreads) {
+		assertTrue(actualOpenMetrics.contains(totalLabelOpenMetric + "_threads " + totalThreads));
+		assertTrue(actualOpenMetrics.contains("spl_" + sampleNameOpenMetric + "_threads " + sampleThreads));
+	}
+	
+	private void assertThreadsCountEveryPeriods(String actualOpenMetrics, String totalLabelOpenMetric, long totalThreads, String sampleNameOpenMetric, long sampleThreads) {
+		assertTrue(actualOpenMetrics.contains(totalLabelOpenMetric + "_threads_every_periods " + totalThreads));
+		assertTrue(actualOpenMetrics.contains("spl_" + sampleNameOpenMetric + "_threads_every_periods " + sampleThreads));
 	}
 }
