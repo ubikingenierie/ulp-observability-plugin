@@ -217,7 +217,7 @@ public class MicrometerRegistry {
 		Double totalThroughput = this.summaryRegistry.counter("count.total","sample",name).count() / (timeSinceFirstSampleCallInSeconds);
 		
 		return currentPeriodSummary == null ? null : new SampleLog(
-				Util.micrometerToOpenMetrics(name),
+				Util.makeOpenMetricsName(name),
 				timestamp,
 				// Current period data
 				(long) currentPeriodSummary.count(),
