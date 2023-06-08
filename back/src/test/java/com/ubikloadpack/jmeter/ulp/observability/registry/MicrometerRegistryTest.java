@@ -87,7 +87,7 @@ public class MicrometerRegistryTest {
 	 * the totalLabel aggregate the results for the two samples. 
 	 */
 	@Test
-	public void testSeveralRequestsOfASingleSample() {
+	public void testSeveralRequestsOfTwoDifferentSamples() {
 		int groupThreads = 10;
 		
 		long startTime = 0, endTime = 0, responseTime = 0, expectedSumSample1 = 0, expectedSumSample2 = 0; 
