@@ -36,11 +36,11 @@ public class MicrometerRegistryTest {
 	
 	
 	/**
-	 * Test the metrics values when a single request of a sample is sent by one virtual user. 
+	 * Test the value of the metrics when a single request of a sample is created. 
 	 * Note: this test only considers one logging period.
 	 */
 	@Test 
-	public void testComputedMetrics_when_oneVirtualUser_and_onlyOneSample() {
+	public void testComputedMetrics_when_onlyOneSample() {
 		// ### SetUp ###
 		int groupThreads = 1;
 		long startTime = 0; // millisecond
