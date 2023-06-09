@@ -214,12 +214,12 @@ public class MicrometerRegistry {
 		Double averageTotalResponseTime = summaryRegistry.counter("accumulate.response", "sample", name).count() /
 				summaryRegistry.counter("count.total", "sample", name).count();
 		
-		double timeSinceFirstSampleCallInSeconds = 0;
-		if (startAndEndDatesOfSamplers.containsKey(name)) {
-			timeSinceFirstSampleCallInSeconds =  (startAndEndDatesOfSamplers.get(name).getRight() - startAndEndDatesOfSamplers.get(name).getLeft()) / 1000d; 
-		}
-		Double totalThroughput = this.summaryRegistry.counter("count.total","sample",name).count() / (timeSinceFirstSampleCallInSeconds);
-		
+		Pair<Long, Long> startAndEndDateOfSampler = startAndEndDatesOfSamplers.get(name);
+		Double totalThroughput = 0D;
+		if (startAndEndDateOfSampler != null) {
+			double timeSinceFirstSampleCallInSeconds =  (startAndEndDateOfSampler.getRight() - startAndEndDateOfSampler.getLeft()) / 1000d; 
+			totalThroughput = this.summaryRegistry.counter("count.total","sample",name).count() / (timeSinceFirstSampleCallInSeconds);
+		}		
 		return currentPeriodSummary == null ? null : new SampleLog(
 				Util.makeOpenMetricsName(name),
 				timestamp,
