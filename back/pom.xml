@@ -16,7 +16,7 @@
 	<maven.compiler.target>11</maven.compiler.target>
 	<micrometer.version>1.10.3</micrometer.version>
 	<jetty.version>11.0.14</jetty.version>
-	<jackson.version>2.13.2.2</jackson.version>
+	<jackson.version>2.13.4.2</jackson.version>
 	<jmeter.version>5.4.1</jmeter.version>
   </properties>
 
