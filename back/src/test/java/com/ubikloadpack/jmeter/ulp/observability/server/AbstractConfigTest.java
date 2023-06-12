@@ -80,19 +80,15 @@ public abstract class AbstractConfigTest {
 	}
 	
 	private String getServerResponse(HttpURLConnection http) throws IOException {
-		InputStreamReader reader = new InputStreamReader(http.getInputStream());
-		BufferedReader br = new BufferedReader(reader);
-		String str;
-		
-		List<String> lines = new ArrayList<>();
-	    while ((str = br.readLine()) != null) {
-	    	lines.add(str);
-	    }  
-	    
-	    reader.close();
-	    br.close();
-	    
-	    return String.join("\n", lines);
+	    try (InputStreamReader reader = new InputStreamReader(http.getInputStream());
+	         BufferedReader br = new BufferedReader(reader)) {
+	        String str;
+	        List<String> lines = new ArrayList<>();
+	        while ((str = br.readLine()) != null) {
+	            lines.add(str);
+	        }
+	        return String.join("\n", lines);
+	    }
 	}
 	
 	private String formatURLParams(Map<String, String> paramsMap) {
