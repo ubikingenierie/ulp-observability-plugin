@@ -2,6 +2,7 @@ package com.ubikloadpack.jmeter.ulp.observability.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -80,7 +81,8 @@ public abstract class AbstractConfigTest {
 	}
 	
 	private String getServerResponse(HttpURLConnection http) throws IOException {
-	    try (InputStreamReader reader = new InputStreamReader(http.getInputStream());
+	    try (InputStream inputStream = http.getInputStream();
+	    	 InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8");
 	         BufferedReader br = new BufferedReader(reader)) {
 	        String str;
 	        List<String> lines = new ArrayList<>();
@@ -115,7 +117,7 @@ public abstract class AbstractConfigTest {
 			utilitites.when(() -> JMeterUtils.getLocale()).thenReturn(new Locale(Locale.ENGLISH.getLanguage()));
 			
 			listener.testStarted(host);
-		}
+		} 
 	}
 	
 	protected class HttpResponse {
