@@ -23,16 +23,16 @@ public class ULPObservabilityConfigServletTest extends AbstractConfigTest {
         assertEquals(httpResponse.getResponseCode(), HttpStatus.OK_200);
         assertEquals(httpResponse.getContentType(), "application/json");
         
-        String receivedConfig = httpResponse.getResponse();
+        String actualConfig = httpResponse.getResponse();
         String expectedConfig = String.format("{\"metricsRoute\":\"%s\",\"logFrequency\":%s,\"totalLabel\":\"%s\",\"localeLang\":\"en\"}",
         									  METRICS_ROUTE, LOG_FREQUENCY, TOTAL_LABEL);
         
-        assertEquals(receivedConfig, expectedConfig);
+        assertEquals(expectedConfig, actualConfig);
 	}
 	
 	@Test
 	public void whenTotalLabelContainsSpacesExpectFormattedTotalLabelInOpenMetricsFormat() throws Exception {		
-		this.listener.testEnded();
+		this.listener.testEnded(HOST);
 		String totalLabel = "total label";
 		this.listener.setTotalLabel(totalLabel);
 		this.testStarted(HOST);
@@ -42,10 +42,11 @@ public class ULPObservabilityConfigServletTest extends AbstractConfigTest {
 		assertEquals(httpResponse.getResponseCode(), HttpStatus.OK_200);
 	    assertEquals(httpResponse.getContentType(), "application/json");
 	    
-	    String receivedConfig = httpResponse.getResponse();
+	    String actualConfig = httpResponse.getResponse();
         String expectedConfig = String.format("{\"metricsRoute\":\"%s\",\"logFrequency\":%s,\"totalLabel\":\"%s\",\"localeLang\":\"en\"}",
         									  METRICS_ROUTE, LOG_FREQUENCY, Util.makeOpenMetricsName(totalLabel));
         
-        assertEquals(receivedConfig, expectedConfig);
+        assertEquals(expectedConfig, actualConfig);
 	}
+	
 }
