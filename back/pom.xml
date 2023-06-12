@@ -29,6 +29,15 @@
 	    <scope>test</scope>
 	</dependency>
 	
+	<!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
+	<dependency>
+	    <groupId>org.freemarker</groupId>
+	    <artifactId>freemarker</artifactId>
+	    <version>2.3.32</version>
+	    <scope>test</scope>
+	</dependency>
+
+	
 	<dependency>
 	    <groupId>org.mockito</groupId>
 	    <artifactId>mockito-core</artifactId>
