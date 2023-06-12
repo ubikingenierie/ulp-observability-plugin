@@ -167,13 +167,13 @@ public class MicrometerRegistryTest {
 		SampleLog totalLabelLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), creationDate2);
 		
 		// check the metrics for the log period.
-		assertPercentilesForSampleLog(sampleLog1.getPct(), 200, 200, 200, 200);
+		assertPercentilesForSampleLog(sampleLog2.getPct(), 200, 200, 200, 200);
 		
 		long expectedSum2 = responseTime2, expectedAvg2 = responseTime2, expectedMax2 = responseTime2;
 		assertPeriodMetricsForSample(sampleLog2, creationDate2, groupThreads, expectedSum2, expectedAvg2, expectedMax2, 0, expectedThroughput, groupThreads);
 		
 		// check the metrics for every periods.
-		assertPercentilesForSampleLog(totalLabelLog.getPctTotal(), 200, 500, 500, 500);
+		assertPercentilesForSampleLog(totalLabelLog.getPctTotal(), 200, 500, 500, 501);
 		
 		int groupThreadsTotal = 2; // there was two samples 
 		long expectedAvgTotal = (responseTime1 + responseTime2) / groupThreadsTotal; // the average will be the sum divided by the two samples.
@@ -252,9 +252,9 @@ public class MicrometerRegistryTest {
 		assertEquals(expectedGroupThreads, sampleLog.getThreadsTotal()); 
 	}
 	
-	private void assertPercentilesForSampleLog(ValueAtPercentile[] percentiles, int pct50Min, int pct50Max, int pct90Min, int pct95Min) {
+	private void assertPercentilesForSampleLog(ValueAtPercentile[] percentiles, double pct50Min, double pct50Max, double pct90Min, double pct95Min) {
 	    assertTrue(percentiles[0].value() >= pct50Min && percentiles[0].value() <= pct50Max);
-	    assertTrue(percentiles[1].value() >= pct90Min && percentiles[1].value() < pct95Min);
+	    assertTrue(percentiles[1].value() >= pct90Min && percentiles[1].value() <= pct95Min);
 	    assertTrue(percentiles[2].value() >= pct95Min);
 	}
 	
