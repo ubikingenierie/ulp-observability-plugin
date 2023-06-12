@@ -1,109 +1,78 @@
 package com.ubikloadpack.jmeter.ulp.observability.util;
 
-import java.text.MessageFormat;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
 
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateExceptionHandler;
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
 
 public class Helper {
-	public static String getExpectedOpenMetrics(SampleLog sampleLog)  {
-	    // Construct metrics strings with a descriptive template
-	    String template = buildOpenMetricsTemplate();
-
-	    // Format template with percentile values and sample log values
-	    return MessageFormat.format(template, extractMetricsValues(sampleLog));
-	}
-
-	private static String buildOpenMetricsTemplate() {
-	    // Construct a template for metrics using placeholders for values to be inserted later
-	    return (
-		    "# TYPE {0}_pct summary\n" +
-	        "# UNIT {0}_pct milliseconds\n" +
-	        "# HELP {0}_pct Response percentiles\n" +        
-	        "{0}_pct'{'quantile=\"{2}\"'}' {3}\n" +
-	        "{0}_pct'{'quantile=\"{4}\"'}' {5}\n" +
-	        "{0}_pct'{'quantile=\"{6}\"'}' {7}\n" +
-	        "{0}_pct'{'quantile_every_periods=\"{2}\"'}' {8}\n" +
-	        "{0}_pct'{'quantile_every_periods=\"{4}\"'}' {9}\n" +
-	        "{0}_pct'{'quantile_every_periods=\"{6}\"'}' {10}\n" +
-	        "{0}_pct_sum {11}\n" +
-	        "{0}_pct_created {1}\n" +
-	        "# TYPE {0}_max gauge\n" +
-	        "# UNIT {0}_max milliseconds\n" +
-	        "# HELP {0}_max Max response times\n" +
-	        "{0}_max {12} {1}\n" +
-	        "# TYPE {0}_max_every_periods gauge\n" +
-	        "# UNIT {0}_max_every_periods milliseconds\n" +
-	        "# HELP {0}_max_every_periods Total max response times\n" +
-	        "{0}_max_every_periods {13} {1}\n" +
-	        "# TYPE {0}_avg gauge\n" +
-	        "# UNIT {0}_avg milliseconds\n" +
-	        "# HELP {0}_avg Average response times\n" +
-	        "{0}_avg {14} {1}\n" +
-	        "# TYPE {0}_avg_every_periods gauge\n" +
-	        "# UNIT {0}_avg_every_periods milliseconds\n" +
-	        "# HELP {0}_avg_every_periods Total average response times\n" +
-	        "{0}_avg_every_periods {15} {1}\n" +
-	        "# TYPE {0}_total gauge\n" +
-	        "# HELP {0}_total Response count\n" +
-	        "{0}_total'{'count=\"sampler_count_every_periods\"'}' {16} {1}\n" +
-	        "{0}_total'{'count=\"sampler_count\"'}' {17} {1}\n" +
-	        "{0}_total'{'count=\"error\"'}' {18} {1}\n" +
-	        "{0}_total'{'count=\"error_every_periods\"'}' {19} {1}\n" +
-	        "# TYPE {0}_throughput gauge\n" +
-	        "# HELP {0}_throughput Responses per second\n" +
-	        "{0}_throughput {20} {1}\n" +
-	        "# TYPE {0}_throughput_every_periods gauge\n" +
-	        "# HELP {0}_throughput_every_periods Total responses per second\n" +
-	        "{0}_throughput_every_periods {21} {1}\n" +
-	        "# TYPE {0}_threads counter\n" +
-	        "# HELP {0}_threads Current period Virtual user count\n" +
-	        "{0}_threads {22} {1}\n" +
-	        "# TYPE {0}_threads_every_periods counter\n" +
-	        "# HELP {0}_threads_every_periods Max number of virtual user count\n" +
-	        "{0}_threads_every_periods {23} {1}\n");
-	}
-
-	private static Object[] extractMetricsValues(SampleLog sampleLog) {
-		ValueAtPercentile[] percentiles = sampleLog.getPct();
-		ValueAtPercentile[] totalPercentiles = sampleLog.getPctTotal();
-		// Extract percentile and total percentile values
-	    long[] quantiles = new long[percentiles.length];
-	    long[] pcts = new long[percentiles.length];
-	    long[] totalPcts = new long[totalPercentiles.length];
-
-	    for (int i = 0; i < percentiles.length; i++) {
-	        quantiles[i] = (long) (percentiles[i].percentile() * 100);
-	        pcts[i] = (long) percentiles[i].value();
+	/**
+	 * Generates a string representation of expected open metrics from a given SampleLog instance.
+	 * This method uses a FreeMarker template (template.ftl) to format the string.
+	 * 
+	 * @param sampleLog The SampleLog instance for which the open metrics string should be generated.
+	 * @return A string representation of expected open metrics, formatted according to the FreeMarker template.
+	 * 
+	 * @throws IOException If an I/O exception occurs while processing the FreeMarker template.
+	 * @throws TemplateException If a FreeMarker exception occurs while processing the template.
+	 */
+	public static String getExpectedOpenMetrics(SampleLog sampleLog) throws IOException, TemplateException {
+	    Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
+	    
+	    // Charger les templates à partir du classpath
+	    cfg.setClassLoaderForTemplateLoading(Helper.class.getClassLoader(), "/templates");
+	    
+	    cfg.setDefaultEncoding("UTF-8");
+	    cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+	    cfg.setLogTemplateExceptions(false);
+	    cfg.setWrapUncheckedExceptions(true);
+	    cfg.setFallbackOnNullLoopVariable(false);
+	    cfg.setNumberFormat("0.#####");
+	    
+	    /* Create a data model */
+	    Map<String, Object> root = new HashMap<>();
+	    root.put("sampleName", sampleLog.getSampleName());
+	    
+	    ValueAtPercentile[] pcts = sampleLog.getPct();
+	    ValueAtPercentile[] pctsTotal = sampleLog.getPctTotal();
+	    for (int i = 0; i < pcts.length; i++) {
+	    	root.put("quantile"+(i+1), (long) (pcts[i].percentile() * 100));
+	    	root.put("quantile"+(i+1), (long) (pctsTotal[i].percentile() * 100));
+	    	
+	    	root.put("pct"+(i+1), (long) pcts[i].value());
+	    	root.put("pctTotal"+(i+1), (long) pctsTotal[i].value());
 	    }
+	    root.put("timestamp", sampleLog.getTimeStamp().getTime());
+	    root.put("sum", sampleLog.getSum());
+	    root.put("max", sampleLog.getMax());
+	    root.put("maxTotal", sampleLog.getMaxTotal());
+	    root.put("avg", sampleLog.getAvg());
+	    root.put("avgTotal", sampleLog.getAvgTotal());
+	    root.put("samplerCountTotal", sampleLog.getSamplerCountTotal());
+	    root.put("samplerCount", sampleLog.getSamplerCount());
+	    root.put("error", sampleLog.getError());
+	    root.put("errorTotal", sampleLog.getErrorTotal());
+	    root.put("throughput", sampleLog.getThroughput());
+	    root.put("throughputTotal", sampleLog.getThroughputTotal());
+	    root.put("threads", sampleLog.getThreads());
+	    root.put("threadsTotal", sampleLog.getThreadsTotal());
 
-	    for (int i = 0; i < totalPercentiles.length; i++) {
-	        totalPcts[i] = (long) totalPercentiles[i].value();
+	    Template temp = cfg.getTemplate("expectedOpenMetrics.ftl");
+	    try (Writer out = new StringWriter()) {
+	        temp.process(root, out);
+	        return out.toString();
 	    }
-
-	    // Return array of values to be inserted into the template
-	    return new Object[] {
-	        sampleLog.getSampleName(),
-	        sampleLog.getTimeStamp().getTime(),
-	        quantiles[0], pcts[0],
-	        quantiles[1], pcts[1],
-	        quantiles[2], pcts[2],
-	        totalPcts[0], totalPcts[1], totalPcts[2],
-	        sampleLog.getSum(),
-	        sampleLog.getMax(),
-	        sampleLog.getMaxTotal(),
-	        sampleLog.getAvg(),
-	        sampleLog.getAvgTotal(),
-	        sampleLog.getSamplerCountTotal(),
-	        sampleLog.getSamplerCount(),
-	        sampleLog.getError(),
-	        sampleLog.getErrorTotal(),
-	        sampleLog.getThroughput(),
-	        sampleLog.getThroughputTotal(),
-	        sampleLog.getThreads(),
-	        sampleLog.getThreadsTotal()
-	    };
 	}
+
+
 
 }
