@@ -31,7 +31,7 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 	}
 	
 	@Test
-	public void testDoGet_and_checkTheOpenMetricsSentFromServer() throws Exception {	
+	public void whenOneSampleEventReceivedExpectMetricsGeneratedAndValidated() throws Exception {	
 		int groupThreads = 5, allThreads = 10;
 		String sampleName = "sampleTest";
 		long responseTime = 1000;
@@ -82,7 +82,7 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 	 * So this test guarantee that despite the value of the totalLabel we should always receive the logs.
 	 */
 	@Test
-	public void testDoGet_when_totalLabelCouldContainsSpaces() throws Exception { 
+	public void whenTotalLabelCouldContainsSpacesExpectMetricsGeneratedAndLogged() throws Exception { 
 		// *** setUp to change the total label set on the Listener ***
 		this.listener.testEnded(HOST);
 		String totalLabel = "total label";

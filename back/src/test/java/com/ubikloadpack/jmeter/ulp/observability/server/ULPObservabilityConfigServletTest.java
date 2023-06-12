@@ -9,7 +9,7 @@ import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 public class ULPObservabilityConfigServletTest extends AbstractConfigTest {
 	@Test
-	public void testDoGet() throws Exception {					
+	public void whenGetRequestExpectOkAndJsonContentType() throws Exception {					
 		HttpResponse httpResponse = this.sendGetRequest("/config");
         
         assertEquals(httpResponse.getResponseCode(), HttpStatus.OK_200);
@@ -17,7 +17,7 @@ public class ULPObservabilityConfigServletTest extends AbstractConfigTest {
 	}
 	
 	@Test
-	public void testConfiguationContent() throws Exception {		
+	public void whenSendingGetRequestToConfigEndpointExpectConfigurationAsJsonFormat() throws Exception {		
 		HttpResponse httpResponse = this.sendGetRequest("/config");
 		
         assertEquals(httpResponse.getResponseCode(), HttpStatus.OK_200);
@@ -31,7 +31,7 @@ public class ULPObservabilityConfigServletTest extends AbstractConfigTest {
 	}
 	
 	@Test
-	public void testConfiguationContent_when_totalLabelContainsSpaces_so_shouldBeFormattedToOpenMetrics() throws Exception {		
+	public void whenTotalLabelContainsSpacesExpectFormattedTotalLabelInOpenMetricsFormat() throws Exception {		
 		this.listener.testEnded();
 		String totalLabel = "total label";
 		this.listener.setTotalLabel(totalLabel);

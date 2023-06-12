@@ -40,7 +40,7 @@ public class MicrometerRegistryTest {
 	 * Note: this test only considers one logging period.
 	 */
 	@Test 
-	public void testComputedMetrics_when_onlyOneSample() {
+	public void whenOnlyOneSampleRecordedExpectComputedMetrics() {
 		// ### SetUp ###
 		int groupThreads = 1;
 		long startTime = 0; // millisecond
@@ -87,7 +87,7 @@ public class MicrometerRegistryTest {
 	 * the totalLabel aggregate the results for the two samples. 
 	 */
 	@Test
-	public void testSeveralRequestsOfTwoDifferentSamples() {
+	public void whenSeveralSamplesRecordedExpectComputedMetrics() {
 		int groupThreads = 10;
 		
 		long startTime = 0, endTime = 0, responseTime = 0, expectedSumSample1 = 0, expectedSumSample2 = 0; 
@@ -170,7 +170,7 @@ public class MicrometerRegistryTest {
 	 * we make only one sampleLog for each period.
 	 */
 	@Test
-	public void testTwoRequestsOfASingleSample_on_severalLogPeriods() {
+	public void whenTwoRequestsOfSingleSampleOnTwoLogPeriodsExpectMetricsVerification() {
 		int groupThreads = 1;
 		 
 		// *** First sample for the first log period ***
