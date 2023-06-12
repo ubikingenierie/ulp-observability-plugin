@@ -9,19 +9,15 @@ import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 public class ULPObservabilityConfigServletTest extends AbstractConfigTest {
 	@Test
-	public void whenGetRequestExpectOkAndJsonContentType() throws Exception {					
+	public void whenGetRequestExpectOkAndJsonContentType() throws Exception {	
 		HttpResponse httpResponse = this.sendGetRequest("/config");
-        
-        assertEquals(httpResponse.getResponseCode(), HttpStatus.OK_200);
-        assertEquals(httpResponse.getContentType(), "application/json");
+		assertThatHttpResponseIsOk(httpResponse);
 	}
 	
 	@Test
 	public void whenSendingGetRequestToConfigEndpointExpectConfigurationAsJsonFormat() throws Exception {		
 		HttpResponse httpResponse = this.sendGetRequest("/config");
-		
-        assertEquals(httpResponse.getResponseCode(), HttpStatus.OK_200);
-        assertEquals(httpResponse.getContentType(), "application/json");
+        assertThatHttpResponseIsOk(httpResponse);
         
         String actualConfig = httpResponse.getResponse();
         String expectedConfig = String.format("{\"metricsRoute\":\"%s\",\"logFrequency\":%s,\"totalLabel\":\"%s\",\"localeLang\":\"en\"}",
@@ -38,15 +34,18 @@ public class ULPObservabilityConfigServletTest extends AbstractConfigTest {
 		this.testStarted(HOST);
 		
 		HttpResponse httpResponse = this.sendGetRequest("/config");
-		
-		assertEquals(httpResponse.getResponseCode(), HttpStatus.OK_200);
-	    assertEquals(httpResponse.getContentType(), "application/json");
+		assertThatHttpResponseIsOk(httpResponse);
 	    
 	    String actualConfig = httpResponse.getResponse();
         String expectedConfig = String.format("{\"metricsRoute\":\"%s\",\"logFrequency\":%s,\"totalLabel\":\"%s\",\"localeLang\":\"en\"}",
         									  METRICS_ROUTE, LOG_FREQUENCY, Util.makeOpenMetricsName(totalLabel));
         
         assertEquals(expectedConfig, actualConfig);
+	}
+	
+	private void assertThatHttpResponseIsOk(HttpResponse httpResponse) {
+        assertEquals(httpResponse.getResponseCode(), HttpStatus.OK_200);
+        assertEquals(httpResponse.getContentType(), "application/json");
 	}
 	
 }
