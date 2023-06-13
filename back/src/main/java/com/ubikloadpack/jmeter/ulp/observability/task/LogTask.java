@@ -52,8 +52,8 @@ public class LogTask implements CronTask{
 	 */
 	@Override
 	public void run(long scheduledRunTimeMillis) {
-		LOG.debug("Sample buffer : {}",this.sampleQueue.size());
 		try {
+			LOG.debug("Sample buffer : {}",this.sampleQueue.size());
 			this.registry.logAndReset();
 			System.out.println(this.registry.guiLog());
 		} catch (Exception e) {
