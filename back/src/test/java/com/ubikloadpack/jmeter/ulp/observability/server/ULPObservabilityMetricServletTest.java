@@ -1,22 +1,15 @@
 package com.ubikloadpack.jmeter.ulp.observability.server;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.util.Date;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.jmeter.samplers.SampleEvent;
 import org.apache.jmeter.samplers.SampleResult;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
-import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
@@ -25,8 +18,7 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 	public void testDoGet() throws Exception {	
 		HttpResponse httpResponse = this.sendGetRequest(METRICS_ROUTE);
 		
-		assertEquals(httpResponse.getResponseCode(), HttpStatus.OK_200);
-		assertEquals(httpResponse.getContentType(), "text/plain; version=0.0.4; charset=utf-8");
+		assertHttpContentTypeAndResponseStatus(httpResponse, HttpStatus.OK_200, "text/plain; version=0.0.4; charset=utf-8");
 		assertTrue(httpResponse.getResponse().isEmpty());
 	}
 	
@@ -41,8 +33,7 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 		Thread.sleep(1000); // should wait at least one second before generating the next log.
 		HttpResponse httpResponse = this.sendGetRequest(METRICS_ROUTE);
 		
-		assertEquals(httpResponse.getResponseCode(), HttpStatus.OK_200);
-		assertEquals(httpResponse.getContentType(), "text/plain; version=0.0.4; charset=utf-8");
+		assertHttpContentTypeAndResponseStatus(httpResponse, HttpStatus.OK_200, "text/plain; version=0.0.4; charset=utf-8");
 		
 		String actualMetrics = httpResponse.getResponse();
 		assertFalse(actualMetrics.isEmpty());
@@ -98,8 +89,7 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 		HttpResponse httpResponse1 = this.sendGetRequest(METRICS_ROUTE); // send a GET REQUEST
 		
 		// *** Checks the response of the server ***
-		assertEquals(httpResponse1.getResponseCode(), HttpStatus.OK_200);
-		assertEquals(httpResponse1.getContentType(), "text/plain; version=0.0.4; charset=utf-8");
+		assertHttpContentTypeAndResponseStatus(httpResponse1, HttpStatus.OK_200, "text/plain; version=0.0.4; charset=utf-8");
 		
 		String actualMetrics = httpResponse1.getResponse();
 		assertFalse(actualMetrics.isEmpty()); // assert that we go an answer from the server
@@ -117,8 +107,8 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 		
 		Thread.sleep(1000); // should wait the next log
 		HttpResponse httpResponse2 = this.sendGetRequest(METRICS_ROUTE); // send a second GET REQUEST
-		assertEquals(httpResponse2.getResponseCode(), HttpStatus.OK_200);
-		assertEquals(httpResponse2.getContentType(), "text/plain; version=0.0.4; charset=utf-8");
+		assertHttpContentTypeAndResponseStatus(httpResponse2, HttpStatus.OK_200, "text/plain; version=0.0.4; charset=utf-8");
+		
 		actualMetrics = httpResponse2.getResponse();
 		assertFalse(actualMetrics.isEmpty()); 
 		

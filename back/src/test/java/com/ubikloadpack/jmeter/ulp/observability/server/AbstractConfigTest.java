@@ -1,5 +1,7 @@
 package com.ubikloadpack.jmeter.ulp.observability.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -118,6 +120,11 @@ public abstract class AbstractConfigTest {
 			
 			listener.testStarted(host);
 		} 
+	}
+	
+	protected void assertHttpContentTypeAndResponseStatus(HttpResponse httpResponse, int expectedStatus, String expectedContentType) {
+        assertEquals(httpResponse.getResponseCode(), expectedStatus);
+        assertEquals(httpResponse.getContentType(), expectedContentType);
 	}
 	
 	protected class HttpResponse {
