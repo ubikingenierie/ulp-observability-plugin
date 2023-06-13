@@ -1,5 +1,6 @@
 <#ftl  encoding="UTF-8">
 <#setting locale="en_US">
+<#-- should add <#rt>${'\n'} at the end of lines otherwise will consider the '\r\n' as break line -->
 # TYPE ${sampleName}_pct summary<#rt>${'\n'}
 # UNIT ${sampleName}_pct milliseconds<#rt>${'\n'}
 # HELP ${sampleName}_pct Response percentiles<#rt>${'\n'}
