@@ -30,7 +30,7 @@ import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
 import com.ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 import com.ubikloadpack.jmeter.ulp.observability.server.ULPObservabilityServer;
-import com.ubikloadpack.jmeter.ulp.observability.task.LogTask;
+import com.ubikloadpack.jmeter.ulp.observability.task.SampleMetricsLoggingTask;
 import com.ubikloadpack.jmeter.ulp.observability.task.MicrometerTask;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
@@ -357,7 +357,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 
 				if (listenerClientData.logCron != null) {
 					listenerClientData.logCron.scheduleAtFixedRateSkippingToLatest(getLogFreq(), getLogFreq(),
-							TimeUnit.SECONDS, new LogTask(listenerClientData.registry, listenerClientData.sampleQueue));
+							TimeUnit.SECONDS, new SampleMetricsLoggingTask(listenerClientData.registry, listenerClientData.sampleQueue));
 				}
 
 				System.out.printf("UbikLoadPack Observability Plugin will generate log each %d seconds%n", getLogFreq());
