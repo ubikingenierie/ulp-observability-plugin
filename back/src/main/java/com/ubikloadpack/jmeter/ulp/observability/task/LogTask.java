@@ -16,12 +16,12 @@ import com.ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
  * @author Valentin ZELIONII
  *
  */
-public class SampleMetricsLoggingTask implements CronTask{
+public class LogTask implements CronTask{
 	
 	/**
 	 * Debug logger.
 	 */
-	private static final Logger LOG = LoggerFactory.getLogger(SampleMetricsLoggingTask.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LogTask.class);
 	/**
      * Sample metrics registry.
      */
@@ -38,7 +38,7 @@ public class SampleMetricsLoggingTask implements CronTask{
 	 * @param Registry sample metrics registry
 	 * @param sampleQueue Occurred sample result queue
 	 */
-	public SampleMetricsLoggingTask(
+	public LogTask(
 			MicrometerRegistry registry,
 			Collection<ResponseResult> sampleQueue
 			) {
