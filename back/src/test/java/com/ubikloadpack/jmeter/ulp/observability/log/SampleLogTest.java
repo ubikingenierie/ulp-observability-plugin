@@ -15,26 +15,10 @@ public class SampleLogTest {
 	
 	@Test
 	public void whenSampleLogIsConvertedToOpenMetricsFormatExpectValidOutput() throws Exception {
-        String sampleName = "testSample";
-        Date timeStamp = new Date();
-        Long samplerCount = 5L;
-        Long error = 1L;
         ValueAtPercentile[] pct = new ValueAtPercentile[] { new ValueAtPercentile(0.5, 200), new ValueAtPercentile(0.9, 500), new ValueAtPercentile(0.95, 600) };
-        Long sum = 2500L;
-        Double avg = 500.0;
-        Long max = 600L;
-        Double throughput = 5.0;
-        Long threads = 1L;
-        Long samplerCountTotal = 5L;
-        Long maxTotal = 600L;
-        Double avgTotal = 500.0;
-        Long errorTotal = 1L;
-        Double throughputTotal = 5.0;
         ValueAtPercentile[] pctTotal = new ValueAtPercentile[] { new ValueAtPercentile(0.5, 100), new ValueAtPercentile(0.9, 300), new ValueAtPercentile(0.95, 400) };
-        Long threadsTotal = 1L;
 
-        SampleLog sampleLog = new SampleLog(sampleName, timeStamp, samplerCount, error, pct, sum, avg, max, throughput, threads, 
-            samplerCountTotal, maxTotal, avgTotal, errorTotal, throughputTotal, pctTotal, threadsTotal);
+        SampleLog sampleLog = new SampleLog("testSample", new Date(), 5L, 1L, pct, 2500L, 500.0, 600L, 5.0, 1L, 5L, 600L, 500.0D, 1L, 5.0D, pctTotal, 1L);
 
         String actualOpenMetrics = sampleLog.toOpenMetricsString();
         

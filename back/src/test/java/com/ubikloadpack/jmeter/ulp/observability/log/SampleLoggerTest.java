@@ -1,5 +1,6 @@
 package com.ubikloadpack.jmeter.ulp.observability.log;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -35,49 +36,38 @@ public class SampleLoggerTest {
 	
 	@Test
 	public void whenASampleLogIsCreatedExpectItsOpenMetricsFormat() throws Exception {
-		int groupThreads = 1;
-		long startTime = 0; // millisecond
-		long endTime = 1000; // millisecond
-		long responseTime = endTime - startTime; 
-		ResponseResult responseResult = new ResponseResult("groupe1", responseTime, false, groupThreads, groupThreads, "sample", startTime, endTime);
-		
-		micrometerRegistry.addResponse(responseResult);
-		Date creationDate = new Date();
-		
-		SampleLog sampleLog = micrometerRegistry.makeLog("spl_sample", creationDate);
-		SampleLog totalLabelLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), creationDate);
-		this.sampleLogger.add(sampleLog);
-		this.sampleLogger.add(totalLabelLog);
+		this.addResponseResult("sample", 1000L);
+		SampleLog sampleLog = this.createAndRecordSampleLog("spl_sample", new Date());
+		SampleLog totalLabelLog = this.createAndRecordSampleLog(Util.makeMicrometerName(TOTAL_lABEL), new Date());
 		
 		String openMetrics = this.sampleLogger.openMetrics(null, false);
-		assertTrue(openMetrics != null);
-		
-		String samplelogMetrics = Helper.getExpectedOpenMetrics(sampleLog);
-		String totalLabellogMetrics = Helper.getExpectedOpenMetrics(totalLabelLog);
-		
-		assertTrue(openMetrics.contains(samplelogMetrics)); // assert that the metrics of the sample are included in the generated openMetrics 
-		assertTrue(openMetrics.contains(totalLabellogMetrics)); // assert that the metrics of the totalLabel are included in the generated openMetrics 
+		assertFalse(openMetrics.isEmpty());
+		assertTrue(openMetrics.contains(Helper.getExpectedOpenMetrics(sampleLog))); // assert that the metrics of the sample are included in the generated openMetrics 
+		assertTrue(openMetrics.contains(Helper.getExpectedOpenMetrics(totalLabelLog))); // assert that the metrics of the totalLabel are included in the generated openMetrics 
 	}
 	
 	@Test
 	public void whenSampleNameIsNotCorrectExpectNull() {
-		int groupThreads = 1;
-		long startTime = 0; // millisecond
-		long endTime = 1000; // millisecond
-		long responseTime = endTime - startTime; 
-		ResponseResult responseResult = new ResponseResult("groupe1", responseTime, false, groupThreads, groupThreads, "sample", startTime, endTime);
-		
-		micrometerRegistry.addResponse(responseResult);
-		Date creationDate = new Date();
-		
+		this.addResponseResult("sample", 1000L);	
 		// we try to make a log of the sample when the given name is not correct. 
 		// Remember the label of a sample should be prefixed by "spl_"
-		SampleLog sampleLog = micrometerRegistry.makeLog(responseResult.getSamplerLabel(), creationDate);
+		SampleLog sampleLog = micrometerRegistry.makeLog("sample", new Date());
 		assertNull(sampleLog);
 		
 		// when the total label is not formatted as Micrometer name
-		SampleLog totalLabel = micrometerRegistry.makeLog(TOTAL_lABEL, creationDate);
+		SampleLog totalLabel = micrometerRegistry.makeLog(TOTAL_lABEL, new Date());
 		assertNull(totalLabel);
+	}
+	
+	private void addResponseResult(String samplerLabel, long duration) {
+	    ResponseResult responseResult = new ResponseResult("groupe1", duration, false, 1, 1, samplerLabel, 0L, duration);
+	    micrometerRegistry.addResponse(responseResult);
+	}
+
+	private SampleLog createAndRecordSampleLog(String samplerLabel, Date timeStamp) {
+		SampleLog sampleLog = micrometerRegistry.makeLog(samplerLabel, timeStamp);
+	    this.sampleLogger.add(sampleLog);
+	    return sampleLog;
 	}
 
 
