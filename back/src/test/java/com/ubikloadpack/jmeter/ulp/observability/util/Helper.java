@@ -36,7 +36,7 @@ public class Helper {
 	    cfg.setLogTemplateExceptions(false);
 	    cfg.setWrapUncheckedExceptions(true);
 	    cfg.setFallbackOnNullLoopVariable(false);
-	    cfg.setNumberFormat("0.#####");
+	    cfg.setNumberFormat("0.##");
 	    
 	    /* Create a data model */
 	    Map<String, Object> root = new HashMap<>();
