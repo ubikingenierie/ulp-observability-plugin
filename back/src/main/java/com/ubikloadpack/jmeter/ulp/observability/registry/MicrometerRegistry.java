@@ -244,8 +244,8 @@ public class MicrometerRegistry {
 	 * 
 	 * @return Updated logger
 	 */
-	public void logAndReset() {
-		logAndReset(getSampleNames());
+	public void computeAndReset() {
+		computeAndReset(getSampleNames());
 	}
 	
 	/**
@@ -262,7 +262,7 @@ public class MicrometerRegistry {
 	 * @param names List of thread groups to log
 	 * @return Updated logger
 	 */
-	public void log(List<String> names) {
+	public void logSampleMetrics(List<String> names) {
 		Date timestamp = new Date();
 		names.forEach(name ->{
 			this.logger.add(makeLog(name, timestamp));
@@ -274,8 +274,8 @@ public class MicrometerRegistry {
 	 * 
 	 * @return Updated logger
 	 */
-	public void logAndReset(List<String> names) {
-		this.log(names);
+	public void computeAndReset(List<String> names) {
+		this.logSampleMetrics(names);
 		this.intervalRegistry.clear();
 	}
 
