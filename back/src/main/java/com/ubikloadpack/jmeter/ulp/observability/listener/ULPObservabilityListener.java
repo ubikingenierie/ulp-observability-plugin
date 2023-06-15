@@ -406,7 +406,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 				try {
 					if (listenerClientData.logCron.isThreadRunning()) {
 						// make last logs, then shutdown cron task
-						listenerClientData.registry.logAndReset();
+						listenerClientData.registry.computeAndReset();
 						System.out.println(listenerClientData.registry.guiLog());
 						listenerClientData.logCron.shutdownNow();
 						listenerClientData.logCron.purge();

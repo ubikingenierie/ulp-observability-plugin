@@ -54,10 +54,10 @@ public class SampleMetricsLoggingTask implements CronTask{
 	public void run(long scheduledRunTimeMillis) {
 		try {
 			LOG.info("Sample buffer : {}",this.sampleQueue.size());
-			this.registry.logAndReset();
-			System.out.println(this.registry.guiLog());
+			this.registry.computeAndReset();
+			LOG.info(this.registry.guiLog());
 		} catch (Exception e) {
-			LOG.error("Error while running the log task : {}", e);
+			LOG.error("Error while running the log task.", e);
 		}
 	}
 
