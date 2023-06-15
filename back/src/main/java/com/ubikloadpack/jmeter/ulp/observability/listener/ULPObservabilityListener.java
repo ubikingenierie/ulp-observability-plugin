@@ -30,7 +30,7 @@ import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
 import com.ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 import com.ubikloadpack.jmeter.ulp.observability.server.ULPObservabilityServer;
-import com.ubikloadpack.jmeter.ulp.observability.task.LogTask;
+import com.ubikloadpack.jmeter.ulp.observability.task.SampleMetricsLoggingTask;
 import com.ubikloadpack.jmeter.ulp.observability.task.MicrometerTask;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
@@ -248,9 +248,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 
 		listenerClientData.sampleQueue = new ArrayBlockingQueue<>(getBufferCapacity());
 
-		if (getLogFreq() > 0) {
-			listenerClientData.logCron = CronScheduler.create(Duration.ofSeconds(getLogFreq()));
-		}
+		listenerClientData.logCron = CronScheduler.create(Duration.ofSeconds(getLogFreq()));
 
 		listenerClientData.micrometerTaskList = new ArrayList<>();
 	}
@@ -355,10 +353,8 @@ public class ULPObservabilityListener extends AbstractTestElement
 							+ listenerClientData.ulpObservabilityServer.getPort() + " : ", e);
 				}
 
-				if (listenerClientData.logCron != null) {
-					listenerClientData.logCron.scheduleAtFixedRateSkippingToLatest(getLogFreq(), getLogFreq(),
-							TimeUnit.SECONDS, new LogTask(listenerClientData.registry, listenerClientData.sampleQueue));
-				}
+				listenerClientData.logCron.scheduleAtFixedRateSkippingToLatest(getLogFreq(), getLogFreq(),
+						TimeUnit.SECONDS, new SampleMetricsLoggingTask(listenerClientData.registry, listenerClientData.sampleQueue));
 
 				System.out.printf("UbikLoadPack Observability Plugin will generate log each %d seconds%n", getLogFreq());
 
