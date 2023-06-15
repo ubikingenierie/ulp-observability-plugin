@@ -29,8 +29,7 @@ public class ULPObservabilityConfigServletTest extends AbstractConfigTest {
 	@Test
 	public void whenTotalLabelContainsSpacesExpectFormattedTotalLabelInOpenMetricsFormat() throws Exception {		
 		this.listener.testEnded(HOST);
-		String totalLabel = "total label";
-		this.listener.setTotalLabel(totalLabel);
+		this.listener.setTotalLabel("total label");
 		this.testStarted(HOST);
 		
 		HttpResponse httpResponse = this.sendGetRequest("/config");
@@ -38,9 +37,10 @@ public class ULPObservabilityConfigServletTest extends AbstractConfigTest {
 	    
 	    String actualConfig = httpResponse.getResponse();
         String expectedConfig = String.format("{\"metricsRoute\":\"%s\",\"logFrequency\":%s,\"totalLabel\":\"%s\",\"localeLang\":\"en\"}",
-        									  METRICS_ROUTE, LOG_FREQUENCY, Util.makeOpenMetricsName(totalLabel));
+        									  METRICS_ROUTE, LOG_FREQUENCY, Util.makeOpenMetricsName("total label"));
         
         assertEquals(expectedConfig, actualConfig);
 	}
+
 
 }

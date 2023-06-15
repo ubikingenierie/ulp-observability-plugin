@@ -25,32 +25,29 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 	@Test
 	public void whenOneSampleEventReceivedExpectMetricsGeneratedAndValidated() throws Exception {	
 		int groupThreads = 5, allThreads = 10;
-		String sampleName = "sampleTest";
-		long responseTime = 1000;
-		SampleEvent sampleEvent = this.createSampleEvent(sampleName, "groupe1", true, groupThreads, allThreads, responseTime);
+		SampleEvent sampleEvent = this.createSampleEvent("sampleTest", "groupe1", true, groupThreads, allThreads, 1000L);
 		this.listener.sampleOccurred(sampleEvent);
 		
 		Thread.sleep(1000); // should wait at least one second before generating the next log.
 		HttpResponse httpResponse = this.sendGetRequest(METRICS_ROUTE);
-		
 		assertHttpContentTypeAndResponseStatus(httpResponse, HttpStatus.OK_200, "text/plain; version=0.0.4; charset=utf-8");
-		
+	
 		String actualMetrics = httpResponse.getResponse();
 		assertFalse(actualMetrics.isEmpty());
 		
 		String totalLabelOpenMetric = Util.makeOpenMetricsName(TOTAL_LABEL);
-		String sampleNameOpenMetric = Util.makeOpenMetricsName(sampleName);
+		String sampleNameOpenMetric = Util.makeOpenMetricsName("sampleTest");
 		
 		// assert percentiles for one period : the value of the percentiles are the same as the value of the response time.
-		Map<Integer, Long> pcts = Map.of(this.listener.getPct1(), responseTime, this.listener.getPct2(), responseTime, this.listener.getPct3(), responseTime);
+		Map<Integer, Long> pcts = Map.of(this.listener.getPct1(), 1000L, this.listener.getPct2(), 1000L, this.listener.getPct3(), 1000L);
 		assertPercentilesOfOnePeriod(actualMetrics, totalLabelOpenMetric, pcts, sampleNameOpenMetric, pcts);
 		assertPercentilesOfEveryPeriods(actualMetrics, totalLabelOpenMetric, pcts, sampleNameOpenMetric, pcts);
 		// assert max response times
-		assertMaxResponseTime(actualMetrics, totalLabelOpenMetric, responseTime, sampleNameOpenMetric, responseTime);
-		assertMaxEveryPeriods(actualMetrics, totalLabelOpenMetric, responseTime, sampleNameOpenMetric, responseTime);
+		assertMaxResponseTime(actualMetrics, totalLabelOpenMetric, 1000L, sampleNameOpenMetric, 1000L);
+		assertMaxEveryPeriods(actualMetrics, totalLabelOpenMetric, 1000L, sampleNameOpenMetric, 1000L);
 		// assert average
-		assertAverage(actualMetrics, totalLabelOpenMetric, responseTime, sampleNameOpenMetric, responseTime);
-		assertAvgEveryPeriods(actualMetrics, totalLabelOpenMetric, responseTime, sampleNameOpenMetric, responseTime);
+		assertAverage(actualMetrics, totalLabelOpenMetric, 1000L, sampleNameOpenMetric, 1000L);
+		assertAvgEveryPeriods(actualMetrics, totalLabelOpenMetric, 1000L, sampleNameOpenMetric, 1000L);
 		// assert sampler count
 		assertSamplersCount(actualMetrics, totalLabelOpenMetric, 1, sampleNameOpenMetric, 1); // there was only one sample event, so the count = 1.
 		assertSamplersCountEveryPeriods(actualMetrics, totalLabelOpenMetric, 1, sampleNameOpenMetric, 1);
@@ -76,18 +73,15 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 	public void whenTotalLabelCouldContainsSpacesExpectMetricsGeneratedAndLogged() throws Exception { 
 		// *** setUp to change the total label set on the Listener ***
 		this.listener.testEnded(HOST);
-		String totalLabel = "total label";
-		this.listener.setTotalLabel(totalLabel); // label contains spaces: 
+		this.listener.setTotalLabel("total label"); // label contains spaces: 
 		this.testStarted(HOST);
 		
 		// *** create and send a first sampleEvent ***
-		String sampleName = "sampleTest";
-		SampleEvent sampleEvent1 = this.createSampleEvent(sampleName, "groupe1", true, 1, 1, 500);
+		SampleEvent sampleEvent1 = this.createSampleEvent("sampleTest", "groupe1", true, 1, 1, 500);
 		this.listener.sampleOccurred(sampleEvent1);
 		
 		Thread.sleep(1000); // should wait at least one second before generating the next log.
 		HttpResponse httpResponse1 = this.sendGetRequest(METRICS_ROUTE); // send a GET REQUEST
-		
 		// *** Checks the response of the server ***
 		assertHttpContentTypeAndResponseStatus(httpResponse1, HttpStatus.OK_200, "text/plain; version=0.0.4; charset=utf-8");
 		
@@ -95,8 +89,8 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 		assertFalse(actualMetrics.isEmpty()); // assert that we go an answer from the server
 		
 		// *** Checks if the metrics of the first log is changed ***
-		String totalLabelOpenMetric = Util.makeOpenMetricsName(totalLabel);
-		String sampleNameOpenMetric = Util.makeOpenMetricsName(sampleName);
+		String totalLabelOpenMetric = Util.makeOpenMetricsName("total label");
+		String sampleNameOpenMetric = Util.makeOpenMetricsName("sampleTest");
 		
 		assertSamplersCount(actualMetrics, totalLabelOpenMetric, 1, sampleNameOpenMetric, 1); // there was only one sample event, so the count = 1.
 		assertSamplersCountEveryPeriods(actualMetrics, totalLabelOpenMetric, 1, sampleNameOpenMetric, 1);

@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -133,57 +133,39 @@ public class MicrometerRegistryTest {
 		int groupThreads = 1;
 		 
 		// *** First sample for the first log period ***
-		long startTime1 = 0, endTime1 = 500, responseTime1 = endTime1;
-		ResponseResult responseResult1 = new ResponseResult("groupe1", responseTime1, false, groupThreads, groupThreads, "sample", startTime1, endTime1);
-		
+		ResponseResult responseResult1 = new ResponseResult("groupe1", 500L, false, groupThreads, groupThreads, "sample", 0L, 500L);
 		micrometerRegistry.addResponse(responseResult1);
-		Date creationDate1 = new Date(); // the timestamp for the first log
-		SampleLog sampleLog1 = micrometerRegistry.makeLog("spl_sample", creationDate1);
-		
-		double expectedThroughput = (double) groupThreads/LOG_FREQUENCY;
-		long expectedSum1 = responseTime1, expectedAvg1 = responseTime1, expectedMax1 = responseTime1;
+		SampleLog sampleLog1 = micrometerRegistry.makeLog("spl_sample", getFixedDateIncreasedBySeconds(1));
 		
 		// check the metrics for the log period. There's only one sample so the sum, average and the max are the same as the responseTime of the sample
 		assertPercentilesForSampleLog(sampleLog1.getPct(), 500, 500, 500, 500);
-		assertPeriodMetricsForSample(sampleLog1, creationDate1, groupThreads, expectedSum1, expectedAvg1, expectedMax1, 0, expectedThroughput, groupThreads);
-		
-		double expectedThroughputTotal = groupThreads / millisToSeconds(endTime1); // startTime is equal to zero so endTime - startTime = endTime
+		assertPeriodMetricsForSample(sampleLog1, getFixedDateIncreasedBySeconds(1), groupThreads, 500, 500, 500, 0, (double) groupThreads/LOG_FREQUENCY, groupThreads);
 		// check the metrics for every periods. The value of the metrics are the same as those of the log period.
-		assertEveryPeriodsMetricsForSample(sampleLog1, creationDate1, groupThreads, expectedAvg1, expectedMax1, 0, expectedThroughputTotal, groupThreads);
+		assertEveryPeriodsMetricsForSample(sampleLog1, getFixedDateIncreasedBySeconds(1), groupThreads, 500, 500, 0, groupThreads / millisToSeconds(500), groupThreads);
 		
 		// *** Clear the interval registry before starting an other log period ***
 		this.micrometerRegistry.clearIntervalRegistry();
 		 
 		// *** Second sample for the second log period ***
 		long startTime2 = LOG_FREQUENCY * 1000; 	// The second sample starts after the first log period (ex: after 10 seconds = 10000 ms) 
-		long endTime2 = startTime2 + 200; 	// The sample ends after 200 ms
-		long responseTime2 = endTime2 - startTime2; 	// the response time is changed to 200 ms.
-		int totalThreads = groupThreads + 1; // totalThread is increased by 1, because we will add a new sample
-		ResponseResult responseResult2 = new ResponseResult("groupe1", responseTime2, false, groupThreads, totalThreads, "sample", startTime2, endTime2);
-		
+		// totalThread is increased by 1, because we will add a new sample
+		ResponseResult responseResult2 = new ResponseResult("groupe1", 200L, false, groupThreads, groupThreads+1, "sample", startTime2, startTime2+200); 
 		micrometerRegistry.addResponse(responseResult2);
-		Date creationDate2 = new Date(); // the new timestamp for the second log
-		SampleLog sampleLog2 = micrometerRegistry.makeLog("spl_sample", creationDate2);
-		SampleLog totalLabelLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), creationDate2);
+		SampleLog sampleLog2 = micrometerRegistry.makeLog("spl_sample", getFixedDateIncreasedBySeconds(2));
+		SampleLog totalLabelLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(2));
 		
 		// check the metrics for the log period.
 		assertPercentilesForSampleLog(sampleLog2.getPct(), 200, 200, 200, 200);
-		
-		long expectedSum2 = responseTime2, expectedAvg2 = responseTime2, expectedMax2 = responseTime2;
-		assertPeriodMetricsForSample(sampleLog2, creationDate2, groupThreads, expectedSum2, expectedAvg2, expectedMax2, 0, expectedThroughput, groupThreads);
-		
+		assertPeriodMetricsForSample(sampleLog2, getFixedDateIncreasedBySeconds(2), groupThreads, 200, 200, 200, 0, (double) groupThreads/LOG_FREQUENCY, groupThreads);
 		// check the metrics for every periods.
 		assertPercentilesForSampleLog(totalLabelLog.getPctTotal(), 200, 500, 500, 501);
-		
-		int groupThreadsTotal = 2; // there was two samples 
-		long expectedAvgTotal = (responseTime1 + responseTime2) / groupThreadsTotal; // the average will be the sum divided by the two samples.
-		long expectedMaxTotal = responseTime1; // the response time of the first sample is bigger than the second.
-		expectedThroughputTotal = groupThreadsTotal / millisToSeconds(endTime2); // startTime is equal to zero so endTime - startTime = endTime
-		
-		assertEveryPeriodsMetricsForSample(sampleLog2, creationDate2, groupThreadsTotal, expectedAvgTotal, expectedMaxTotal, 0, expectedThroughputTotal, groupThreads);
-		assertEveryPeriodsMetricsForSample(totalLabelLog, creationDate2, groupThreadsTotal, expectedAvgTotal, expectedMaxTotal, 0, expectedThroughputTotal, groupThreadsTotal);
+		// the average will be the sum divided by the number of samples. So (200 + 500) / 2 = 350
+		double throughputTotal = 2/millisToSeconds(startTime2+200); // number of samples divided by the endtime of the last sample
+		assertEveryPeriodsMetricsForSample(sampleLog2, getFixedDateIncreasedBySeconds(2), 2, 350, 500, 0, throughputTotal, groupThreads);
+		assertEveryPeriodsMetricsForSample(totalLabelLog, getFixedDateIncreasedBySeconds(2), 2, 350, 500, 0, throughputTotal, 2);
 	}
-	
+
+
 	/**
 	 * Checks if the metric values ​​of the given SampleLog are the same as the expected values.
 	 * Note: This method only checks the metrics corresponding to a specific period.
@@ -281,6 +263,11 @@ public class MicrometerRegistryTest {
 			micrometerRegistry.addResponse(responseResult2);
 		}
 	}
+	
+	private Date getFixedDateIncreasedBySeconds(int second) {
+		return Date.from(Instant.ofEpochSecond(155000000+second));
+	}
+	
 	
 
 }
