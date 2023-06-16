@@ -36,7 +36,7 @@ public class SampleLoggerTest {
 	}
 	
 	@Test
-	@DisplayName("when a sample log is created expect its open metrics format")
+	@DisplayName("When a sample log is created and saved through the logger, expect it to be nicely formatted in openMetrics format")
 	public void whenASampleLogIsCreatedExpectItsOpenMetricsFormat() throws Exception {
 		this.addResponseResult("sample", 1000L);
 		SampleLog sampleLog = this.createAndRecordSampleLog("spl_sample", new Date());
@@ -49,17 +49,17 @@ public class SampleLoggerTest {
 	}
 	
 	@Test
-	@DisplayName("When sample name is not correct expect null")
+	@DisplayName("When the name of the sample is not correct when it's passed to the makeLog, expect null")
 	public void whenSampleNameIsNotCorrectExpectNull() {
 		this.addResponseResult("sample", 1000L);	
 		// we try to make a log of the sample when the given name is not correct. 
 		// Remember the label of a sample should be prefixed by "spl_"
 		SampleLog sampleLog = micrometerRegistry.makeLog("sample", new Date());
-		assertNull(sampleLog);
+		assertNull(sampleLog, "The given sample's name was 'sample' and wasn't prefixed with 'spl_', so returns null.");
 		
 		// when the total label is not formatted as Micrometer name
 		SampleLog totalLabel = micrometerRegistry.makeLog(TOTAL_lABEL, new Date());
-		assertNull(totalLabel);
+		assertNull(totalLabel, "The given sample's name was 'total_label' and wasn't formatted as micrometer format, so makeLog() returns null.");
 	}
 	
 	private void addResponseResult(String samplerLabel, long duration) {
