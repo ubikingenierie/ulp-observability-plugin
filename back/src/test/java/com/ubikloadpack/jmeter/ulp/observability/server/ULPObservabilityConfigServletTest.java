@@ -10,14 +10,14 @@ import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 public class ULPObservabilityConfigServletTest extends AbstractConfigTest {
 	@Test
-	@DisplayName("When get request expect ok and json content type")
+	@DisplayName("When a GET request is sent, expect ok and json as content type")
 	public void whenGetRequestExpectOkAndJsonContentType() throws Exception {	
 		HttpResponse httpResponse = this.sendGetRequest("/config");
 		assertHttpContentTypeAndResponseStatus(httpResponse, HttpStatus.OK_200, "application/json");
 	}
 	
 	@Test
-	@DisplayName("When sending get request to config endpoint expect configuration as json format")
+	@DisplayName("When sending GET request, expect the json format and the values of the received configuration")
 	public void whenSendingGetRequestToConfigEndpointExpectConfigurationAsJsonFormat() throws Exception {		
 		HttpResponse httpResponse = this.sendGetRequest("/config");
 		assertHttpContentTypeAndResponseStatus(httpResponse, HttpStatus.OK_200, "application/json");
