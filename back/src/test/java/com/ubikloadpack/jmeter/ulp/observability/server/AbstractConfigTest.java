@@ -31,6 +31,7 @@ public abstract class AbstractConfigTest {
 	protected static final String METRICS_ROUTE = "/ulp-o-metrics";
 	protected static final String WEB_APP_ROUTE = "/ulp-observability";
 	protected static final Integer LOG_FREQUENCY = 1;
+	protected static final Integer TOP_ERRORS = 5;
 	protected static final String TOTAL_LABEL = "total_info";
 	
 	protected URL endpoint;
@@ -51,6 +52,7 @@ public abstract class AbstractConfigTest {
 		listener.setBufferCapacity(30000);
 		listener.setMicrometerExpiryTimeInSeconds("3600");
 		listener.setLogFreq(LOG_FREQUENCY);
+		listener.setTopErrors(TOP_ERRORS);
 		listener.setTotalLabel(TOTAL_LABEL);
 		this.testStarted(HOST);
 	}

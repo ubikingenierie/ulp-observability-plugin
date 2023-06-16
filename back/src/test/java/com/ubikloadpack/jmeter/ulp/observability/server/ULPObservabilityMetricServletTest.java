@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.jmeter.samplers.SampleEvent;
 import org.apache.jmeter.samplers.SampleResult;
 import org.eclipse.jetty.http.HttpStatus;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
@@ -15,7 +16,8 @@ import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 	
 	@Test
-	public void testDoGet() throws Exception {	
+	@DisplayName("When GET request expect OK")
+	public void whenGetRequestExpectOk() throws Exception {	
 		HttpResponse httpResponse = this.sendGetRequest(METRICS_ROUTE);
 		
 		assertHttpContentTypeAndResponseStatus(httpResponse, HttpStatus.OK_200, "text/plain; version=0.0.4; charset=utf-8");
@@ -23,6 +25,7 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 	}
 	
 	@Test
+	@DisplayName("When one sample event received expect metrics generated and validated")
 	public void whenOneSampleEventReceivedExpectMetricsGeneratedAndValidated() throws Exception {	
 		int groupThreads = 5, allThreads = 10;
 		SampleEvent sampleEvent = this.createSampleEvent("sampleTest", "groupe1", true, groupThreads, allThreads, 1000L);
@@ -70,6 +73,7 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 	 * So this test guarantee that despite the value of the totalLabel we should always receive the logs.
 	 */
 	@Test
+	@DisplayName("When totalLabel could contains spaces expect metrics generated and logged")
 	public void whenTotalLabelCouldContainsSpacesExpectMetricsGeneratedAndLogged() throws Exception { 
 		// *** setUp to change the total label set on the Listener ***
 		this.listener.testEnded(HOST);

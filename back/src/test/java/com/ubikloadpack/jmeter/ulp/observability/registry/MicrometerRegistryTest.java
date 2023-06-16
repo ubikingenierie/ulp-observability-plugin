@@ -10,6 +10,7 @@ import java.util.Date;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
@@ -27,7 +28,7 @@ public class MicrometerRegistryTest {
 	
 	@BeforeEach
 	public void setUp() {
-		this.micrometerRegistry = new MicrometerRegistry(TOTAL_lABEL, 50, 90, 95, LOG_FREQUENCY, new SampleLogger(TOTAL_lABEL), 3000);
+		this.micrometerRegistry = new MicrometerRegistry(TOTAL_lABEL, 50, 90, 95, LOG_FREQUENCY, 0, new SampleLogger(TOTAL_lABEL), 3000);
 	}
 	
 	@AfterEach
@@ -40,14 +41,15 @@ public class MicrometerRegistryTest {
 	 * Test the value of the metrics when a single request of a sample is created. 
 	 * Note: this test only considers one logging period.
 	 */
-	@Test 
+	@Test
+	@DisplayName("When only one sample recorded expect computed metrics")
 	public void whenOnlyOneSampleRecordedExpectComputedMetrics() {
 		// ### SetUp ###
 		int groupThreads = 1;
 		long startTime = 0; // millisecond
 		long endTime = 1000; // millisecond
 		long responseTime = endTime - startTime; 
-		ResponseResult responseResult = new ResponseResult("groupe1", responseTime, false, groupThreads, 1, "sample", startTime, endTime);
+		ResponseResult responseResult = new ResponseResult("groupe1", responseTime, false, "", groupThreads, 1, "sample", startTime, endTime);
 		
 		micrometerRegistry.addResponse(responseResult);
 		Date creationDate = new Date();
@@ -76,6 +78,7 @@ public class MicrometerRegistryTest {
 	 * the totalLabel aggregate the results for the two samples. 
 	 */
 	@Test
+	@DisplayName("When two samples from different samplers are recorded expect computed metrics")
 	public void whenTwoSamplesFromDifferentSamplersAreRecordedExpectComputedMetrics() {
 		int groupThreads = 10;
 		
@@ -129,11 +132,12 @@ public class MicrometerRegistryTest {
 	 * we make only one sampleLog for each period.
 	 */
 	@Test
+	@DisplayName("When two requests of single sample on two log periods expect metrics verification")
 	public void whenTwoRequestsOfSingleSampleOnTwoLogPeriodsExpectMetricsVerification() {
 		int groupThreads = 1;
 		 
 		// *** First sample for the first log period ***
-		ResponseResult responseResult1 = new ResponseResult("groupe1", 500L, false, groupThreads, groupThreads, "sample", 0L, 500L);
+		ResponseResult responseResult1 = new ResponseResult("groupe1", 500L, false, "", groupThreads, groupThreads, "sample", 0L, 500L);
 		micrometerRegistry.addResponse(responseResult1);
 		SampleLog sampleLog1 = micrometerRegistry.makeLog("spl_sample", getFixedDateIncreasedBySeconds(1));
 		
@@ -149,7 +153,7 @@ public class MicrometerRegistryTest {
 		// *** Second sample for the second log period ***
 		long startTime2 = LOG_FREQUENCY * 1000; 	// The second sample starts after the first log period (ex: after 10 seconds = 10000 ms) 
 		// totalThread is increased by 1, because we will add a new sample
-		ResponseResult responseResult2 = new ResponseResult("groupe1", 200L, false, groupThreads, groupThreads+1, "sample", startTime2, startTime2+200); 
+		ResponseResult responseResult2 = new ResponseResult("groupe1", 200L, false, "", groupThreads, groupThreads+1, "sample", startTime2, startTime2+200); 
 		micrometerRegistry.addResponse(responseResult2);
 		SampleLog sampleLog2 = micrometerRegistry.makeLog("spl_sample", getFixedDateIncreasedBySeconds(2));
 		SampleLog totalLabelLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(2));
@@ -254,12 +258,12 @@ public class MicrometerRegistryTest {
 			startTime = i;
 			endTime = startTime + 500 * (i + 1); // endTime is increased by 500 milliseconds
 			responseTime = endTime - startTime;
-			ResponseResult responseResult1 = new ResponseResult("groupe1", responseTime, false, groupThreads, groupThreads, "sample1", startTime, endTime);
+			ResponseResult responseResult1 = new ResponseResult("groupe1", responseTime, false, "", groupThreads, groupThreads, "sample1", startTime, endTime);
 			micrometerRegistry.addResponse(responseResult1);
 			
 			endTime = startTime + 250 * (i + 1); // we compute an other end time for the second sample
 			responseTime = endTime - startTime;
-			ResponseResult responseResult2 = new ResponseResult("groupe1", responseTime, false, groupThreads, groupThreads, "sample2", startTime, endTime);	
+			ResponseResult responseResult2 = new ResponseResult("groupe1", responseTime, false, "", groupThreads, groupThreads, "sample2", startTime, endTime);	
 			micrometerRegistry.addResponse(responseResult2);
 		}
 	}

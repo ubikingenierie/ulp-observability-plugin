@@ -8,6 +8,7 @@ import java.util.Date;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
@@ -25,7 +26,7 @@ public class SampleLoggerTest {
 	@BeforeEach
 	public void setUp() {
 		this.sampleLogger = new SampleLogger(TOTAL_lABEL);
-		this.micrometerRegistry = new MicrometerRegistry(TOTAL_lABEL, 50, 90, 95, LOG_FREQUENCY, sampleLogger, 3000);
+		this.micrometerRegistry = new MicrometerRegistry(TOTAL_lABEL, 50, 90, 95, LOG_FREQUENCY, 0, sampleLogger, 3000);
 	}
 	
 	@AfterEach
@@ -35,6 +36,7 @@ public class SampleLoggerTest {
 	}
 	
 	@Test
+	@DisplayName("when a sample log is created expect its open metrics format")
 	public void whenASampleLogIsCreatedExpectItsOpenMetricsFormat() throws Exception {
 		this.addResponseResult("sample", 1000L);
 		SampleLog sampleLog = this.createAndRecordSampleLog("spl_sample", new Date());
@@ -47,6 +49,7 @@ public class SampleLoggerTest {
 	}
 	
 	@Test
+	@DisplayName("When sample name is not correct expect null")
 	public void whenSampleNameIsNotCorrectExpectNull() {
 		this.addResponseResult("sample", 1000L);	
 		// we try to make a log of the sample when the given name is not correct. 
@@ -60,7 +63,7 @@ public class SampleLoggerTest {
 	}
 	
 	private void addResponseResult(String samplerLabel, long duration) {
-	    ResponseResult responseResult = new ResponseResult("groupe1", duration, false, 1, 1, samplerLabel, 0L, duration);
+	    ResponseResult responseResult = new ResponseResult("groupe1", duration, false, "", 1, 1, samplerLabel, 0L, duration);
 	    micrometerRegistry.addResponse(responseResult);
 	}
 
