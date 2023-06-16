@@ -43,9 +43,9 @@ public class SampleLoggerTest {
 		SampleLog totalLabelLog = this.createAndRecordSampleLog(Util.makeMicrometerName(TOTAL_lABEL), new Date());
 		
 		String openMetrics = this.sampleLogger.openMetrics(null, false);
-		assertFalse(openMetrics.isEmpty());
-		assertTrue(openMetrics.contains(Helper.getExpectedOpenMetrics(sampleLog))); // assert that the metrics of the sample are included in the generated openMetrics 
-		assertTrue(openMetrics.contains(Helper.getExpectedOpenMetrics(totalLabelLog))); // assert that the metrics of the totalLabel are included in the generated openMetrics 
+		assertFalse(openMetrics.isEmpty(), "If the returned openMetrics is empty so no SampleLog was added to the SampleLogger.");
+		assertTrue(openMetrics.contains(Helper.getExpectedOpenMetrics(sampleLog)), "The expected openMEtrics format doesn't match the returned openMetrics."); // assert that the metrics of the sample are included in the generated openMetrics 
+		assertTrue(openMetrics.contains(Helper.getExpectedOpenMetrics(totalLabelLog)), "The expected openMEtrics format doesn't match the returned openMetrics."); // assert that the metrics of the totalLabel are included in the generated openMetrics 
 	}
 	
 	@Test
@@ -55,11 +55,11 @@ public class SampleLoggerTest {
 		// we try to make a log of the sample when the given name is not correct. 
 		// Remember the label of a sample should be prefixed by "spl_"
 		SampleLog sampleLog = micrometerRegistry.makeLog("sample", new Date());
-		assertNull(sampleLog, "The given sample's name was 'sample' and wasn't prefixed with 'spl_', so returns null.");
+		assertNull(sampleLog, "The given sample's name was 'sample' and wasn't prefixed with 'spl_', so should be null.");
 		
 		// when the total label is not formatted as Micrometer name
 		SampleLog totalLabel = micrometerRegistry.makeLog(TOTAL_lABEL, new Date());
-		assertNull(totalLabel, "The given sample's name was 'total_label' and wasn't formatted as micrometer format, so makeLog() returns null.");
+		assertNull(totalLabel, "The given sample's name was 'total_label' and wasn't formatted as micrometer format, so should be null.");
 	}
 	
 	private void addResponseResult(String samplerLabel, long duration) {

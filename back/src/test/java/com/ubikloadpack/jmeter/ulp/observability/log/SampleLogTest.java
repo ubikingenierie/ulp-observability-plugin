@@ -16,7 +16,7 @@ import io.micrometer.core.instrument.distribution.ValueAtPercentile;
 public class SampleLogTest {
 	
 	@Test
-	@DisplayName("When sample log is converted to open metrics format expect valid output")
+	@DisplayName("When converting the sample log to OpenMetrics format, expect the output to match the OpenMetrics format")
 	public void whenSampleLogIsConvertedToOpenMetricsFormatExpectValidOutput() throws Exception {
         ValueAtPercentile[] pct = new ValueAtPercentile[] { new ValueAtPercentile(0.5, 200), new ValueAtPercentile(0.9, 500), new ValueAtPercentile(0.95, 600) };
         ValueAtPercentile[] pctTotal = new ValueAtPercentile[] { new ValueAtPercentile(0.5, 100), new ValueAtPercentile(0.9, 300), new ValueAtPercentile(0.95, 400) };
@@ -25,8 +25,8 @@ public class SampleLogTest {
 
         String actualOpenMetrics = sampleLog.toOpenMetricsString();
         
-        assertFalse(actualOpenMetrics.isEmpty());
-        assertEquals(Helper.getExpectedOpenMetrics(sampleLog), actualOpenMetrics);
+        assertFalse(actualOpenMetrics.isEmpty(), "The returned openMetrics shouldn't be empty in any way.");
+        assertEquals(Helper.getExpectedOpenMetrics(sampleLog), actualOpenMetrics, "The returned OpenMetrics does not match the expected format");
 	}
 
 }

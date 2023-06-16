@@ -42,7 +42,7 @@ public class MicrometerRegistryTest {
 	 * Note: this test only considers one logging period.
 	 */
 	@Test
-	@DisplayName("When only one sample recorded expect computed metrics")
+	@DisplayName("When only one sample is created expect its computed metrics.")
 	public void whenOnlyOneSampleRecordedExpectComputedMetrics() {
 		// ### SetUp ###
 		int groupThreads = 1;
@@ -78,7 +78,7 @@ public class MicrometerRegistryTest {
 	 * the totalLabel aggregate the results for the two samples. 
 	 */
 	@Test
-	@DisplayName("When two samples from different samplers are recorded expect computed metrics")
+	@DisplayName("When two samples from different samplers are created expect their metrics and those of totalLabel.")
 	public void whenTwoSamplesFromDifferentSamplersAreRecordedExpectComputedMetrics() {
 		int groupThreads = 10;
 		
@@ -132,7 +132,7 @@ public class MicrometerRegistryTest {
 	 * we make only one sampleLog for each period.
 	 */
 	@Test
-	@DisplayName("When two requests of single sample on two log periods expect metrics verification")
+	@DisplayName("When two requests of a single sample are created on two log periods, expect totalLabel's metrics are agregated")
 	public void whenTwoRequestsOfSingleSampleOnTwoLogPeriodsExpectMetricsVerification() {
 		int groupThreads = 1;
 		 
@@ -186,17 +186,12 @@ public class MicrometerRegistryTest {
 	 */
 	private void assertPeriodMetricsForSample(SampleLog sampleLog, Date expectedCreationDate, long expectedSamplerCount, long expectedSum, double expectedAvg, long expectedMax,
 			 					int expectedErrors, double expectedThroughput, int expectedGroupThreads) {
-		assertNotNull(sampleLog);
+		assertNotNull(sampleLog, "If null so the name of the sample passed to the MicrometerRegistry#makeLog() is incorrect");
 		assertEquals(expectedCreationDate, sampleLog.getTimeStamp());
 		assertEquals(expectedSamplerCount, sampleLog.getSamplerCount()); 
 		assertEquals(expectedErrors, sampleLog.getError()); 
 		
-		assertTrue(sampleLog.getPct().length == 3);
-	 	for (int i = 0; i < sampleLog.getPct().length - 1; i++) {
-	 		long currentPct = (long) sampleLog.getPct()[i].value();
-	 		long nextPct = (long) sampleLog.getPct()[i+1].value();
-	 		assertTrue(currentPct <= nextPct); 
-		}
+		assertValueAtPercentile(sampleLog.getPct());
 		
 		assertEquals(expectedSum, sampleLog.getSum());
 		assertEquals(expectedAvg, sampleLog.getAvg()); 
@@ -221,16 +216,11 @@ public class MicrometerRegistryTest {
 	 */
 	private void assertEveryPeriodsMetricsForSample(SampleLog sampleLog, Date expectedCreationDate, long expectedSamplerCount, double expectedAvg, long expectedMax,
 				int expectedErrors, double expectedThroughput, int expectedGroupThreads) {
-		assertNotNull(sampleLog);
+		assertNotNull(sampleLog, "If null so the name of the sample passed to the MicrometerRegistry#makeLog() is incorrect");
 		assertEquals(expectedSamplerCount, sampleLog.getSamplerCountTotal()); 
 		assertEquals(expectedErrors, sampleLog.getErrorTotal()); 
 		
-		assertTrue(sampleLog.getPctTotal().length == 3);
-		for (int i = 0; i < sampleLog.getPct().length - 1; i++) {
-	 		long currentPct = (long) sampleLog.getPct()[i].value();
-	 		long nextPct = (long) sampleLog.getPct()[i+1].value();
-	 		assertTrue(currentPct <= nextPct);
-		}
+		assertValueAtPercentile(sampleLog.getPctTotal());
 		
 		assertEquals(expectedAvg, sampleLog.getAvgTotal()); 
 		assertEquals(expectedMax, sampleLog.getMaxTotal());
@@ -238,10 +228,22 @@ public class MicrometerRegistryTest {
 		assertEquals(expectedGroupThreads, sampleLog.getThreadsTotal()); 
 	}
 	
+
+	private void assertValueAtPercentile(ValueAtPercentile[] pcts) {
+	    assertTrue(pcts.length == 3, "Actually the number of percentiles should be always three, this is fixed during MicrometerRegistry's instantiation.");
+	    for (int i = 0; i < pcts.length - 1; i++) {
+	        ValueAtPercentile currentPct = pcts[i];
+	        ValueAtPercentile nextPct = pcts[i + 1];
+	
+	        String failureMsg = String.format("The value of the %sth percentile is not lower than the %sth percentile value.", currentPct.percentile() * 100, nextPct.percentile() * 100);
+	        assertTrue((long) currentPct.value() <= (long) nextPct.value(), failureMsg);
+	    }
+	}
+	
 	private void assertPercentilesForSampleLog(ValueAtPercentile[] percentiles, double pct50Min, double pct50Max, double pct90Min, double pct95Min) {
-	    assertTrue(percentiles[0].value() >= pct50Min && percentiles[0].value() <= pct50Max);
-	    assertTrue(percentiles[1].value() >= pct90Min && percentiles[1].value() <= pct95Min);
-	    assertTrue(percentiles[2].value() >= pct95Min);
+	    assertTrue(percentiles[0].value() >= pct50Min && percentiles[0].value() <= pct50Max, "The actual 5Oth percentile isn't in the range ["+pct50Min+", "+pct50Max+"]");
+	    assertTrue(percentiles[1].value() >= pct90Min && percentiles[1].value() <= pct95Min, "The actual 9Oth percentile isn't in the range ["+pct90Min+", "+pct95Min+"]");
+	    assertTrue(percentiles[2].value() >= pct95Min, "The actual 95th percentile should be at least greater than " + pct95Min);
 	}
 	
 	private double millisToSeconds(long time) {
