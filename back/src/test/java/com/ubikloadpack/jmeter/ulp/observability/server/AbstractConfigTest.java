@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -117,13 +118,7 @@ public abstract class AbstractConfigTest {
 			paramsStr.append("?");
 			String params = paramsMap.entrySet()
 									 .stream()
-									 .map(e -> {
-									    try {
-										   return URLEncoder.encode(e.getKey(), "UTF-8") + "=" + URLEncoder.encode(e.getValue(), "UTF-8");
-										} catch (UnsupportedEncodingException e1) {
-											throw new RuntimeException(e1); // the exception is ignored because the UTF-8 is a supported character encoding.
-										}
-								      })
+									 .map(e -> URLEncoder.encode(e.getKey(), StandardCharsets.UTF_8) + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
 									 .collect(Collectors.joining("&"));
 			paramsStr.append(params);
 		}
