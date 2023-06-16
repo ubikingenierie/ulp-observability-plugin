@@ -231,6 +231,37 @@ public class SampleLog {
 		return this.threads;
 	}
 	
+	
+	public Long getMaxTotal() {
+		return maxTotal;
+	}
+
+
+	public Double getAvgTotal() {
+		return avgTotal;
+	}
+
+
+	public Long getErrorTotal() {
+		return errorTotal;
+	}
+
+
+	public Double getThroughputTotal() {
+		return throughputTotal;
+	}
+
+
+	public ValueAtPercentile[] getPctTotal() {
+		return pctTotal;
+	}
+
+
+	public Long getThreadsTotal() {
+		return threadsTotal;
+	}
+
+
 	/**
 	 * Generate sample record metrics in OpenMetrics format
 	 * 
@@ -300,7 +331,7 @@ public class SampleLog {
 	}	
 	
 	/**
-	 * Create line for record debug log (see {@link ubikloadpack.jmeter.ulp.observability.log.SampleLogger})
+	 * Create line for record debug log (see {@link SampleLoggerTest.jmeter.ulp.observability.log.SampleLogger})
 	 * @param totalLabel Total metrics label
 	 * @return Record in debug log format
 	 */

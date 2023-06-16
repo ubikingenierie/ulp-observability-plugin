@@ -239,11 +239,15 @@ public class MicrometerRegistry {
 		
 		Double averageTotalResponseTime = summaryRegistry.counter("accumulate.response", "sample", name).count() /
 				summaryRegistry.counter("count.total", "sample", name).count();
-		double timeSinceFirstSampleCallInSeconds = (startAndEndDatesOfSamplers.get(name).getRight() - startAndEndDatesOfSamplers.get(name).getLeft()) / 1000d; 
-		Double totalThroughput = this.summaryRegistry.counter("count.total","sample",name).count() / (timeSinceFirstSampleCallInSeconds);
 		
 		// the top errors should be reported only with the total_label metrics. The top errors are not related to a specific sample.
 		Optional<ErrorsMap> topErrors = name.equals(this.totalLabel) ? Optional.of(this.errorsMap.collectTopXErrors(this.numberTopErrors)) : Optional.empty();
+		Pair<Long, Long> startAndEndDateOfSampler = startAndEndDatesOfSamplers.get(name);
+		Double totalThroughput = 0D;
+		if (startAndEndDateOfSampler != null) {
+			double timeSinceFirstSampleCallInSeconds =  (startAndEndDateOfSampler.getRight() - startAndEndDateOfSampler.getLeft()) / 1000d; 
+			totalThroughput = this.summaryRegistry.counter("count.total","sample",name).count() / (timeSinceFirstSampleCallInSeconds);
+		}		
 		return currentPeriodSummary == null ? null : new SampleLog(
 				Util.makeOpenMetricsName(name),
 				timestamp,
@@ -325,4 +329,8 @@ public class MicrometerRegistry {
 	}
 	
 
+	void clearIntervalRegistry() {
+		this.intervalRegistry.clear();
+	}
+	
 }
