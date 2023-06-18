@@ -9,12 +9,6 @@ import org.junit.jupiter.api.Test;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 public class ULPObservabilityConfigServletTest extends AbstractConfigTest {
-	@Test
-	@DisplayName("When a GET request is sent, expect ok and json as content type")
-	public void whenGetRequestExpectOkAndJsonContentType() throws Exception {	
-		HttpResponse httpResponse = this.sendGetRequest("/config");
-		assertHttpContentTypeAndResponseStatus(httpResponse, HttpStatus.OK_200, "application/json");
-	}
 	
 	@Test
 	@DisplayName("When sending GET request, expect the json format and the values of the received configuration")

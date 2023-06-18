@@ -134,8 +134,8 @@ public abstract class AbstractConfigTest {
 	}
 	
 	protected void assertHttpContentTypeAndResponseStatus(HttpResponse httpResponse, int expectedStatus, String expectedContentType) {
-        assertEquals(httpResponse.getResponseCode(), expectedStatus);
-        assertEquals(httpResponse.getContentType(), expectedContentType);
+        assertEquals(expectedStatus, httpResponse.getResponseCode());
+        assertEquals(expectedContentType, httpResponse.getContentType());
 	}
 	
 	protected class HttpResponse {
