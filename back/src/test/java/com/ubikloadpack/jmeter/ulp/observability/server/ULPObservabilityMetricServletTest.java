@@ -76,9 +76,9 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 	@DisplayName("When totalLabel could contains spaces expect metrics generated and logged")
 	public void whenTotalLabelCouldContainsSpacesExpectMetricsGeneratedAndLogged() throws Exception { 
 		// *** setUp to change the total label set on the Listener ***
-		this.listener.testEnded(HOST);
+		this.listener.testEnded(HOST); // should stop the listener started by @BeforeEach before setting the totalLabel property
 		this.listener.setTotalLabel("total label"); // label contains spaces: 
-		this.testStarted(HOST);
+		this.testStarted(HOST); // restart the listener 
 		
 		// *** create and send a first sampleEvent ***
 		SampleEvent sampleEvent1 = this.createSampleEvent("sampleTest", "groupe1", true, 1, 1, 500);

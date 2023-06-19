@@ -25,9 +25,9 @@ public class ULPObservabilityConfigServletTest extends AbstractConfigTest {
 	@Test
 	@DisplayName("when totalLabel contains spaces expect formatted totalLabel in openMetrics format")
 	public void whenTotalLabelContainsSpacesExpectFormattedTotalLabelInOpenMetricsFormat() throws Exception {		
-		this.listener.testEnded(HOST);
+		this.listener.testEnded(HOST); // should stop the listener started by @BeforeEach before setting the totalLabel property
 		this.listener.setTotalLabel("total label");
-		this.testStarted(HOST);
+		this.testStarted(HOST); // restart the listener 
 		
 		HttpResponse httpResponse = this.sendGetRequest("/config");
 		assertHttpContentTypeAndResponseStatus(httpResponse, HttpStatus.OK_200, "application/json");
