@@ -43,7 +43,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
 
   listSamplers !: Array<string>
   visibleSamplers !: Array<string>
-  control = new FormControl('');
+  control = new FormControl<string>('');
   filteredCharts!: Observable<string[]>;
   
   constructor(private metricService: MetricsService, private translate: TranslateService) { }
