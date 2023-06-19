@@ -91,6 +91,10 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	 */
 	private static final String LOG_FREQUENCY_LABEL = "logFrequency";
 	/*
+	 * The bundle resource key name of the "top errors" label
+	 */
+	private static final String TOP_ERRORS_LABEL = "topErrorsLabel";
+	/*
 	 * The bundle resource key name of the "total metric label" label
 	 */
 	private static final String TOTAL_METRIC_LABEL = "totalMetricLabel";
@@ -162,6 +166,10 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 	 * Keep server running after test
 	 */
 	private final JCheckBox keepJettyServerUpAfterTestEnd = new JCheckBox(MessageUtils.getMessage(KEEP_SERVER_UP_LABEL));
+	/**
+	 * Top X errors 
+	 */
+	private final JTextField topErrors = new JTextField();
 	
     /**
      * Creates new ULP Observability GUI
@@ -203,6 +211,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
     	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(QUEUR_CAPACITY_LABEL)), this.bufferCapacity));
     	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(TEST_DURATION_LABEL)), this.micrometerExpiryTime));
     	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(LOG_FREQUENCY_LABEL)), this.logFrequency));
+    	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(TOP_ERRORS_LABEL)), this.topErrors));
     	labelsAndFields.add(Pair.of(new JLabel(MessageUtils.getMessage(TOTAL_METRIC_LABEL)), this.totalLabel));	
     	
     	for(Pair<JLabel, JTextField> labelAndField : labelsAndFields) {
@@ -331,6 +340,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			observabilityListener.setPct3(validatePercentile(pct3.getText(), observabilityListener.getPct3(),"percentile 3"));
 			observabilityListener.setMicrometerExpiryTimeInSeconds(micrometerExpiryTime.getText());
 			observabilityListener.setLogFreq(validatePositiveNumeric(logFrequency.getText(), observabilityListener.getLogFreq(),"log frequency"));
+			observabilityListener.setTopErrors(validatePositiveNumeric(topErrors.getText(), observabilityListener.getTopErrors(),"number of top errors"));
 		}
 	}
     
@@ -355,6 +365,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 			this.pct3.setText(Integer.toString(ulpObservabilityListener.getPct3()));
 			this.micrometerExpiryTime.setText(ulpObservabilityListener.getMicrometerExpiryTimeInSeconds());
 			this.logFrequency.setText(Integer.toString(ulpObservabilityListener.getLogFreq()));
+			this.topErrors.setText(Integer.toString(ulpObservabilityListener.getTopErrors()));
 			this.totalLabel.setText(ulpObservabilityListener.getTotalLabel());
 			this.regex.setText(ulpObservabilityListener.getRegex());
 		}
@@ -376,6 +387,7 @@ public class ULPObservabilityGui extends AbstractListenerGui{
 		this.pct3.setText(Integer.toString(ULPODefaultConfig.pct3()));
 		this.micrometerExpiryTime.setText(Integer.toString(ULPODefaultConfig.micrometerExpiryTimeInSeconds()));
 		this.logFrequency.setText(Integer.toString(ULPODefaultConfig.logFrequency()));
+		this.topErrors.setText(Integer.toString(ULPODefaultConfig.topErrors()));
 		this.totalLabel.setText(ULPODefaultConfig.totalLabel());
 		this.regex.setText(ULPODefaultConfig.regex());	
 	} 

@@ -4,6 +4,14 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.ubikloadpack.jmeter.ulp.observability.util.ErrorsMap;
 
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
 
@@ -93,6 +101,11 @@ public class SampleLog {
 	private final Long errorTotal;
 	
 	/**
+	 * A map containing the top errors that occurred in the samples.
+	 */
+	private final Optional<ErrorsMap> topErrors;
+	
+	/**
 	 * Response throughput per seconds for every periods
 	 */
 	private final Double throughputTotal;
@@ -124,6 +137,7 @@ public class SampleLog {
 	 * @param maxTotal Max response time for every periods 
 	 * @param avgTotal Average response time for every periods 
 	 * @param errorTotal The total count of errors during every periods 
+	 * @param topErrors The top errors grouped by types
 	 * @param throughputTotal Response throughput per seconds for every periods 
 	 * @param pctTotal Response time percentiles for every periods
 	 * @param threadsTotal Virtual users count for every periods
@@ -143,6 +157,7 @@ public class SampleLog {
 		Long maxTotal,
 		Double avgTotal,
 		Long errorTotal,
+		Optional<ErrorsMap> topErrors, 
 		Double throughputTotal,
 		ValueAtPercentile[] pctTotal,
 		Long threadsTotal
@@ -161,6 +176,7 @@ public class SampleLog {
 		this.maxTotal = maxTotal;
 		this.avgTotal = avgTotal;
 		this.errorTotal = errorTotal;
+		this.topErrors = topErrors;
 		this.throughputTotal = throughputTotal;
 		this.pctTotal = pctTotal;
 		this.threadsTotal = threadsTotal;
@@ -215,6 +231,37 @@ public class SampleLog {
 		return this.threads;
 	}
 	
+	
+	public Long getMaxTotal() {
+		return maxTotal;
+	}
+
+
+	public Double getAvgTotal() {
+		return avgTotal;
+	}
+
+
+	public Long getErrorTotal() {
+		return errorTotal;
+	}
+
+
+	public Double getThroughputTotal() {
+		return throughputTotal;
+	}
+
+
+	public ValueAtPercentile[] getPctTotal() {
+		return pctTotal;
+	}
+
+
+	public Long getThreadsTotal() {
+		return threadsTotal;
+	}
+
+
 	/**
 	 * Generate sample record metrics in OpenMetrics format
 	 * 
@@ -253,7 +300,8 @@ public class SampleLog {
 		.append(this.sampleName+"_total{count=\"sampler_count\"} "+ this.samplerCount + " " + this.timeStamp.getTime() +"\n")	
 		.append(this.sampleName+"_total{count=\"error\"} "+ this.error + " " + this.timeStamp.getTime() +"\n")
 		.append(this.sampleName+"_total{count=\"error_every_periods\"} "+ this.errorTotal + " " + this.timeStamp.getTime() +"\n");
-		
+		this.topErrors.ifPresent(e -> str.append(e.toOpenMetric(this.sampleName, this.samplerCountTotal, this.errorTotal, this.timeStamp.getTime())));
+
 		// Throughput
 		addOpenMetricTypeHelpToStr(str, this.sampleName + "_throughput", "gauge", "Responses per second");
 		str.append(this.sampleName+"_throughput "+ roundValueTo2DigitsAfterDecimalPoint(this.throughput)
@@ -283,7 +331,7 @@ public class SampleLog {
 	}	
 	
 	/**
-	 * Create line for record debug log (see {@link ubikloadpack.jmeter.ulp.observability.log.SampleLogger})
+	 * Create line for record debug log (see {@link SampleLoggerTest.jmeter.ulp.observability.log.SampleLogger})
 	 * @param totalLabel Total metrics label
 	 * @return Record in debug log format
 	 */
@@ -353,6 +401,7 @@ public class SampleLog {
 	}
 	
 	@Override
+
 	public String toString() {
 		StringBuilder s = new StringBuilder();
 		s.append("SampleLog [sampleName=" + this.sampleName 
@@ -384,6 +433,10 @@ public class SampleLog {
 	    bd = bd.setScale(2, RoundingMode.HALF_UP);
 	    return bd.doubleValue();
 	}
-	
+
+	public Optional<ErrorsMap> getTopErrors() {
+		return topErrors;
+	}
+
 	
 }

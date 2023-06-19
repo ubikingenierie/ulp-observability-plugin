@@ -70,6 +70,7 @@ public class ULPObservabilityServer {
     		String metricsRoute,
     		String webAppRoute,
     		Integer logFreq,
+    		Integer topErrors,
     		String totalLabel,
     		SampleLogger logger
     		) throws Exception {
@@ -82,6 +83,7 @@ public class ULPObservabilityServer {
     			metricsRoute,
     			webAppRoute,
     			logFreq,
+    			topErrors,
     			totalLabel,
     			logger
     			);
@@ -102,6 +104,7 @@ public class ULPObservabilityServer {
     		String metricsRoute,
     		String webAppRoute,
     		Integer logFreq,
+    		Integer topErrors,
     		String totalLabel,
     		SampleLogger logger
     		) throws Exception{
@@ -126,6 +129,7 @@ public class ULPObservabilityServer {
         				new ULPObservabilityConfigServlet(
         						metricsRoute,
         						logFreq,
+        						topErrors,
         						totalLabel
         						)
         				), "/");

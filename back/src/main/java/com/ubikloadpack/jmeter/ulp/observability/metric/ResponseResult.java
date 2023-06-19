@@ -22,6 +22,10 @@ public class ResponseResult {
 	 */
 	private final boolean hasError;
 	/**
+	 * The error code
+	 */
+	private final String errorCode;
+	/**
 	 * Group thread count
 	 */
 	private final Integer groupThreads;
@@ -53,17 +57,19 @@ public class ResponseResult {
      * @param threadGroupLabel Name of thread group the sample belongs to
      * @param responseTime Occurred sample's response time 
      * @param hasError True if sample response is KO
+     * @param errorCode The error code when the sample has error
      * @param groupThreads Group thread count
      * @param allThreads Total thread count
      * @param samplerLabel Name of the sampler the sample belongs to
      * @param startTime Start time of the sample
      * @param endTime End time of the sample
      */
-	public ResponseResult(String threadGroupLabel, Long responseTime, boolean hasError, Integer groupThreads,
+	public ResponseResult(String threadGroupLabel, Long responseTime, boolean hasError, String errorCode, Integer groupThreads,
 			Integer allThreads, String samplerLabel, Long startTime, Long endTime) {
 		this.threadGroupLabel = threadGroupLabel;
 		this.responseTime = responseTime;
 		this.hasError = hasError;
+		this.errorCode = errorCode;
 		this.groupThreads = groupThreads;
 		this.allThreads = allThreads;
 		this.samplerLabel = samplerLabel;
@@ -103,6 +109,10 @@ public class ResponseResult {
 	
 	public Long getEndTime() {
 		return this.endTime;
+	}
+
+	public String getErrorCode() {
+		return errorCode;
 	}
 
 }

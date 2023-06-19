@@ -10,6 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
+import com.ubikloadpack.jmeter.ulp.observability.util.Util;
+
 /**
  * Represents the storage of periodic sample logs (see {@link ubikloadpack.jmeter.ulp.observability.log.SampleLog} ) 
  *
@@ -44,6 +46,7 @@ public class SampleLogger {
 				new ConcurrentLinkedQueue<>();
 		this.sampleNames =
 				ConcurrentHashMap.newKeySet();
+		//this.totalLabel = Util.makeOpenMetricsName(Util.makeMicrometerName(totalLabel));
 		this.totalLabel = totalLabel;
 	}
 	
@@ -162,7 +165,9 @@ public class SampleLogger {
 				total = sampleLog;
 			}
 		};
-		str.append(total.toLog());
+		if (total != null) {
+			str.append(total.toLog());
+		}
 		
 		return str.toString();
 	}

@@ -1,0 +1,19 @@
+table {
+    width: 100%;
+}
+
+.content{
+    margin-top: 80px;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.mat-header-cell {
+    flex-direction: column;
+    text-align: center;
+}
+
+.mat-row:hover {
+    background-color: #E8EAF6;
+}

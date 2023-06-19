@@ -32,6 +32,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
   private acceptedPostfixs = ['total', 'avg', 'avg_every_periods', 'max', 'max_every_periods', 'throughput', 'throughput_every_periods', 'threads', 'threads_every_periods', 'pct'];
   private updateFrequencyS = 60;  
   
+  numberTopErrors = 5;
   totalLabel = 'total_info';
   chartData : ChartData = {};
   datasets: Datasets = {};
@@ -64,6 +65,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
     this.metricService.getMetricsServerInfo().subscribe({
       next: (info) => {
         this.updateFrequencyS = info.logFrequency;
+        this.numberTopErrors = info.topErrors;
         this.totalLabel = info.totalLabel;
         this.metricService.setMetricsURL(info.metricsRoute);
         this.translate.setDefaultLang(info.localeLang);
@@ -147,11 +149,16 @@ export class UlpObservabilityDashboardComponent implements OnInit{
   }
 
   private clearData(){
+    // Create a new reference of dataset with the same keys. 
+    // This is needed because the ngOnChanges() doesn't recognize that 
+    // the ``datasets`` is changed through the child componenents. 
+    const nextDataset: Datasets = {} 
     Object.keys(this.datasets).forEach(key => {
-      this.datasets[key] = {};
+      nextDataset[key] = {}; 
     });
     this.threads = {};
     this.threadsEveryPeriods = {};
+    this.datasets = nextDataset;
   }
 
   private fillSamplerList(sampleName: string) : void{
@@ -213,8 +220,17 @@ export class UlpObservabilityDashboardComponent implements OnInit{
                     this.pushMetric('error', nameAndPostfix.name, new Date(timestamp), error);
                     break;
                   case('error_every_periods'):
-                    errorEveryPeriods = metric.value ?? 0;
-                    this.pushMetric('errorEveryPeriods', nameAndPostfix.name, new Date(timestamp), errorEveryPeriods);
+                    if (metric.labels['errorType']) { // If the errorType label is found, so we should have other labels like `errorRate` and `errorFreq`
+                      let errorOccurence = metric.value ?? 0;
+                      let errorRate = Math.round(Number.parseFloat(metric.labels['errorRate']) * 100);
+                      let errorFreq = Math.round(Number.parseFloat(metric.labels['errorFreq']) * 100);
+                      this.pushMetric('errorEveryPeriods_' + metric.labels['errorType'] + "_occurrence", nameAndPostfix.name, new Date(timestamp), errorOccurence);
+                      this.pushMetric('errorEveryPeriods_' + metric.labels['errorType'] + "_errorRate", nameAndPostfix.name, new Date(timestamp), errorRate);
+                      this.pushMetric('errorEveryPeriods_' + metric.labels['errorType'] + "_errorFreq", nameAndPostfix.name, new Date(timestamp), errorFreq);
+                    } else {
+                      errorEveryPeriods = metric.value ?? 0;
+                      this.pushMetric('errorEveryPeriods', nameAndPostfix.name, new Date(timestamp), errorEveryPeriods);
+                    }
                     break;
                   case('sampler_count'):
                     count = metric.value ?? 0;
