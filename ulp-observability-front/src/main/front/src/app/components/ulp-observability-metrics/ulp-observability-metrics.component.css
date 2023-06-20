@@ -19,3 +19,19 @@
     justify-content: center;
 }
 
+.flex-row {
+    display: flex; 
+    flex-direction: row;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.flex {
+    flex: 30%; /* ou toute autre valeur en fonction de votre mise en page souhaitée */
+}
+
+.gap-16 { 
+    gap: 16px; 
+}
