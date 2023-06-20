@@ -8,14 +8,14 @@ import { UlpObservabilityChartComponent } from './components/ulp-observability-c
 import { UlpObservabilityDashboardComponent } from './components/ulp-observability-dashboard/ulp-observability-dashboard.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { MatSelectModule } from '@angular/material/select';
+import { MatLegacySelectModule as MatSelectModule } from '@angular/material/legacy-select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card';
+import { MatLegacyTableModule as MatTableModule } from '@angular/material/legacy-table';
+import {MatLegacyAutocompleteModule as MatAutocompleteModule} from '@angular/material/legacy-autocomplete';
 import {ReactiveFormsModule} from '@angular/forms';
-import {MatInputModule} from '@angular/material/input'
+import {MatLegacyInputModule as MatInputModule} from '@angular/material/legacy-input'
 
 
 import { FlexLayoutModule } from '@angular/flex-layout';
