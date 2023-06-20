@@ -1,19 +1,19 @@
 <div class="page">
-    <mat-toolbar class="mat-elevation-z6" color="primary">
+    <mat-toolbar class="mat-elevation-z6 toolbar" color="primary">
         <mat-toolbar-row>
-            <mat-icon>timeline</mat-icon>UbikLoadPack Observability Dashboard
+            <mat-icon class="icon">timeline</mat-icon>UbikLoadPack Observability Dashboard
         </mat-toolbar-row>
     </mat-toolbar>
 
     <div  [ngSwitch]="status">
 
         <div class="info" *ngSwitchCase="0">
-            <mat-icon aria-hidden="false">{{'dashboard.settings' | translate}}</mat-icon>
+            <mat-icon class="icon" aria-hidden="false">{{'dashboard.settings' | translate}}</mat-icon>
             <span class="icon-align">{{'dashboard.config' | translate}}</span>
         </div>
 
         <div class="info" *ngSwitchCase="1">
-            <mat-icon aria-hidden="false">{{'dashboard.pending' | translate}}</mat-icon>
+            <mat-icon class="icon" aria-hidden="false">{{'dashboard.pending' | translate}}</mat-icon>
             <span class="icon-align">{{'dashboard.waiting' | translate}}</span>
         </div>
 
@@ -67,23 +67,23 @@
         </div>
 
         <div class="info" *ngSwitchCase="3">
-            <mat-icon aria-hidden="false"  >{{'dashboard.error' | translate}}</mat-icon>
+            <mat-icon class="icon" aria-hidden="false"  >{{'dashboard.error' | translate}}</mat-icon>
             <span class="icon-align"  >{{'dashboard.retryOnError' | translate}}</span>
         </div>
 
         <div class="info" *ngSwitchDefault>
-            <mat-icon aria-hidden="false"  >{{'dashboard.help' | translate}}</mat-icon>
+            <mat-icon class="icon" aria-hidden="false"  >{{'dashboard.help' | translate}}</mat-icon>
             <span class="icon-align"  >{{'dashboard.unknownError' | translate}}</span>
         </div>
 
     </div> 
 
 
-    <mat-card *ngIf="showErrorMessage">
+    <mat-card *ngIf="showErrorMessage" class="card-error">
         <mat-card-content>
-            <mat-icon aria-hidden="false"  >{{'dashboard.error' | translate}}</mat-icon>
+            <mat-icon aria-hidden="false" class="icon" >{{'dashboard.error' | translate}}</mat-icon>
             <span class="icon-align error-message"  >{{'dashboard.dataError' | translate}}</span>
-            <mat-icon class="close-icon" aria-hidden="false" (click)="closeError()"  >
+            <mat-icon class="icon close-icon" aria-hidden="false" (click)="closeError()"  >
                 {{'dashboard.close' | translate}}
             </mat-icon>
         </mat-card-content>    

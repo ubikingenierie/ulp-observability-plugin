@@ -3,18 +3,19 @@
     padding-top: 50px;
 }
 
-mat-card{
+.card-metric {
     color: white;
     background-color: #3f51b5;
 }
 
-mat-card-title {
+.card-metric-title {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-mat-card-title-group {
+.card-metric-group {
     display: flex;
     justify-content: center;
 }
+
