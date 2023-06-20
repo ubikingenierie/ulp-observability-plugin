@@ -38,7 +38,7 @@ export class UlpObservabilityDashboardComponent implements OnInit{
   datasets: Datasets = {};
   threads: DatasetGroup = {};
   threadsEveryPeriods: DatasetGroup = {};
-  status = MetricsStatus.INFO;
+  status: number = MetricsStatus.INFO;
   showErrorMessage = false;
 
   listSamplers !: Array<string>
