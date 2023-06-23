@@ -17,8 +17,6 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MatInputModule} from '@angular/material/input'
 
-
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { UlpObservabilityMetricsComponent } from './components/ulp-observability-metrics/ulp-observability-metrics.component';
 import { UlpObservabilityStatisticsComponent } from './components/ulp-observability-statistics/ulp-observability-statistics.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -57,7 +55,6 @@ export class MaterialModule {};
     NgChartsModule,
     BrowserAnimationsModule,
     MaterialModule,
-    FlexLayoutModule,
     TranslateModule.forRoot({
       defaultLanguage: 'en',
       useDefaultLang: true,
