@@ -415,14 +415,21 @@ public class ULPObservabilityListener extends AbstractTestElement
 			instanceCount--;
 			if (instanceCount == 0) {
 				LOG.info("No more test running, shutting down");
-				
+
 				if (!getSampleQueue().isEmpty()) {
 					LOG.info("The sample queue still not empty. {} samples remain to be consumed", getSampleQueue().size());
-					while(!getSampleQueue().isEmpty()) {
-						// do nothing. Should wait the MicrometerTask to consume the sampleQueue
+					int maxWaitTime = 1000; // in milliseconds
+					int elapsedWaitTime = 0;
+					long startTime = System.currentTimeMillis();
+					while(!getSampleQueue().isEmpty() && elapsedWaitTime < maxWaitTime) {
+							try {
+								Thread.sleep(10);
+					            elapsedWaitTime = (int) (System.currentTimeMillis() - startTime); // in milliseconds
+							} catch (InterruptedException e) {
+								LOG.error("Thread interrupted while sleeping because of: {}", e);
+							}	
 					}	
 				}
-				
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("The sample queue size is {}", getSampleQueue().size());
 				}
