@@ -288,7 +288,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 				}
 				
 			} catch (InterruptedException e) {
-				LOG.warn(sampleEvent.getResult().getThreadName() + ": Interrupting sample queue");
+				LOG.warn("Thread interrupted while adding sample `" + sampleEvent.getResult().getThreadName() + "` to the queue. Data associated with the sample are not recorded.");
 			}
 		}
 	}
@@ -415,7 +415,18 @@ public class ULPObservabilityListener extends AbstractTestElement
 			instanceCount--;
 			if (instanceCount == 0) {
 				LOG.info("No more test running, shutting down");
-
+				
+				if (!getSampleQueue().isEmpty()) {
+					LOG.info("The sample queue still not empty. {} 33 samples remain to be consumed", getSampleQueue().size());
+					while(!getSampleQueue().isEmpty()) {
+						// do nothing. Should wait the MicrometerTask to consume the sampleQueue
+					}	
+				}
+				
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("The sample queue size is {}", getSampleQueue().size());
+				}
+			
 				try {
 					if (listenerClientData.logCron.isThreadRunning()) {
 						// make last logs, then shutdown cron task
