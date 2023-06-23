@@ -48,6 +48,10 @@ import io.timeandspace.cronscheduler.CronScheduler;
 public class ULPObservabilityListener extends AbstractTestElement
 		implements SampleListener, TestStateListener, NoThreadClone, Serializable, Remoteable {
 
+	private static final int SLEEP_DURATION = 10; // in milliseconds
+
+	private static final long MAX_WAIT_TIME = 1000; // in millis
+
 	private static final long serialVersionUID = 8170705348132535834L;
 
 	/**
@@ -418,18 +422,21 @@ public class ULPObservabilityListener extends AbstractTestElement
 
 				if (!getSampleQueue().isEmpty()) {
 					LOG.info("The sample queue still not empty. {} samples remain to be consumed", getSampleQueue().size());
-					int maxWaitTime = 1000; // in milliseconds
-					int elapsedWaitTime = 0;
-					long startTime = System.currentTimeMillis();
-					while(!getSampleQueue().isEmpty() && elapsedWaitTime < maxWaitTime) {
+					long elapsedWaitTime = 0;
+					long startTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()); // millis
+					while(!getSampleQueue().isEmpty() && elapsedWaitTime < MAX_WAIT_TIME) {
 							try {
-								Thread.sleep(10);
-					            elapsedWaitTime = (int) (System.currentTimeMillis() - startTime); // in milliseconds
+								Thread.sleep(SLEEP_DURATION);
+					            elapsedWaitTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) - startTime; // in millis
 							} catch (InterruptedException e) {
-								LOG.error("Thread interrupted while sleeping because of: {}", e);
+								Thread.currentThread().interrupt();
 							}	
 					}	
+					if (elapsedWaitTime >= MAX_WAIT_TIME) {
+						LOG.warn("Could not complete the sample queue consumption. There's " + getSampleQueue().size() + " samples lost.");
+					}
 				}
+				
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("The sample queue size is {}", getSampleQueue().size());
 				}
@@ -487,4 +494,5 @@ public class ULPObservabilityListener extends AbstractTestElement
         String regex = getRegex();
         setRegex(regex);
     }
+    
 }
