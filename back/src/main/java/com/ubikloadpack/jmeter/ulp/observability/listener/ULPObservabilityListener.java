@@ -417,7 +417,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 				LOG.info("No more test running, shutting down");
 				
 				if (!getSampleQueue().isEmpty()) {
-					LOG.info("The sample queue still not empty. {} 33 samples remain to be consumed", getSampleQueue().size());
+					LOG.info("The sample queue still not empty. {} samples remain to be consumed", getSampleQueue().size());
 					while(!getSampleQueue().isEmpty()) {
 						// do nothing. Should wait the MicrometerTask to consume the sampleQueue
 					}	
