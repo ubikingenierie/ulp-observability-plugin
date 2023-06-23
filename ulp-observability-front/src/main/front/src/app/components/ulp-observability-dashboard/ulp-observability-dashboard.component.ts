@@ -38,12 +38,12 @@ export class UlpObservabilityDashboardComponent implements OnInit{
   datasets: Datasets = {};
   threads: DatasetGroup = {};
   threadsEveryPeriods: DatasetGroup = {};
-  status = MetricsStatus.INFO;
+  status: number = MetricsStatus.INFO;
   showErrorMessage = false;
 
   listSamplers !: Array<string>
   visibleSamplers !: Array<string>
-  control = new FormControl('');
+  control = new FormControl<string>('');
   filteredCharts!: Observable<string[]>;
   
   constructor(private metricService: MetricsService, private translate: TranslateService) { }
