@@ -1,17 +1,11 @@
 {
 	"dashboard": {
-        "settings": "settings",
 		"config" : "Retrieving plugin configuration",
-		"pending": "pending",
 		"waiting": "Waiting for sample metrics",
-		"searchBar": "search",
 		"graphFilter": "Graphs filters",
-		"error": "error",
 		"unknownError": "Something went wrong",
 		"retryOnError": "Startup error, retrying...",
-		"dataError": "Error on retrieving metrics data",
-		"help": "help",
-		"close": "close"
+		"dataError": "Error on retrieving metrics data"
     },
 	"charts": {
 		"average response times": "Average response time",
