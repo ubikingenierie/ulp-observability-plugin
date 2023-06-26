@@ -421,20 +421,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 				LOG.info("No more test running, shutting down");
 
 				if (!getSampleQueue().isEmpty()) {
-					LOG.info("The sample queue still not empty. {} samples remain to be consumed", getSampleQueue().size());
-					long elapsedWaitTime = 0;
-					long startTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()); // millis
-					while(!getSampleQueue().isEmpty() && elapsedWaitTime < MAX_WAIT_TIME) {
-							try {
-								Thread.sleep(SLEEP_DURATION);
-					            elapsedWaitTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) - startTime; // in millis
-							} catch (InterruptedException e) {
-								Thread.currentThread().interrupt();
-							}	
-					}	
-					if (elapsedWaitTime >= MAX_WAIT_TIME) {
-						LOG.warn("Could not complete the sample queue consumption. There's " + getSampleQueue().size() + " samples lost.");
-					}
+					this.waitForSampleQueueCompletion();
 				}
 				
 				if (LOG.isDebugEnabled()) {
@@ -469,6 +456,27 @@ public class ULPObservabilityListener extends AbstractTestElement
 				}
 				LOG.info("All JMeter servers have stopped their test");
 			}
+		}
+	}
+	
+	/**
+	 * Consumes the sample queue until it is empty or the maximum wait time is reached.
+	 * If the maximum wait time is exceeded, a warning message is logged.
+	 */
+	private void waitForSampleQueueCompletion() {
+		LOG.info("The sample queue still not empty. {} samples remain to be consumed", getSampleQueue().size());
+		long elapsedWaitTime = 0;
+		long startTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()); // millis
+		while(!getSampleQueue().isEmpty() && elapsedWaitTime < MAX_WAIT_TIME) {
+				try {
+					Thread.sleep(SLEEP_DURATION);
+		            elapsedWaitTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) - startTime; // in millis
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}	
+		}	
+		if (elapsedWaitTime >= MAX_WAIT_TIME) {
+			LOG.warn("Could not complete the sample queue consumption. There's " + getSampleQueue().size() + " samples lost.");
 		}
 	}
 
