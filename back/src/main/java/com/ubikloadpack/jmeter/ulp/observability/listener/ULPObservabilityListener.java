@@ -48,6 +48,10 @@ import io.timeandspace.cronscheduler.CronScheduler;
 public class ULPObservabilityListener extends AbstractTestElement
 		implements SampleListener, TestStateListener, NoThreadClone, Serializable, Remoteable {
 
+	private static final int SLEEP_DURATION = 10; // in milliseconds
+
+	private static final long MAX_WAIT_TIME = 1000; // in millis
+
 	private static final long serialVersionUID = 8170705348132535834L;
 
 	/**
@@ -288,7 +292,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 				}
 				
 			} catch (InterruptedException e) {
-				LOG.warn(sampleEvent.getResult().getThreadName() + ": Interrupting sample queue");
+				LOG.warn("Thread interrupted while adding sample `" + sampleEvent.getResult().getThreadName() + "` to the queue. Data associated with the sample are not recorded.");
 			}
 		}
 	}
@@ -416,6 +420,14 @@ public class ULPObservabilityListener extends AbstractTestElement
 			if (instanceCount == 0) {
 				LOG.info("No more test running, shutting down");
 
+				if (!getSampleQueue().isEmpty()) {
+					this.waitForSampleQueueCompletion();
+				}
+				
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("The sample queue size is {}", getSampleQueue().size());
+				}
+			
 				try {
 					if (listenerClientData.logCron.isThreadRunning()) {
 						// make last logs, then shutdown cron task
@@ -446,6 +458,27 @@ public class ULPObservabilityListener extends AbstractTestElement
 			}
 		}
 	}
+	
+	/**
+	 * Consumes the sample queue until it is empty or the maximum wait time is reached.
+	 * If the maximum wait time is exceeded, a warning message is logged.
+	 */
+	private void waitForSampleQueueCompletion() {
+		LOG.info("The sample queue still not empty. {} samples remain to be consumed", getSampleQueue().size());
+		long elapsedWaitTime = 0;
+		long startTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()); // millis
+		while(!getSampleQueue().isEmpty() && elapsedWaitTime < MAX_WAIT_TIME) {
+				try {
+					Thread.sleep(SLEEP_DURATION);
+		            elapsedWaitTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) - startTime; // in millis
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}	
+		}	
+		if (elapsedWaitTime >= MAX_WAIT_TIME) {
+			LOG.warn("Could not complete the sample queue consumption. There's " + getSampleQueue().size() + " samples lost.");
+		}
+	}
 
 	public void stopJettyServer() {
 		synchronized (LOCK) {
@@ -469,4 +502,5 @@ public class ULPObservabilityListener extends AbstractTestElement
         String regex = getRegex();
         setRegex(regex);
     }
+    
 }
