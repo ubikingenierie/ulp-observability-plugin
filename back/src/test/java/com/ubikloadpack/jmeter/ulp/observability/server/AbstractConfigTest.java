@@ -42,6 +42,8 @@ public abstract class AbstractConfigTest {
 	public void setUp() throws Exception {
 		this.endpoint = new URL("http://" + HOST + ":" + PORT);
 		
+		this.setJmeterProperties();
+		
 		listener = new ULPObservabilityListener();
 		listener.setJettyPort(PORT);
 		listener.setMetricsRoute(METRICS_ROUTE);
@@ -55,12 +57,22 @@ public abstract class AbstractConfigTest {
 		listener.setLogFreq(LOG_FREQUENCY);
 		listener.setTopErrors(TOP_ERRORS);
 		listener.setTotalLabel(TOTAL_LABEL);
+		
 		this.testStarted(HOST);
 	}
 	
 	@AfterEach
 	public void tearDown() throws Exception {
         listener.testEnded(HOST);
+	}
+	
+	/**
+	 * Should be invoked before testStarted() method
+	 */
+	private void setJmeterProperties() {
+		URL url = this.getClass().getClassLoader().getResource("jmeter.properties");
+		JMeterUtils.loadJMeterProperties(url.getPath());
+		JMeterUtils.setLocale(Locale.ENGLISH);
 	}
 	
 	/**
@@ -126,11 +138,7 @@ public abstract class AbstractConfigTest {
 	}
 	
 	protected void testStarted(String host) {
-		try (MockedStatic<JMeterUtils> utilitites = Mockito.mockStatic(JMeterUtils.class)) {
-			utilitites.when(() -> JMeterUtils.getLocale()).thenReturn(new Locale(Locale.ENGLISH.getLanguage()));
-			
-			listener.testStarted(host);
-		} 
+		listener.testStarted(host);
 	}
 	
 	protected void assertHttpContentTypeAndResponseStatus(HttpResponse httpResponse, int expectedStatus, String expectedContentType) {
