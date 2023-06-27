@@ -30,8 +30,8 @@ import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
 import com.ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 import com.ubikloadpack.jmeter.ulp.observability.server.ULPObservabilityServer;
-import com.ubikloadpack.jmeter.ulp.observability.task.SampleMetricsLoggingTask;
 import com.ubikloadpack.jmeter.ulp.observability.task.MicrometerTask;
+import com.ubikloadpack.jmeter.ulp.observability.task.SampleMetricsLoggingTask;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 import io.timeandspace.cronscheduler.CronScheduler;
@@ -264,7 +264,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 
 		listenerClientData.micrometerTaskList = new ArrayList<>();
 	}
-
+	
 	/**
 	 * Receives occurred samples and adds them to sample result queue if possible,
 	 * log buffer overflow exception otherwise
@@ -338,6 +338,8 @@ public class ULPObservabilityListener extends AbstractTestElement
 		LOG.info("Test started from host {}", host);
 
 		synchronized (LOCK) {
+			checkPropertyValues();
+			
 			// Init the Pattern regex object of the listener based on its saved String value.
 			String regexString = getRegex();
 			this.setRegex(regexString);
@@ -391,6 +393,13 @@ public class ULPObservabilityListener extends AbstractTestElement
 
 			instanceCount++;
 		}
+	}
+
+	private void checkPropertyValues() {
+		if (this.getLogFreq() < 1) {
+			this.setLogFreq(ULPODefaultConfig.logFrequency());
+		}
+		
 	}
 
 	private String computeUrl(Server server, String contextPath) {
