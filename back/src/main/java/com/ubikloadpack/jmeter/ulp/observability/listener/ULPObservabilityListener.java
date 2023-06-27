@@ -395,11 +395,24 @@ public class ULPObservabilityListener extends AbstractTestElement
 		}
 	}
 
+	
+	/**
+	 * Checks the value of the GUI properties. Checks that the properties 
+	 * that takes an integer as a value are all positives. The value of the 
+	 * percentiles are also checked. If an of the value is incorrect sets to its 
+	 * default value. The errors are logged while checking each value.
+	 */
 	private void checkPropertyValues() {
-		if (this.getLogFreq() < 1) {
-			this.setLogFreq(ULPODefaultConfig.logFrequency());
-		}
-		
+		this.setThreadSize(Util.validatePositiveNumeric(getThreadSize(), ULPODefaultConfig.threadSize(), "thread size"));
+		this.setBufferCapacity(Util.validatePositiveNumeric(getBufferCapacity(), ULPODefaultConfig.bufferCapacity(), "buffer capcity"));
+		this.setPct1(Util.validatePercentile(getPct1(), ULPODefaultConfig.pct1(), "percentile 1"));
+		this.setPct2(Util.validatePercentile(getPct2(), ULPODefaultConfig.pct2(), "percentile 2"));
+		this.setPct3( Util.validatePercentile(getPct3(), ULPODefaultConfig.pct3(), "percentile 3"));
+		this.setMicrometerExpiryTimeInSeconds(
+			String.valueOf(Util.validatePositiveNumeric(getMicrometerExpiryTimeInSecondsAsInt(), ULPODefaultConfig.micrometerExpiryTimeInSeconds(), "expiry time in seconds"))
+		);
+		this.setLogFreq(Util.validatePositiveNumeric(this.getLogFreq(), ULPODefaultConfig.logFrequency(), "log frequency"));
+		this.setTopErrors(Util.validatePositiveNumeric(getTopErrors(), ULPODefaultConfig.topErrors(), "number of top errors"));
 	}
 
 	private String computeUrl(Server server, String contextPath) {
