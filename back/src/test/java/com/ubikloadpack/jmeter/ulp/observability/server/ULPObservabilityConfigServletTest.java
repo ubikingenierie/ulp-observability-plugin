@@ -38,6 +38,22 @@ public class ULPObservabilityConfigServletTest extends AbstractConfigTest {
         assertEquals(expectedConfig, actualConfig);
 	}
 	
+	@Test
+	@DisplayName("when logFrequency is zero expect 30 second as default value")
+	public void whenLogFrequencyIsZeroExpectDefaultValue() throws Exception {
+		this.listener.testEnded(HOST); // should stop the listener started by @BeforeEach before setting the totalLabel property
+		this.listener.setLogFreq(0); 
+		this.testStarted(HOST); // restart the listener 
+		
+		HttpResponse httpResponse = this.sendGetRequest("/config");
+		assertHttpContentTypeAndResponseStatus(httpResponse, HttpStatus.OK_200, "application/json");
+	    
+	    String actualConfig = httpResponse.getResponse();
+        String expectedConfig = getExpectedConfigAsJson(METRICS_ROUTE, 30, TOP_ERRORS, TOTAL_LABEL); 
+        
+        assertEquals(expectedConfig, actualConfig);
+	}
+	
 	private String getExpectedConfigAsJson(String metricsRoute, int logFrequency, int topErrors, String totalLabel) {
 		return String.format("{\"metricsRoute\":\"%s\",\"logFrequency\":%s,\"topErrors\":%s,\"totalLabel\":\"%s\",\"localeLang\":\"en\"}",
 				metricsRoute, logFrequency, topErrors, totalLabel);
