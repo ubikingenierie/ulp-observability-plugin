@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 import org.apache.jmeter.util.JMeterUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import com.ubikloadpack.jmeter.ulp.observability.listener.ULPObservabilityListener;
 
