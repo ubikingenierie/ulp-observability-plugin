@@ -8,12 +8,12 @@
     <div  [ngSwitch]="status">
 
         <div class="info" *ngSwitchCase="0">
-            <mat-icon class="icon" aria-hidden="false">{{'dashboard.settings' | translate}}</mat-icon>
+            <mat-icon class="icon" aria-hidden="false">settings</mat-icon>
             <span class="icon-align">{{'dashboard.config' | translate}}</span>
         </div>
 
         <div class="info" *ngSwitchCase="1">
-            <mat-icon class="icon" aria-hidden="false">{{'dashboard.pending' | translate}}</mat-icon>
+            <mat-icon class="icon" aria-hidden="false">pending</mat-icon>
             <span class="icon-align">{{'dashboard.waiting' | translate}}</span>
         </div>
 
@@ -22,7 +22,7 @@
             <form class="chart-form">
                 <mat-form-field class="form-full-width" appearance="fill">                   
                     <mat-label>
-                        <mat-icon>{{'dashboard.searchBar' | translate}}</mat-icon>
+                        <mat-icon>search</mat-icon>
                         {{'dashboard.graphFilter' | translate}}
                     </mat-label>
                     <input type="text" matInput [formControl]="control" [matAutocomplete]="auto">
@@ -67,12 +67,12 @@
         </div>
 
         <div class="info" *ngSwitchCase="3">
-            <mat-icon class="icon" aria-hidden="false"  >{{'dashboard.error' | translate}}</mat-icon>
+            <mat-icon class="icon" aria-hidden="false"  >error</mat-icon>
             <span class="icon-align"  >{{'dashboard.retryOnError' | translate}}</span>
         </div>
 
         <div class="info" *ngSwitchDefault>
-            <mat-icon class="icon" aria-hidden="false"  >{{'dashboard.help' | translate}}</mat-icon>
+            <mat-icon class="icon" aria-hidden="false"  >help</mat-icon>
             <span class="icon-align"  >{{'dashboard.unknownError' | translate}}</span>
         </div>
 
@@ -81,10 +81,10 @@
 
     <mat-card *ngIf="showErrorMessage" class="card-error">
         <mat-card-content>
-            <mat-icon aria-hidden="false" class="icon" >{{'dashboard.error' | translate}}</mat-icon>
+            <mat-icon aria-hidden="false" class="icon" >error</mat-icon>
             <span class="icon-align error-message"  >{{'dashboard.dataError' | translate}}</span>
             <mat-icon class="icon close-icon" aria-hidden="false" (click)="closeError()"  >
-                {{'dashboard.close' | translate}}
+                close
             </mat-icon>
         </mat-card-content>    
     </mat-card>

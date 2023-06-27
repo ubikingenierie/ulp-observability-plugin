@@ -1,17 +1,11 @@
 {
 	"dashboard": {
-        "settings": "paramètres",
 		"config" : "Récupération de la configuration du plugin",
-		"pending": "en attente",
 		"waiting": "En attente d'échantillons de métriques",
-		"searchBar": "recherche",
 		"graphFilter": "Filtrez les graphes",
-		"error": "erreur",
 		"unknownError": "Quelque chose s'est mal passé",
 		"retryOnError": "Erreur de démarrage, nouvelle tentative...",
-		"dataError": "Erreur lors de la récupération des données de métriques",
-		"help": "à l'aide",
-		"close": "fermer"
+		"dataError": "Erreur lors de la récupération des données de métriques"
     },
 	"charts": {
 		"average response times": "Temps de réponse moyen",
