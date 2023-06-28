@@ -24,7 +24,6 @@ import com.ubikloadpack.jmeter.ulp.observability.util.ErrorTypeInfo;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
-import net.sf.saxon.trans.Err;
 
 public class MicrometerRegistryTest {
 	private static final String TOTAL_lABEL = "total_info";
