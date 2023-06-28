@@ -2,7 +2,12 @@ package com.ubikloadpack.jmeter.ulp.observability.server;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.util.Map;
 
 import org.apache.jmeter.samplers.SampleEvent;
@@ -115,6 +120,27 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 		assertSamplersCountEveryPeriods(actualMetrics, totalLabelOpenMetric, 2, sampleNameOpenMetric, 1); // totalLabel's count becomes 2
 	}
 	
+	@Test
+	@DisplayName("When a sample fails due to an error, expect the occurred error is reported as a top error")
+	public void whenErrorOccurredOnSampleExpectItOnTopErrors() throws Exception {
+		SampleEvent sample = this.createSampleEvent("sampleTest", "groupe1", false, Integer.toString(HttpURLConnection.HTTP_NOT_FOUND), 1, 1, 500);
+		this.listener.sampleOccurred(sample);
+		
+		Thread.sleep(1000); // should wait at least one second before generating the next log.
+		HttpResponse httpResponse = this.sendGetRequest(METRICS_ROUTE); // send a GET REQUEST
+		assertHttpContentTypeAndResponseStatus(httpResponse, HttpStatus.OK_200, "text/plain; version=0.0.4; charset=utf-8");
+		String actualMetrics = httpResponse.getResponse();
+		
+		String topError = String.format("%s_total{count=\"error_every_periods\",errorType=\"%s\",errorRate=\"%s\",errorFreq=\"%s\"}", 
+										TOTAL_LABEL, "404", 1D, 1D);
+		assertTrue(actualMetrics.contains(topError), String.format("Expected top error: %s\nis not contained in the actual metrics:\n%s", topError, actualMetrics));
+	}
+	
+	
+	private SampleEvent createSampleEvent(String sampleLabel, String threadGroupName,  boolean isSuccessful, int groupThreads, int allThreads, long responseTime) {
+		return this.createSampleEvent(sampleLabel, threadGroupName, isSuccessful, Integer.toString(HttpURLConnection.HTTP_OK), groupThreads, allThreads, responseTime);
+	}
+	
 	/**
 	 * Create a SampleEvent
 	 * @param sampleLabel the name of the sample.
@@ -125,10 +151,11 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 	 * @param responseTime the time taken by the sample to finish in milliseconds.
 	 * @return an instance of the SampleEvent depending on the given parameters. 
 	 */
-	private SampleEvent createSampleEvent(String sampleLabel, String threadGroupName,  boolean isSuccessful, int groupThreads, int allThreads, long responseTime) {
+	private SampleEvent createSampleEvent(String sampleLabel, String threadGroupName,  boolean isSuccessful, String responseCode, int groupThreads, int allThreads, long responseTime) {
 		SampleResult sampleResult = new SampleResult();
 		sampleResult.setAllThreads(allThreads);
 		sampleResult.setSuccessful(isSuccessful);
+		sampleResult.setResponseCode(responseCode);
 		sampleResult.setSampleLabel(sampleLabel);
 		sampleResult.setGroupThreads(groupThreads);
 		sampleResult.sampleStart(); // this set the startTime to currentMillisecond
