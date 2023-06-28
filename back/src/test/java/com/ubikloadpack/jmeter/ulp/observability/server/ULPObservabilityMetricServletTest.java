@@ -3,6 +3,7 @@ package com.ubikloadpack.jmeter.ulp.observability.server;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 
 import java.net.HttpURLConnection;
 import java.text.MessageFormat;
