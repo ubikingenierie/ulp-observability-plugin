@@ -19,6 +19,9 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
+import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
+import com.ubikloadpack.jmeter.ulp.observability.util.ErrorTypeInfo;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
