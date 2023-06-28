@@ -66,9 +66,9 @@ public class ErrorsMap {
 	}
 	
 	/**
-	 * Build an ErrorsMap that contains the X top Errors.
+	 * Returns a list containing the top errors ordered by their occurrences. 
 	 * @param maxErrors The maximum type errors to keep.
-	 * @return a new ErrorsMap with only the top X Errors.
+	 * @return a list of the top max errors, in descending order of number of occurrences. 
 	 */
 	public List<ErrorTypeInfo> collectTopXErrors(int maxErrors) {
 	    List<ErrorTypeInfo> sortedErrors = this.errorsPerType.values().stream()
@@ -83,12 +83,14 @@ public class ErrorsMap {
 
 	
 	/**
-	 * Get the openMetric format of the error types.
+	 * Get the openMetric format of that error type.
 	 * @param sampleName the name of the sample (should be total_label)
-	 * @param requestsTotal the number of the total threads
-	 * @param errorsTotal
-	 * @param timeStamp 
-	 * @return
+	 * @param requestsTotal the number of the total threads. 
+	 * 		  This is used to compute the error rate among requests.
+	 * @param errorsTotal the number of the errors for every periods. 
+	 *        This is used to compute the error rate among errors.
+	 * @param timeStamp the time stamp
+	 * @return the openMetric format of that error type.
 	 */
 	public String toOpenMetric(String sampleName, Long requestsTotal, Long errorsTotal, Long timeStamp) {
 		StringBuilder str = new StringBuilder();
