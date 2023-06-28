@@ -1,5 +1,7 @@
 package com.ubikloadpack.jmeter.ulp.observability.util;
 
+import java.util.Objects;
+
 /**
  * ErrorTypeInfo holds the type of an error and it's occurrences.
  * It defines the method like {@link #computeErrorTypeFrequency} to get the frequency 
@@ -72,7 +74,24 @@ public class ErrorTypeInfo implements Comparable<ErrorTypeInfo> {
 		// For descending order reverse the places of other and this
 		return Long.compare(o.occurence, this.occurence);
 	}
-	
+		
+	@Override
+	public int hashCode() {
+		return Objects.hash(errorType, occurence);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ErrorTypeInfo other = (ErrorTypeInfo) obj;
+		return Objects.equals(errorType, other.errorType) && occurence == other.occurence;
+	}
+
 	public String getErrorType() {
 		return errorType;
 	}
