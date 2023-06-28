@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jetty.http.HttpStatus;
@@ -23,6 +24,7 @@ import com.ubikloadpack.jmeter.ulp.observability.util.ErrorTypeInfo;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
+import net.sf.saxon.trans.Err;
 
 public class MicrometerRegistryTest {
 	private static final String TOTAL_lABEL = "total_info";
@@ -175,6 +177,19 @@ public class MicrometerRegistryTest {
 	}
 	
 	@Test
+	@DisplayName("When a sample fails due to an error, expect the top errors are extracted only for the totalLabel sample log")
+	public void whenAnErrorOccursOnSampleExpectItIsExtractedOnTotalLabelSampleLog() {
+		ResponseResult responseResult = new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.NOT_FOUND_404), 1, 1, "sample", 0L, 500L);
+		micrometerRegistry.addResponse(responseResult);
+		
+		SampleLog sampleLog = micrometerRegistry.makeLog("spl_sample", getFixedDateIncreasedBySeconds(1));
+		assertFalse(sampleLog.getTopErrors().isPresent(), "The list of the top errors is present and It shouldn't be. The top errors ar computed for every periods.");
+
+		SampleLog totalLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(1));
+		assertTrue(totalLog.getTopErrors().isPresent(), "Missing the list of top errors. SampleLog name should match the total label.");
+	}
+	
+	@Test
 	@DisplayName("When a sample fails due to an error, expect it's added to the errors map")
 	public void whenAnErrorOccursOnSampleExpectItIsAddedToErrorsMap() {
 		ResponseResult responseResult = new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.NOT_FOUND_404), 1, 1, "sample", 0L, 500L);
@@ -190,18 +205,54 @@ public class MicrometerRegistryTest {
 	public void whenAnErrorOccursOnSampleExpectItIsExtractedFromTopErrors() {
 		ResponseResult responseResult = new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.NOT_FOUND_404), 1, 1, "sample", 0L, 500L);
 		micrometerRegistry.addResponse(responseResult);
-		
-		SampleLog sampleLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(1));
-		
-		assertTrue(sampleLog.getTopErrors().isPresent(), "The list of the top errors is not present. It should be present only if the sampleLog represents the total label");
-		assertEquals(1, sampleLog.getTopErrors().get().size());
-		assertEquals(new ErrorTypeInfo("404", 1), sampleLog.getTopErrors().get().get(0));	
+		SampleLog totalLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(1));
+
+		assertTrue(totalLog.getTopErrors().isPresent(), "The list of the top errors is not present. It should be present only if the sampleLog represents the total label");
+		assertEquals(1, totalLog.getTopErrors().get().size());
+		assertEquals(new ErrorTypeInfo("404", 1), totalLog.getTopErrors().get().get(0));	
 	}
 
-
-
-	// assertEquals(1, actualErrorType.computeErrorRateAmongErrors(sampleLog.getErrorTotal()));
-	// assertEquals(1, actualErrorType.computeErrorRateAmongRequests(sampleLog.getSamplerCountTotal()));
+	@Test
+	@DisplayName("When a sample fails due to an error, expect the value of its occurence, error rate among errors and error rate among requests")
+	public void whenAnErrorOccursOnSampleExpectItsOccurence_rateAmongErrors_and_rateAmongRequests() {
+		ResponseResult responseResult = new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.NOT_FOUND_404), 1, 1, "sample", 0L, 500L);
+		micrometerRegistry.addResponse(responseResult);
+		SampleLog totalLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(1));
+		
+		assertTrue(totalLog.getTopErrors().isPresent(), "The list of the top errors is not present. It should be present only if the sampleLog represents the total label");
+		assertEquals(1, totalLog.getTopErrors().get().size());
+		
+		ErrorTypeInfo actualErrorType = totalLog.getTopErrors().get().get(0);
+		assertEquals("404", actualErrorType.getErrorType());
+		assertEquals(1, actualErrorType.getOccurence());
+		assertEquals(1D, actualErrorType.computeErrorRateAmongErrors(totalLog.getErrorTotal()));
+		assertEquals(1D, actualErrorType.computeErrorRateAmongRequests(totalLog.getSamplerCountTotal()));
+	}
+	
+	@Test
+	@DisplayName("When several samples fails, expect only the most frequented errors are extracted as top errors")
+	public void whenSeveralSamplesFailsExpectOnlyTheFrequentedErrorsAreExtractedAsTopErrors() {
+		for (int i = 0; i < 5; i++) {
+			if (i < 2) { // add up to 2 samples with 400 error
+				micrometerRegistry.addResponse(new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.BAD_REQUEST_400), 1, 1, "sample1", 0L, 500L));
+			}
+			if (i < 3) { // add up to 3 samples with 409 error
+				micrometerRegistry.addResponse(new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.CONFLICT_409), 1, 1, "sample2", 0L, 500L));
+			}
+			if (i < 4) { // add up to 4 samples with 502 error
+				micrometerRegistry.addResponse(new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.BAD_GATEWAY_502), 1, 1, "sample3", 0L, 500L));
+			} 
+			micrometerRegistry.addResponse(new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.NOT_FOUND_404), 1, 1, "sample4", 0L, 500L));
+		}
+		
+		SampleLog totalLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(1));
+		assertTrue(totalLog.getTopErrors().isPresent(), "The list of the top errors is not present. It should be present only if the sampleLog represents the total label");
+		List<ErrorTypeInfo> actualTopErrors = totalLog.getTopErrors().get();
+		assertEquals(TOP_ERRORS_NUMBER, actualTopErrors.size());
+		
+		List<ErrorTypeInfo> expected = Arrays.asList(new ErrorTypeInfo("404", 5), new ErrorTypeInfo("502", 4), new ErrorTypeInfo("409", 3));
+		assertEquals(expected, actualTopErrors);
+	}
 	
 	/**
 	 * Checks if the metric values ​​of the given SampleLog are the same as the expected values.
