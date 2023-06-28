@@ -24,7 +24,6 @@ import com.ubikloadpack.jmeter.ulp.observability.util.ErrorTypeInfo;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
-import net.sf.saxon.trans.Err;
 
 public class MicrometerRegistryTest {
 	private static final String TOTAL_lABEL = "total_info";
@@ -247,6 +246,7 @@ public class MicrometerRegistryTest {
 		
 		SampleLog totalLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(1));
 		assertTrue(totalLog.getTopErrors().isPresent(), "The list of the top errors is not present. It should be present only if the sampleLog represents the total label");
+		
 		List<ErrorTypeInfo> actualTopErrors = totalLog.getTopErrors().get();
 		assertEquals(TOP_ERRORS_NUMBER, actualTopErrors.size());
 		
