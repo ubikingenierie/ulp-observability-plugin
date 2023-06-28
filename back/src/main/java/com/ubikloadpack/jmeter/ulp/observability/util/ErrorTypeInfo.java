@@ -46,6 +46,26 @@ public class ErrorTypeInfo implements Comparable<ErrorTypeInfo> {
 	public double computeErrorRateAmongRequests(Long requestsTotal) {
 		return requestsTotal > 0 ? (double) getOccurence() / (double) requestsTotal : 0;
 	}
+	
+	/**
+	 * Get the openMetric format of the error types.
+	 * @param sampleName the name of the sample (should be total_label)
+	 * @param requestsTotal the number of the total threads
+	 * @param errorsTotal the number of total requests
+	 * @param timeStamp the time stamp 
+	 * @return a string that represents the openMetrics format of that error type
+	 */
+	public String toOpenMetric(String sampleName, Long requestsTotal, Long errorsTotal, Long timeStamp) {
+		StringBuilder str = new StringBuilder();
+		
+		Double errorFrequency = this.computeErrorRateAmongErrors(errorsTotal);
+		Double errorRate = this.computeErrorRateAmongRequests(requestsTotal);
+		
+		String metric = String.format("%s_total{count=\"error_every_periods\",errorType=\"%s\",errorRate=\"%s\",errorFreq=\"%s\"}", 
+									  sampleName, errorType, errorRate, errorFrequency);
+		str.append(metric + " " + this.getOccurence() + " " + timeStamp +"\n");
+		return str.toString();
+	}
 
 	@Override
 	public int compareTo(ErrorTypeInfo o) {
