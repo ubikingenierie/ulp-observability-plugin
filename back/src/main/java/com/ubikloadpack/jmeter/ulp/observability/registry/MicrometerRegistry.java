@@ -241,7 +241,7 @@ public class MicrometerRegistry {
 				summaryRegistry.counter("count.total", "sample", name).count();
 		
 		// the top errors should be reported only with the total_label metrics. The top errors are not related to a specific sample.
-		Optional<ErrorsMap> topErrors = name.equals(this.totalLabel) ? Optional.of(this.errorsMap.collectTopXErrors(this.numberTopErrors)) : Optional.empty();
+		Optional<List<ErrorTypeInfo>> topErrors = name.equals(this.totalLabel) ? Optional.of(this.errorsMap.collectTopXErrors(this.numberTopErrors)) : Optional.empty();
 		Pair<Long, Long> startAndEndDateOfSampler = startAndEndDatesOfSamplers.get(name);
 		Double totalThroughput = 0D;
 		if (startAndEndDateOfSampler != null) {

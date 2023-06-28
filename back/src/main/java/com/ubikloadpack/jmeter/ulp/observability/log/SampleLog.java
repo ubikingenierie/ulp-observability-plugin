@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.ubikloadpack.jmeter.ulp.observability.util.ErrorTypeInfo;
 import com.ubikloadpack.jmeter.ulp.observability.util.ErrorsMap;
 
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
@@ -103,7 +104,7 @@ public class SampleLog {
 	/**
 	 * A map containing the top errors that occurred in the samples.
 	 */
-	private final Optional<ErrorsMap> topErrors;
+	private final Optional<List<ErrorTypeInfo>> topErrors;
 	
 	/**
 	 * Response throughput per seconds for every periods
@@ -157,7 +158,7 @@ public class SampleLog {
 		Long maxTotal,
 		Double avgTotal,
 		Long errorTotal,
-		Optional<ErrorsMap> topErrors, 
+		Optional<List<ErrorTypeInfo>> topErrors, 
 		Double throughputTotal,
 		ValueAtPercentile[] pctTotal,
 		Long threadsTotal
@@ -300,7 +301,7 @@ public class SampleLog {
 		.append(this.sampleName+"_total{count=\"sampler_count\"} "+ this.samplerCount + " " + this.timeStamp.getTime() +"\n")	
 		.append(this.sampleName+"_total{count=\"error\"} "+ this.error + " " + this.timeStamp.getTime() +"\n")
 		.append(this.sampleName+"_total{count=\"error_every_periods\"} "+ this.errorTotal + " " + this.timeStamp.getTime() +"\n");
-		this.topErrors.ifPresent(e -> str.append(e.toOpenMetric(this.sampleName, this.samplerCountTotal, this.errorTotal, this.timeStamp.getTime())));
+		this.topErrors.ifPresent(topErrors -> topErrors.forEach(e -> str.append(e.toOpenMetric(this.sampleName, this.samplerCountTotal, this.errorTotal, this.timeStamp.getTime()))));
 
 		// Throughput
 		addOpenMetricTypeHelpToStr(str, this.sampleName + "_throughput", "gauge", "Responses per second");
@@ -434,7 +435,7 @@ public class SampleLog {
 	    return bd.doubleValue();
 	}
 
-	public Optional<ErrorsMap> getTopErrors() {
+	public Optional<List<ErrorTypeInfo>> getTopErrors() {
 		return topErrors;
 	}
 
