@@ -1,5 +1,8 @@
 package com.ubikloadpack.jmeter.ulp.observability.util;
 
+import java.text.DecimalFormat;
+import java.text.*;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -60,14 +63,18 @@ public class ErrorTypeInfo implements Comparable<ErrorTypeInfo> {
 	public String toOpenMetric(String sampleName, Long requestsTotal, Long errorsTotal, Long timeStamp) {
 		StringBuilder str = new StringBuilder();
 		
+		DecimalFormat decimalFormat = new DecimalFormat("0.0###", DecimalFormatSymbols.getInstance(Locale.US));
+
+		
 		Double errorFrequency = this.computeErrorRateAmongErrors(errorsTotal);
 		Double errorRate = this.computeErrorRateAmongRequests(requestsTotal);
 		
 		String metric = String.format("%s_total{count=\"error_every_periods\",errorType=\"%s\",errorRate=\"%s\",errorFreq=\"%s\"}", 
-									  sampleName, errorType, errorRate, errorFrequency);
+									  sampleName, errorType, decimalFormat.format(errorRate), decimalFormat.format(errorFrequency));
 		str.append(metric + " " + this.getOccurence() + " " + timeStamp +"\n");
 		return str.toString();
 	}
+	 
 
 	@Override
 	public int compareTo(ErrorTypeInfo o) {
