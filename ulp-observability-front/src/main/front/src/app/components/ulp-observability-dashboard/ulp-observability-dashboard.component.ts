@@ -154,7 +154,12 @@ export class UlpObservabilityDashboardComponent implements OnInit{
     // the ``datasets`` is changed through the child componenents. 
     const nextDataset: Datasets = {} 
     Object.keys(this.datasets).forEach(key => {
-      nextDataset[key] = {}; 
+      // Checks if the key doesn't start with ``errorEveryPeriods_``. The metrics of the top errors 
+      // always starts with "errorEveryPeriods_", they should be removed before the next pushing 
+      // of data. This is necessary because the top errors recieved change with each logging period.
+      if (!key.startsWith("errorEveryPeriods_")) { 
+        nextDataset[key] = {}; 
+      }
     });
     this.threads = {};
     this.threadsEveryPeriods = {};
