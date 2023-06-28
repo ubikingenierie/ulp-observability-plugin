@@ -30,8 +30,8 @@ import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
 import com.ubikloadpack.jmeter.ulp.observability.registry.MicrometerRegistry;
 import com.ubikloadpack.jmeter.ulp.observability.server.ULPObservabilityServer;
-import com.ubikloadpack.jmeter.ulp.observability.task.SampleMetricsLoggingTask;
 import com.ubikloadpack.jmeter.ulp.observability.task.MicrometerTask;
+import com.ubikloadpack.jmeter.ulp.observability.task.SampleMetricsLoggingTask;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 import io.timeandspace.cronscheduler.CronScheduler;
@@ -264,7 +264,7 @@ public class ULPObservabilityListener extends AbstractTestElement
 
 		listenerClientData.micrometerTaskList = new ArrayList<>();
 	}
-
+	
 	/**
 	 * Receives occurred samples and adds them to sample result queue if possible,
 	 * log buffer overflow exception otherwise
@@ -338,6 +338,8 @@ public class ULPObservabilityListener extends AbstractTestElement
 		LOG.info("Test started from host {}", host);
 
 		synchronized (LOCK) {
+			checkPropertyValues();
+			
 			// Init the Pattern regex object of the listener based on its saved String value.
 			String regexString = getRegex();
 			this.setRegex(regexString);
@@ -391,6 +393,26 @@ public class ULPObservabilityListener extends AbstractTestElement
 
 			instanceCount++;
 		}
+	}
+
+	
+	/**
+	 * Checks the value of the GUI properties. Checks that the properties 
+	 * that takes an integer as a value are all positives. The value of the 
+	 * percentiles are also checked. If an of the value is incorrect sets to its 
+	 * default value. The errors are logged while checking each value.
+	 */
+	private void checkPropertyValues() {
+		this.setThreadSize(Util.validatePositiveNumeric(getThreadSize(), ULPODefaultConfig.threadSize(), "thread size"));
+		this.setBufferCapacity(Util.validatePositiveNumeric(getBufferCapacity(), ULPODefaultConfig.bufferCapacity(), "buffer capcity"));
+		this.setPct1(Util.validatePercentile(getPct1(), ULPODefaultConfig.pct1(), "percentile 1"));
+		this.setPct2(Util.validatePercentile(getPct2(), ULPODefaultConfig.pct2(), "percentile 2"));
+		this.setPct3( Util.validatePercentile(getPct3(), ULPODefaultConfig.pct3(), "percentile 3"));
+		this.setMicrometerExpiryTimeInSeconds(
+			String.valueOf(Util.validatePositiveNumeric(getMicrometerExpiryTimeInSecondsAsInt(), ULPODefaultConfig.micrometerExpiryTimeInSeconds(), "expiry time in seconds"))
+		);
+		this.setLogFreq(Util.validatePositiveNumeric(this.getLogFreq(), ULPODefaultConfig.logFrequency(), "log frequency"));
+		this.setTopErrors(Util.validatePositiveNumeric(getTopErrors(), ULPODefaultConfig.topErrors(), "number of top errors"));
 	}
 
 	private String computeUrl(Server server, String contextPath) {
