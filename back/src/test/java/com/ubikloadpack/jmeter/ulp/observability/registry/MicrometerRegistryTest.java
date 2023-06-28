@@ -1,13 +1,16 @@
 package com.ubikloadpack.jmeter.ulp.observability.registry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
+import com.ubikloadpack.jmeter.ulp.observability.util.ErrorTypeInfo;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
@@ -23,12 +27,13 @@ import io.micrometer.core.instrument.distribution.ValueAtPercentile;
 public class MicrometerRegistryTest {
 	private static final String TOTAL_lABEL = "total_info";
 	private static final int LOG_FREQUENCY = 10; 
+	private static final int TOP_ERRORS_NUMBER = 3;
 	
 	private MicrometerRegistry micrometerRegistry;
 	
 	@BeforeEach
 	public void setUp() {
-		this.micrometerRegistry = new MicrometerRegistry(TOTAL_lABEL, 50, 90, 95, LOG_FREQUENCY, 0, new SampleLogger(TOTAL_lABEL), 3000);
+		this.micrometerRegistry = new MicrometerRegistry(TOTAL_lABEL, 50, 90, 95, LOG_FREQUENCY, TOP_ERRORS_NUMBER, new SampleLogger(TOTAL_lABEL), 3000);
 	}
 	
 	@AfterEach
@@ -168,8 +173,36 @@ public class MicrometerRegistryTest {
 		assertEveryPeriodsMetricsForSample(sampleLog2, getFixedDateIncreasedBySeconds(2), 2, 350, 500, 0, throughputTotal, groupThreads);
 		assertEveryPeriodsMetricsForSample(totalLabelLog, getFixedDateIncreasedBySeconds(2), 2, 350, 500, 0, throughputTotal, 2);
 	}
+	
+	@Test
+	@DisplayName("When a sample fails due to an error, expect it's added to the errors map")
+	public void whenAnErrorOccursOnSampleExpectItIsAddedToErrorsMap() {
+		ResponseResult responseResult = new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.NOT_FOUND_404), 1, 1, "sample", 0L, 500L);
+		micrometerRegistry.addResponse(responseResult);
+		
+		ConcurrentHashMap<String, ErrorTypeInfo> errorMap = micrometerRegistry.getErrorsMap().getErrorPerType();
+		assertTrue(errorMap.containsKey("404"));
+		assertEquals(new ErrorTypeInfo("404", 1), errorMap.get("404"));
+	}
+	
+	@Test
+	@DisplayName("When a sample fails due to an error, expect it's extracted from the top errors")
+	public void whenAnErrorOccursOnSampleExpectItIsExtractedFromTopErrors() {
+		ResponseResult responseResult = new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.NOT_FOUND_404), 1, 1, "sample", 0L, 500L);
+		micrometerRegistry.addResponse(responseResult);
+		
+		SampleLog sampleLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(1));
+		
+		assertTrue(sampleLog.getTopErrors().isPresent(), "The list of the top errors is not present. It should be present only if the sampleLog represents the total label");
+		assertEquals(1, sampleLog.getTopErrors().get().size());
+		assertEquals(new ErrorTypeInfo("404", 1), sampleLog.getTopErrors().get().get(0));	
+	}
 
 
+
+	// assertEquals(1, actualErrorType.computeErrorRateAmongErrors(sampleLog.getErrorTotal()));
+	// assertEquals(1, actualErrorType.computeErrorRateAmongRequests(sampleLog.getSamplerCountTotal()));
+	
 	/**
 	 * Checks if the metric values ​​of the given SampleLog are the same as the expected values.
 	 * Note: This method only checks the metrics corresponding to a specific period.
