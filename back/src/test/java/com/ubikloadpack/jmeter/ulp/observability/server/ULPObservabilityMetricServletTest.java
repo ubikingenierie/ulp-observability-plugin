@@ -3,7 +3,6 @@ package com.ubikloadpack.jmeter.ulp.observability.server;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 
 import java.net.HttpURLConnection;
 import java.text.MessageFormat;
@@ -19,9 +18,6 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
-import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
-import com.ubikloadpack.jmeter.ulp.observability.util.ErrorTypeInfo;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
