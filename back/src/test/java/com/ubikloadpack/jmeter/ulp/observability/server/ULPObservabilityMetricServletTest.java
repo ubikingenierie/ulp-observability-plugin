@@ -153,7 +153,7 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 	}
 	
 	@Test
-	@DisplayName("When several samples fails, expect only the most frequented errors are included in the server response")
+	@DisplayName("When several samples fail, expect only the most frequented errors are included in the server response")
 	public void whenSeveralSamplesFailsExpectOnlyTheFrequentedErrorsAreExtractedAsTopErrors() throws Exception {	
 		assertEquals(5, this.listener.getTopErrors());
 		

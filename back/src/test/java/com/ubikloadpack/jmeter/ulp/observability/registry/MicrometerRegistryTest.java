@@ -229,8 +229,23 @@ public class MicrometerRegistryTest {
 	}
 	
 	@Test
-	@DisplayName("When several samples fails, expect only the most frequented errors are extracted as top errors")
+	@DisplayName("When several samples fail, expect only the most frequented errors are extracted as top errors")
 	public void whenSeveralSamplesFailsExpectOnlyTheFrequentedErrorsAreExtractedAsTopErrors() {
+		assertEquals(TOP_ERRORS_NUMBER, micrometerRegistry.getNumberTopErrors());
+		
+		createAndRegisterResponseResults();
+		
+		SampleLog totalLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(1));
+		assertTrue(totalLog.getTopErrors().isPresent(), "The list of the top errors is not present. It should be present only if the sampleLog represents the total label");
+		
+		List<ErrorTypeInfo> actualTopErrors = totalLog.getTopErrors().get();
+		assertEquals(TOP_ERRORS_NUMBER, actualTopErrors.size());
+		
+		List<ErrorTypeInfo> expected = Arrays.asList(new ErrorTypeInfo("404", 5), new ErrorTypeInfo("502", 4), new ErrorTypeInfo("409", 3));
+		assertEquals(expected, actualTopErrors);
+	}
+
+	private void createAndRegisterResponseResults() {
 		for (int i = 0; i < 5; i++) {
 			if (i < 2) { // add up to 2 samples with 400 error
 				micrometerRegistry.addResponse(new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.BAD_REQUEST_400), 1, 1, "sample1", 0L, 500L));
@@ -241,17 +256,9 @@ public class MicrometerRegistryTest {
 			if (i < 4) { // add up to 4 samples with 502 error
 				micrometerRegistry.addResponse(new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.BAD_GATEWAY_502), 1, 1, "sample3", 0L, 500L));
 			} 
+			// add up to 5 samples with 404 error
 			micrometerRegistry.addResponse(new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.NOT_FOUND_404), 1, 1, "sample4", 0L, 500L));
 		}
-		
-		SampleLog totalLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(1));
-		assertTrue(totalLog.getTopErrors().isPresent(), "The list of the top errors is not present. It should be present only if the sampleLog represents the total label");
-		
-		List<ErrorTypeInfo> actualTopErrors = totalLog.getTopErrors().get();
-		assertEquals(TOP_ERRORS_NUMBER, actualTopErrors.size());
-		
-		List<ErrorTypeInfo> expected = Arrays.asList(new ErrorTypeInfo("404", 5), new ErrorTypeInfo("502", 4), new ErrorTypeInfo("409", 3));
-		assertEquals(expected, actualTopErrors);
 	}
 	
 	/**

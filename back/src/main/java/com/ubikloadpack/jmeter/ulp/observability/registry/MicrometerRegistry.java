@@ -332,5 +332,9 @@ public class MicrometerRegistry {
 	void clearIntervalRegistry() {
 		this.intervalRegistry.clear();
 	}
+
+	Integer getNumberTopErrors() {
+		return numberTopErrors;
+	}
 	
 }
