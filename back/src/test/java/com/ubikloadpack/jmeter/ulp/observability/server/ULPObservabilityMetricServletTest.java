@@ -3,28 +3,21 @@ package com.ubikloadpack.jmeter.ulp.observability.server;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.jmeter.report.utils.MetricUtils;
 import org.apache.jmeter.samplers.SampleEvent;
 import org.apache.jmeter.samplers.SampleResult;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
-import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
-import com.ubikloadpack.jmeter.ulp.observability.util.ErrorTypeInfo;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
@@ -141,6 +134,21 @@ public class ULPObservabilityMetricServletTest extends AbstractConfigTest {
 		String actualMetrics = httpResponse.getResponse();
 		
 		String expectedTopError = getExpectedOpenMetricTopError("404", 1, 1D, 1D);
+		assertTrue(actualMetrics.contains(expectedTopError),  getTopErrorFailureMessage(expectedTopError, actualMetrics));
+	}
+	
+	@Test
+	@DisplayName("When a sample fails due to an error with a success response code, expect `Assertion failed` as reported type error")
+	public void whenErrorOccurredOnSampleWithSuccessCodeExpectAssertionFailedAsTypeError() throws Exception {
+		SampleEvent sample = this.createSampleEvent("sampleTest", "groupe1", false, Integer.toString(HttpStatus.OK_200), 1, 1, 500);
+		this.listener.sampleOccurred(sample);
+		
+		Thread.sleep(1000); // should wait at least one second before generating the next log.
+		HttpResponse httpResponse = this.sendGetRequest(METRICS_ROUTE); // send a GET REQUEST
+		assertHttpContentTypeAndResponseStatus(httpResponse, HttpStatus.OK_200, "text/plain; version=0.0.4; charset=utf-8");
+		String actualMetrics = httpResponse.getResponse();
+		
+		String expectedTopError = getExpectedOpenMetricTopError(MetricUtils.ASSERTION_FAILED, 1, 1D, 1D);
 		assertTrue(actualMetrics.contains(expectedTopError),  getTopErrorFailureMessage(expectedTopError, actualMetrics));
 	}
 	
