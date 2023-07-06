@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
@@ -25,7 +26,7 @@ public class Helper {
 	 * @throws IOException If an I/O exception occurs while processing the FreeMarker template.
 	 * @throws TemplateException If a FreeMarker exception occurs while processing the template.
 	 */
-	public static String getExpectedOpenMetrics(SampleLog sampleLog) throws IOException, TemplateException {
+	private static String getExpectedOpenMetrics(SampleLog sampleLog, String templateFilename) throws IOException, TemplateException {
 	    Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
 	    
 	    // Charger les templates à partir du classpath
@@ -61,16 +62,39 @@ public class Helper {
 	    root.put("samplerCount", sampleLog.getSamplerCount());
 	    root.put("error", sampleLog.getError());
 	    root.put("errorTotal", sampleLog.getErrorTotal());
+	    
+	    if (sampleLog.getTopErrors().isPresent()) {
+	    	List<ErrorTypeInfo> errors = sampleLog.getTopErrors().get();
+	    	
+	    	for (int i = 0; i < errors.size(); i++) {
+	    		long occurrenceTotal = errors.stream().mapToLong(e -> e.getOccurence()).sum();
+	    		ErrorTypeInfo error = errors.get(i);
+	    		root.put("errorType_"+error.getErrorType(), error.getErrorType());
+	    		root.put("errorOccurrence_"+error.getErrorType(), error.getOccurence());
+	    		root.put("errorFreq_"+error.getErrorType(), error.computeErrorRateAmongErrors(occurrenceTotal));
+	    		root.put("errorRate_"+error.getErrorType(), error.computeErrorRateAmongRequests(sampleLog.getSamplerCountTotal()));
+	    	}
+	    }
+	    
 	    root.put("throughput", sampleLog.getThroughput());
 	    root.put("throughputTotal", sampleLog.getThroughputTotal());
 	    root.put("threads", sampleLog.getThreads());
 	    root.put("threadsTotal", sampleLog.getThreadsTotal());
+	    
 
-	    Template temp = cfg.getTemplate("expectedOpenMetrics.ftl");
+	    Template temp = cfg.getTemplate(templateFilename);
 	    try (Writer out = new StringWriter()) {
 	        temp.process(root, out);
 	        return out.toString();
 	    }
+	}
+	
+	public static String getExpectedOpenMetrics(SampleLog sampleLog) throws Exception {
+		return getExpectedOpenMetrics(sampleLog, "expectedOpenMetrics.ftl");
+	}
+	
+	public static String getExpectedOpenMetricsWithTopErrors(SampleLog sampleLog) throws Exception {
+		return getExpectedOpenMetrics(sampleLog, "expectedOpenMetrics_with_topErrors.ftl");
 	}
 
 

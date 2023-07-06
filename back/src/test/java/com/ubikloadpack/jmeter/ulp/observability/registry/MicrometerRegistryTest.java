@@ -1,13 +1,17 @@
 package com.ubikloadpack.jmeter.ulp.observability.registry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLog;
 import com.ubikloadpack.jmeter.ulp.observability.log.SampleLogger;
 import com.ubikloadpack.jmeter.ulp.observability.metric.ResponseResult;
+import com.ubikloadpack.jmeter.ulp.observability.util.ErrorTypeInfo;
 import com.ubikloadpack.jmeter.ulp.observability.util.Util;
 
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
@@ -23,12 +28,13 @@ import io.micrometer.core.instrument.distribution.ValueAtPercentile;
 public class MicrometerRegistryTest {
 	private static final String TOTAL_lABEL = "total_info";
 	private static final int LOG_FREQUENCY = 10; 
+	private static final int TOP_ERRORS_NUMBER = 3;
 	
 	private MicrometerRegistry micrometerRegistry;
 	
 	@BeforeEach
 	public void setUp() {
-		this.micrometerRegistry = new MicrometerRegistry(TOTAL_lABEL, 50, 90, 95, LOG_FREQUENCY, 0, new SampleLogger(TOTAL_lABEL), 3000);
+		this.micrometerRegistry = new MicrometerRegistry(TOTAL_lABEL, 50, 90, 95, LOG_FREQUENCY, TOP_ERRORS_NUMBER, new SampleLogger(TOTAL_lABEL), 3000);
 	}
 	
 	@AfterEach
@@ -82,7 +88,8 @@ public class MicrometerRegistryTest {
 	public void whenTwoSamplesFromDifferentSamplersAreRecordedExpectComputedMetrics() {
 		int groupThreads = 10;
 		
-		createSampleResultsAndAddToMicrometerRegistry(groupThreads);
+		createAndRegisterSuccessSamples(10, "sample1", 500);
+		createAndRegisterSuccessSamples(10, "sample2", 250);
 		
 		Date creationDate = new Date();
 		// ### Testing ###
@@ -168,8 +175,151 @@ public class MicrometerRegistryTest {
 		assertEveryPeriodsMetricsForSample(sampleLog2, getFixedDateIncreasedBySeconds(2), 2, 350, 500, 0, throughputTotal, groupThreads);
 		assertEveryPeriodsMetricsForSample(totalLabelLog, getFixedDateIncreasedBySeconds(2), 2, 350, 500, 0, throughputTotal, 2);
 	}
+	
+	@Test
+	@DisplayName("When a sample fails due to an error, expect the top errors are extracted only for the totalLabel sample log")
+	public void whenAnErrorOccursOnSampleExpectItIsExtractedOnTotalLabelSampleLog() {
+		ResponseResult responseResult = new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.NOT_FOUND_404), 1, 1, "sample", 0L, 500L);
+		micrometerRegistry.addResponse(responseResult);
+		
+		SampleLog sampleLog = micrometerRegistry.makeLog("spl_sample", getFixedDateIncreasedBySeconds(1));
+		assertFalse(sampleLog.getTopErrors().isPresent(), "The list of the top errors is present and It shouldn't be. The top errors ar computed for every periods.");
 
+		SampleLog totalLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(1));
+		assertTrue(totalLog.getTopErrors().isPresent(), "Missing the list of top errors. SampleLog name should match the total label.");
+	}
+	
+	@Test
+	@DisplayName("When a sample fails due to an error, expect it's added to the errors map")
+	public void whenAnErrorOccursOnSampleExpectItIsAddedToErrorsMap() {
+		ResponseResult responseResult = new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.NOT_FOUND_404), 1, 1, "sample", 0L, 500L);
+		micrometerRegistry.addResponse(responseResult);
+		
+		ConcurrentHashMap<String, ErrorTypeInfo> errorMap = micrometerRegistry.getErrorsMap().getErrorPerType();
+		assertTrue(errorMap.containsKey("404"));
+		assertEquals(new ErrorTypeInfo("404", 1), errorMap.get("404"));
+	}
+	
+	@Test
+	@DisplayName("When a sample fails due to an error, expect it's extracted from the top errors")
+	public void whenAnErrorOccursOnSampleExpectItIsExtractedFromTopErrors() {
+		ResponseResult responseResult = new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.NOT_FOUND_404), 1, 1, "sample", 0L, 500L);
+		micrometerRegistry.addResponse(responseResult);
+		SampleLog totalLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(1));
 
+		assertTrue(totalLog.getTopErrors().isPresent(), "The list of the top errors is not present. It should be present only if the sampleLog represents the total label");
+		assertEquals(1, totalLog.getTopErrors().get().size());
+		assertEquals(new ErrorTypeInfo("404", 1), totalLog.getTopErrors().get().get(0));	
+	}
+
+	@Test
+	@DisplayName("When a sample fails due to an error, expect the value of its occurence, error rate among errors and error rate among requests")
+	public void whenAnErrorOccursOnSampleExpectItsOccurence_rateAmongErrors_and_rateAmongRequests() {
+		ResponseResult responseResult = new ResponseResult("groupe1", 500L, true, Integer.toString(HttpStatus.NOT_FOUND_404), 1, 1, "sample", 0L, 500L);
+		micrometerRegistry.addResponse(responseResult);
+		SampleLog totalLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(1));
+		
+		assertTrue(totalLog.getTopErrors().isPresent(), "The list of the top errors is not present. It should be present only if the sampleLog represents the total label");
+		assertEquals(1, totalLog.getTopErrors().get().size());
+		
+		ErrorTypeInfo actualErrorType = totalLog.getTopErrors().get().get(0);
+		assertEquals("404", actualErrorType.getErrorType());
+		assertEquals(1, actualErrorType.getOccurence());
+		assertEquals(1D, actualErrorType.computeErrorRateAmongErrors(totalLog.getErrorTotal()));
+		assertEquals(1D, actualErrorType.computeErrorRateAmongRequests(totalLog.getSamplerCountTotal()));
+	}
+	
+	@Test
+	@DisplayName("When several samples fail, expect only the most frequented errors are extracted as top errors")
+	public void whenSeveralSamplesFailsExpectOnlyTheFrequentedErrorsAreExtractedAsTopErrors() {
+		assertEquals(TOP_ERRORS_NUMBER, micrometerRegistry.getNumberTopErrors());
+		
+		createAndRegisterFailedSamples(2, "sample1", HttpStatus.BAD_REQUEST_400);
+		createAndRegisterFailedSamples(3, "sample2", HttpStatus.CONFLICT_409);
+		createAndRegisterFailedSamples(4, "sample3", HttpStatus.BAD_GATEWAY_502);
+		createAndRegisterFailedSamples(5, "sample4", HttpStatus.NOT_FOUND_404);
+		
+		SampleLog totalLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(1));
+		assertTrue(totalLog.getTopErrors().isPresent(), "The list of the top errors is not present. It should be present only if the sampleLog represents the total label");
+		
+		List<ErrorTypeInfo> actualTopErrors = totalLog.getTopErrors().get();
+		assertEquals(TOP_ERRORS_NUMBER, actualTopErrors.size());
+		
+		List<ErrorTypeInfo> expected = Arrays.asList(new ErrorTypeInfo("404", 5), new ErrorTypeInfo("502", 4), new ErrorTypeInfo("409", 3));
+		assertEquals(expected, actualTopErrors);
+	}
+	
+	@Test
+	@DisplayName("When some samples fail and other success, expect error rate among requests and error rate among errors")
+	public void whenSomeSamplesFailAndOTherSuccessExpectErrorRateAmongRequests_and_errorRateAmongErrors() {
+		assertEquals(TOP_ERRORS_NUMBER, micrometerRegistry.getNumberTopErrors());
+		
+		// create 20 success samples
+		createAndRegisterSuccessSamples(20, "sample1", 100);
+		// create 14 failed samples
+		createAndRegisterFailedSamples(2, "sample1", HttpStatus.BAD_REQUEST_400);
+		createAndRegisterFailedSamples(3, "sample2", HttpStatus.CONFLICT_409);
+		createAndRegisterFailedSamples(4, "sample3", HttpStatus.BAD_GATEWAY_502);
+		createAndRegisterFailedSamples(5, "sample4", HttpStatus.NOT_FOUND_404);
+		
+		SampleLog totalLog = micrometerRegistry.makeLog(Util.makeMicrometerName(TOTAL_lABEL), getFixedDateIncreasedBySeconds(1));
+		assertTrue(totalLog.getTopErrors().isPresent(), "The list of the top errors is not present. It should be present only if the sampleLog represents the total label");
+		
+		List<ErrorTypeInfo> actualTopErrors = totalLog.getTopErrors().get();
+		assertEquals(TOP_ERRORS_NUMBER, actualTopErrors.size());
+		
+		List<ErrorTypeInfo> expected = Arrays.asList(new ErrorTypeInfo("404", 5), new ErrorTypeInfo("502", 4), new ErrorTypeInfo("409", 3));
+		assertEquals(expected, actualTopErrors);
+		
+		assertEquals(getErrorRate(5, 14), actualTopErrors.get(0).computeErrorRateAmongErrors(14L));
+		assertEquals(getErrorRate(4, 14), actualTopErrors.get(1).computeErrorRateAmongErrors(14L));
+		assertEquals(getErrorRate(3, 14), actualTopErrors.get(2).computeErrorRateAmongErrors(14L));
+		
+		assertEquals(getErrorRate(5, 34), actualTopErrors.get(0).computeErrorRateAmongRequests(34L));
+		assertEquals(getErrorRate(4, 34), actualTopErrors.get(1).computeErrorRateAmongRequests(34L));
+		assertEquals(getErrorRate(3, 34), actualTopErrors.get(2).computeErrorRateAmongRequests(34L));
+	}
+	
+	/**
+	 * Create and register the given number of the samples. All the created samples declares their
+	 * hasError attribute as true.
+	 * @param numberOfSamples The number of the samples to be generated	
+	 * @param samplerName The name of the sampler
+	 * @param status the error code
+	 */
+	private void createAndRegisterFailedSamples(int numberOfSamples, String samplerName, int status) {
+		for (int i = 0; i < numberOfSamples; i++) {
+			micrometerRegistry.addResponse(new ResponseResult("groupe1", 500L, true, Integer.toString(status), 1, 1, samplerName, 0L, 500L));
+		}
+	}
+	
+	/**
+	 * Create the specified number Of the samples, each of them are registered in the micrometer registry.
+	 * Each samples is instantiated with the following infos :
+	 * threadGroupLabel = "groupe1",
+	 * hasError = false,
+	 * errorCode = "",
+	 * groupThreads = 10,
+	 * allThreads = 10  
+	 * @param numberOfSamples The number of the samples to be added to the Micrometer registry
+	 * @param samplerName The name of the sampler
+	 * @param endsAfter After how many milliseconds should the sampler ends.
+	 */
+	private void createAndRegisterSuccessSamples(int numberOfSamples, String samplerName, int endsAfter) {
+		long startTime = 0;
+		long endTime = 0;
+		long responseTime = 0;
+		// generate requests for "sample1" which there response times are : {500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000};
+		// and 10 requests for "sample2" which there response times are : {250, 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500};
+		for (int i = 0; i < numberOfSamples; i++) {		
+			startTime = i;
+			endTime = startTime + endsAfter * (i + 1); // endTime is increased by endsAfter milliseconds
+			responseTime = endTime - startTime;
+			ResponseResult responseResult1 = new ResponseResult("groupe1", responseTime, false, "", 10, 10, samplerName, startTime, endTime);
+			micrometerRegistry.addResponse(responseResult1);
+		}
+	}
+	
 	/**
 	 * Checks if the metric values ​​of the given SampleLog are the same as the expected values.
 	 * Note: This method only checks the metrics corresponding to a specific period.
@@ -249,29 +399,20 @@ public class MicrometerRegistryTest {
 	private double millisToSeconds(long time) {
 		return time / 1000d;
 	}
-	
-	private void createSampleResultsAndAddToMicrometerRegistry(int groupThreads) {
-		long startTime = 0;
-		long endTime = 0;
-		long responseTime = 0;
-		// generate 10 requests for "sample1" which there response times are : {500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000};
-		// and 10 requests for "sample2" which there response times are : {250, 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500};
-		for (int i = 0; i < groupThreads; i++) {		
-			startTime = i;
-			endTime = startTime + 500 * (i + 1); // endTime is increased by 500 milliseconds
-			responseTime = endTime - startTime;
-			ResponseResult responseResult1 = new ResponseResult("groupe1", responseTime, false, "", groupThreads, groupThreads, "sample1", startTime, endTime);
-			micrometerRegistry.addResponse(responseResult1);
-			
-			endTime = startTime + 250 * (i + 1); // we compute an other end time for the second sample
-			responseTime = endTime - startTime;
-			ResponseResult responseResult2 = new ResponseResult("groupe1", responseTime, false, "", groupThreads, groupThreads, "sample2", startTime, endTime);	
-			micrometerRegistry.addResponse(responseResult2);
-		}
-	}
+
 	
 	private Date getFixedDateIncreasedBySeconds(int second) {
 		return Date.from(Instant.ofEpochSecond(155000000+second));
+	}
+	
+	/**
+	 * Compute the rate if the error
+	 * @param occurrence The occurrence of the error
+	 * @param total the total occurred errors 
+	 * @return the result of dividing the occurrence by the total.
+	 */
+	private double getErrorRate(long occurrence, long total) {
+		return total > 0 ? (double) occurrence / (double) total : 0;
 	}
 	
 	

@@ -1,5 +1,10 @@
 package com.ubikloadpack.jmeter.ulp.observability.util;
 
+import java.text.DecimalFormat;
+import java.text.*;
+import java.util.Locale;
+import java.util.Objects;
+
 /**
  * ErrorTypeInfo holds the type of an error and it's occurrences.
  * It defines the method like {@link #computeErrorTypeFrequency} to get the frequency 
@@ -46,13 +51,54 @@ public class ErrorTypeInfo implements Comparable<ErrorTypeInfo> {
 	public double computeErrorRateAmongRequests(Long requestsTotal) {
 		return requestsTotal > 0 ? (double) getOccurence() / (double) requestsTotal : 0;
 	}
+	
+	/**
+	 * Get the openMetric format of the error types.
+	 * @param sampleName the name of the sample (should be total_label)
+	 * @param requestsTotal the number of the total threads
+	 * @param errorsTotal the number of total requests
+	 * @param timeStamp the time stamp 
+	 * @return a string that represents the openMetrics format of that error type
+	 */
+	public String toOpenMetric(String sampleName, Long requestsTotal, Long errorsTotal, Long timeStamp) {
+		StringBuilder str = new StringBuilder();
+		
+		DecimalFormat decimalFormat = new DecimalFormat("0.0###", DecimalFormatSymbols.getInstance(Locale.US));
+
+		
+		Double errorFrequency = this.computeErrorRateAmongErrors(errorsTotal);
+		Double errorRate = this.computeErrorRateAmongRequests(requestsTotal);
+		
+		String metric = String.format("%s_total{count=\"error_every_periods\",errorType=\"%s\",errorRate=\"%s\",errorFreq=\"%s\"}", 
+									  sampleName, errorType, decimalFormat.format(errorRate), decimalFormat.format(errorFrequency));
+		str.append(metric + " " + this.getOccurence() + " " + timeStamp +"\n");
+		return str.toString();
+	}
+	 
 
 	@Override
 	public int compareTo(ErrorTypeInfo o) {
 		// For descending order reverse the places of other and this
 		return Long.compare(o.occurence, this.occurence);
 	}
-	
+		
+	@Override
+	public int hashCode() {
+		return Objects.hash(errorType, occurence);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ErrorTypeInfo other = (ErrorTypeInfo) obj;
+		return Objects.equals(errorType, other.errorType) && occurence == other.occurence;
+	}
+
 	public String getErrorType() {
 		return errorType;
 	}
