@@ -49,7 +49,7 @@ public abstract class AbstractConfigTest {
 		listener.setPct1(50);
 		listener.setPct2(90);
 		listener.setPct3(95);
-		listener.setThreadSize(5);
+		listener.setThreadSize(1);
 		listener.setBufferCapacity(30000);
 		listener.setMicrometerExpiryTimeInSeconds("3600");
 		listener.setLogFreq(LOG_FREQUENCY);
@@ -60,8 +60,8 @@ public abstract class AbstractConfigTest {
 	}
 	
 	@AfterEach
-	public void tearDown() throws Exception {
-        listener.testEnded(HOST);
+	public void tearDown() {
+		listener.testEnded(HOST);
 	}
 	
 	/**
