@@ -283,19 +283,23 @@ public class ULPObservabilityListener extends AbstractTestElement
 				}
 					
 				if(isStringMatchingRegex(sampleLabel)) {
-					if (!listenerClientData.sampleQueue.offer(new ResponseResult(sampleEvent.getThreadGroup(),
-							Util.getResponseTime(sample.getEndTime(), sample.getStartTime()), hasError, errorCode,
-							sample.getGroupThreads(), sample.getAllThreads(), sample.getSampleLabel(), sample.getStartTime(),
-							sample.getEndTime()), 1000, TimeUnit.MILLISECONDS)) {
-						LOG.error("Sample queue overflow. Sample dropped: {}", sampleEvent.getThreadGroup());
+					ResponseResult responseResult = new ResponseResult(sampleEvent.getThreadGroup(),
+								Util.getResponseTime(sample.getEndTime(), sample.getStartTime()), hasError, errorCode,
+								sample.getGroupThreads(), sample.getAllThreads(), sample.getSampleLabel(), sample.getStartTime(),
+								sample.getEndTime());
+					if (!listenerClientData.sampleQueue.offer(responseResult)) { 
+						LOG.warn("Sample queue overflow. The currens size of the queue is {}.", listenerClientData.sampleQueue.size());
+						// if the queue is full, should try to insert the element until the space is available
+						listenerClientData.sampleQueue.put(responseResult);							
 					}
-				}
-				
-			} catch (InterruptedException e) {
-				LOG.warn("Thread interrupted while adding sample `" + sampleEvent.getResult().getThreadName() + "` to the queue. Data associated with the sample are not recorded.");
+				}	
+			} catch (Exception e) {
+				LOG.warn("Thread interrupted while adding sample `" + sampleEvent.getResult().getSampleLabel(true) + "` to the queue."
+						+ " Sample not added to queue.");
 			}
 		}
 	}
+	
 	
 	private boolean isStringMatchingRegex(String str) {
 		try {
