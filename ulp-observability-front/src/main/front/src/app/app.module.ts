@@ -16,6 +16,7 @@ import { MatTableModule } from '@angular/material/table';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MatInputModule} from '@angular/material/input'
+import { MatSortModule } from '@angular/material/sort';
 
 import { UlpObservabilityMetricsComponent } from './components/ulp-observability-metrics/ulp-observability-metrics.component';
 import { UlpObservabilityStatisticsComponent } from './components/ulp-observability-statistics/ulp-observability-statistics.component';
@@ -32,6 +33,7 @@ const materialModules = [
   MatAutocompleteModule,
   ReactiveFormsModule,
   MatInputModule,
+  MatSortModule
 ];
 
 @NgModule({

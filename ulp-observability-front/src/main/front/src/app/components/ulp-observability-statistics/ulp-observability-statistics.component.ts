@@ -1,4 +1,5 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
 import { DatasetGroup, Datasets } from 'src/app/model/chart-data';
@@ -26,24 +27,42 @@ interface KeyAndLabel {
   styleUrls: ['./ulp-observability-statistics.component.css']
 })
 
-export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit {
+export class UlpObservabilityStatisticsComponent implements OnChanges,OnInit, AfterViewInit {
 
   @Input() datasets : Datasets = {};
   @Input() threads : DatasetGroup = {};
   
+  @ViewChild(MatSort) sort!: MatSort;
+
   dataSource!: MatTableDataSource<StatList>;
   statLine !: Array<StatList>;
   columnsToDisplay !: Array<KeyAndLabel>;
   columnsKeys !: Array<string>;
   
-  constructor(private translate: TranslateService) { }
+  constructor(private translate: TranslateService) { 
+    this.dataSource = new MatTableDataSource(this.statLine);
+  }
 
   ngOnInit(): void {
-    this.dataSource = new MatTableDataSource(this.statLine)
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     this.refreshStats();
+    this.setSortingTable(); 
+  }
+
+  ngAfterViewInit(): void {
+    this.setSortingTable();
+  }
+
+
+  setSortingTable() {
+    this.dataSource = new MatTableDataSource(this.statLine);
+    this.sort.disableClear = true;
+    this.dataSource.sort = this.sort;
+    this.dataSource.sortingDataAccessor = (item, property) => { 
+      return item[property].data.value;
+    } 
   }
   
   /**
