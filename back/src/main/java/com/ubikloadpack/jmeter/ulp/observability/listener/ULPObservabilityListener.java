@@ -283,16 +283,22 @@ public class ULPObservabilityListener extends AbstractTestElement
 				}
 					
 				if(isStringMatchingRegex(sampleLabel)) {
-					if (!listenerClientData.sampleQueue.offer(new ResponseResult(sampleEvent.getThreadGroup(),
+					ResponseResult responseResult = new ResponseResult(sampleEvent.getThreadGroup(),
 							Util.getResponseTime(sample.getEndTime(), sample.getStartTime()), hasError, errorCode,
 							sample.getGroupThreads(), sample.getAllThreads(), sample.getSampleLabel(), sample.getStartTime(),
-							sample.getEndTime()), 1000, TimeUnit.MILLISECONDS)) {
-						LOG.error("Sample queue overflow. Sample dropped: {}", sampleEvent.getThreadGroup());
+							sample.getEndTime());
+					if (!listenerClientData.sampleQueue.offer(responseResult)) { 
+						LOG.warn("Sample queue overflow. The current size of the queue is {}.", listenerClientData.sampleQueue.size());
+						// if the queue is full, should try to insert the element until the space is available
+						long t1 = System.nanoTime();
+						listenerClientData.sampleQueue.put(responseResult);
+						LOG.warn("Waited {} nanos to put ResponseResult in queue, you may need to increase size of the queue", System.nanoTime()-t1);
 					}
 				}
 				
-			} catch (InterruptedException e) {
-				LOG.warn("Thread interrupted while adding sample `" + sampleEvent.getResult().getThreadName() + "` to the queue. Data associated with the sample are not recorded.");
+			}  catch (Exception e) {
+				LOG.warn("Thread interrupted while adding sample '{}' to the queue. Sample not added to queue.",
+				        sampleEvent.getResult().getSampleLabel(true));
 			}
 		}
 	}
