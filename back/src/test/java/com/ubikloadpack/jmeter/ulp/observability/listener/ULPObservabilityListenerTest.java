@@ -14,7 +14,7 @@ import com.ubikloadpack.jmeter.ulp.observability.server.AbstractConfigTest;
 public class ULPObservabilityListenerTest extends AbstractConfigTest {	
 
 	@Test
-	@DisplayName("When a sample event occurs and the current thread is interrupted, expect the sample result is added to the queue")
+	@DisplayName("When a sample event occurs and the current thread is interrupted, expect the sample result to be added to the queue")
 	void whenASampleEventOccursAndTheCurrentThreadIsInterruptedExpectTheSampleResultIsAddedToTheQueue() throws InterruptedException {		
 	    SampleResult sampleResult = mock(SampleResult.class);
 	    when(sampleResult.getSampleLabel()).thenReturn("sampleTest");
